@@ -1,22 +1,21 @@
 const { hairlineWidth } = require('nativewind/theme');
- 
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  // content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   content: [
     "./app/**/*.{js,jsx,ts,tsx}",
-    "./components/**/*.{js,jsx,ts,tsx}" // <- Esta linha é crucial!
+    "./components/**/*.{js,jsx,ts,tsx}" 
   ],
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
       fontFamily: {
-        // Mapeando o nome que usaremos no Tailwind para a fonte que será carregada
         outfit: ["Outfit_400Regular"],
         "outfit-bold": ["Outfit_700Bold"],
       },
       colors: {
+        /* ----- CORES PADRÃO DO REUSABLES (NÃO MEXER) ----- */
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -50,6 +49,21 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        /* -----  CORES DO FIGMA PLUVIA ----- */
+        // Usamos var() direto pois os hexadecimais estarão no global.css
+        medio: 'var(--bg-medio)', // Background médio
+        leve: 'var(--bg-leve)', // Background leve
+        texto: 'var(--texto)',
+        subtexto: 'var(--subtexto)',
+        'primaria-azul': 'var(--primaria-azul)',
+        'secundaria-azul': 'var(--secundaria-azul)',
+        'primaria-verde': 'var(--primaria-verde)',
+        'secundaria-verde': 'var(--secundaria-verde)',
+        'acentuacao-1': 'var(--acentuacao-1)',
+        'acentuacao-2': 'var(--acentuacao-2)',
+        correto: 'var(--correto)',
+        incorreto: 'var(--incorreto)',
+        borda: 'var(--borda)',
       },
       borderRadius: {
         lg: 'var(--radius)',

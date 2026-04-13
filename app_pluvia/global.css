@@ -4,6 +4,32 @@
  
 @layer base {
   :root {
+     /* * Cores do Figma */
+
+     /* Cores de Fundo */
+    --bg: hsl(0, 0%, 97%);
+    --bg-medio: hsl(225, 4%, 85%);
+    --bg-leve: hsl(220, 6%, 80%);
+
+    /* Textos */
+    --texto: hsl(0, 0%, 5%);
+    --subtexto: hsl(0, 0%, 40%);
+
+    /* Primárias e Secundárias */
+    --primaria-azul: hsl(182, 100%, 33%);
+    --secundaria-azul: hsl(182, 100%, 18%);
+    --primaria-verde: hsl(144, 88%, 34%);
+    --secundaria-verde: hsl(166, 85%, 21%);
+
+    /* Acentuação (Laranjas/Marrons) */
+    --acentuacao-1: hsl(29, 100%, 50%);
+    --acentuacao-2: hsl(17, 60%, 42%);
+
+    /* Feedbacks e Linhas */
+    --correto: hsl(145, 63%, 49%);
+    --incorreto: hsl(6, 100%, 41%);
+    --borda: hsl(0, 0%, 30%);
+
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;

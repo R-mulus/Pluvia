@@ -1,37 +1,31 @@
 import "../global.css";
 import { useEffect } from "react";
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts, Outfit_400Regular, Outfit_700Bold } from "@expo-google-fonts/outfit";
 import { PortalHost } from "@rn-primitives/portal";
 
-// Impede que a tela de splash suma automaticamente
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [fontsLoaded, error] = useFonts({
-    Outfit_400Regular,
-    Outfit_700Bold,
-  });
+  const [fontsLoaded, error] = useFonts({ Outfit_400Regular, Outfit_700Bold });
 
   useEffect(() => {
     if (error) throw error;
-    
-    if (fontsLoaded) {
-      // Assim que a fonte carregar, escondemos a tela de splash
-      SplashScreen.hideAsync();
-    }
+    if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded, error]);
 
-  // Se as fontes não carregaram, não renderiza nada do app ainda
-  if (!fontsLoaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
     <>
-      <Slot />
-      {/* <Stack /> */}
+      {/* O Stack diz: "Aqui dentro vão carregar as rotas. Não mostre o cabeçalho padrão." */}
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Aqui nós avisamos que o grupo (tabs) existe */}
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+      
+      {/* O PortalHost garante que os modais e selects fiquem por cima de tudo */}
       <PortalHost />
     </>
   );
