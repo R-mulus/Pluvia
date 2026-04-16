@@ -2,13 +2,13 @@ import "../global.css";
 import { useEffect } from "react";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useFonts, Outfit_400Regular, Outfit_700Bold } from "@expo-google-fonts/outfit";
+import { useFonts, Outfit_400Regular, Outfit_500Medium, Outfit_700Bold } from "@expo-google-fonts/outfit";
 import { PortalHost } from "@rn-primitives/portal";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [fontsLoaded, error] = useFonts({ Outfit_400Regular, Outfit_700Bold });
+  const [fontsLoaded, error] = useFonts({ Outfit_400Regular, Outfit_500Medium, Outfit_700Bold });
 
   useEffect(() => {
     if (error) throw error;

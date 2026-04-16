@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Droplet, ChartPie, TableProperties, ChartColumnIncreasing, House } from "lucide-react-native"; // Ícones de exemplo
+import { ChartPie, TableProperties, ChartColumnIncreasing, House } from "lucide-react-native"; // Ícones de exemplo
 
 export default function TabsLayout() {
   return (

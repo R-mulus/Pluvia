@@ -1,33 +1,92 @@
-// ! CÓDIGO DE EXEMPLO
-import { View } from "react-native";
+import { View, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle2Icon } from 'lucide-react-native';
+import { Input } from "@/components/ui/input";
+import { User, Lock } from "lucide-react-native";
 
 export default function Login() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 items-center justify-center bg-background gap-6 p-4">
-      <Text className="text-3xl font-outfit-bold text-primary">Pluvia</Text>
-      <Text className="text-muted-foreground text-center">
-        (Aqui vai entrar o formulário de login com Zod depois)
-      </Text>
+    <View className="flex-1 bg-background">
+      {/* 1. Imagem de Fundo Absoluta */}
+      <Image
+        source={require("../../assets/images/background_p.jpg")}
+        contentFit="cover"
+        transition={1000}
+        className="absolute" // Mantém o absolute do Tailwind
+        style={StyleSheet.absoluteFillObject} // Força o Android a esticar a imagem
+      />
 
-      <Alert icon={CheckCircle2Icon}>
-        <AlertTitle>Success! Your changes have been saved</AlertTitle>
-        <AlertDescription>This is an alert with icon, title and description.</AlertDescription>
-      </Alert>
+      {/* 2. Overlay escuro opcional (para dar leitura aos inputs se a foto for clara) */}
+      {/* <View className="absolute w-full h-full bg-black/20" /> */}
 
-      {/* Botão de Teste para pular o login */}
-      <Button 
-        className="w-full h-14" 
-        onPress={() => router.replace("/(tabs)/pivos")}
+      {/* 3. Conteúdo da Tela */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        className="flex-1 p-4 gap-6 mt-10 pt-10"
       >
-        <Text>Entrar (Modo Teste)</Text>
-      </Button>
+
+        {/* Logo */}
+        <View className="items-center">
+          <Image
+            source={require("../../assets/images/logo.png")}
+            contentFit="contain"
+            style={{ width: 150, height: 60 }}
+          />
+        </View>
+
+        {/* Card de Login */}
+        {/* <View className="w-[90%] p-6 gap-4 shadow-2xl"> */}
+        <View className="w-full p-6 gap-8">
+          {/* Container de campos de input */}
+          <View className="gap-3">
+            <Text className="text-base font-outfit-medium text-texto text-start">
+              Faça seu Login
+            </Text>
+            {/* Campo de Usuário */}
+            <View className="flex-row items-center border- border-borda bg-white rounded-xl overflow-hidden h-10">
+              {/* Ícone */}
+              <View className="bg-secundaria-azul w-12 h-full items-center justify-center rounded-br-lg">
+                <User size={24} color="white" />
+              </View>
+              <Input
+                placeholder="Usuário"
+                className="flex-1 border-0 h-full px-4 bg-white"
+              />
+            </View>
+
+            {/* Campo de Senha */}
+            <View className="flex-row items-center border- border-borda bg-white rounded-xl overflow-hidden h-10">
+              {/* ícone */}
+              <View className="bg-secundaria-azul w-12 h-full items-center justify-center">
+                <Lock size={24} color="white" />
+              </View>
+              <Input
+                placeholder="Senha"
+                secureTextEntry
+                className="flex-1 border-0 h-full px-4 bg-white"
+              />
+            </View>
+          </View>
+
+          {/* Botão e "Esqueci minha senha" */}
+          <View className="gap-3">
+            <Button
+              className="bg-primaria-azul h-10 rounded-tl-none rounded-br-none rounded-bl-[10] rounded-tr-[10] text-bg"
+              onPress={() => router.replace("/(tabs)/pivos")}
+            >
+              <Text className="font-outfit">Entrar</Text>
+            </Button>
+
+            <Text className="text-subtexto text-center text-sm">
+              Esqueci minha senha
+            </Text>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
