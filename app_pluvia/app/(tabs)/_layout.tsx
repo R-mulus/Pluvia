@@ -1,12 +1,12 @@
 import { Tabs } from "expo-router";
-import { ChartPie, TableProperties, ChartColumnIncreasing, House } from "lucide-react-native"; // Ícones de exemplo
+import { ChartPie, TableProperties, ChartColumnIncreasing, House } from "lucide-react-native";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false, // Esconde o cabeçalho padrão do celular
-        tabBarActiveTintColor: "#08654F", // A cor primária do Pluvia quando clicado
+        tabBarActiveTintColor: "#08654F", // A cor secundária verde quando clicado
         tabBarInactiveTintColor: "#666666", // Preto quando inativo
         tabBarLabelPosition: "below-icon",
         tabBarStyle: {
@@ -17,13 +17,11 @@ export default function TabsLayout() {
           paddingBottom: 8,
         },
         tabBarLabelStyle: {
-          fontFamily: "Outfit_400Regular",
+          fontFamily: "Outfit_700Bold",
           fontSize: 12,
-          fontWeight: "bold"
         }
       }}
     >
-      {/* Rota 1: aponta para o arquivo pivos.tsx */}
       <Tabs.Screen
         name="pivos"
         options={{
@@ -32,7 +30,6 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* Rota 2 (Para administradores): aponta para o arquivo menu */}
       <Tabs.Screen
         name="menu"
         options={{
@@ -41,7 +38,6 @@ export default function TabsLayout() {
         }}
       />
       
-      {/* Rota 3: aponta para o arquivo analise.tsx */}
       <Tabs.Screen
         name="analise"
         options={{

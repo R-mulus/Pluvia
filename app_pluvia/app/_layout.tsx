@@ -17,6 +17,8 @@ export default function RootLayout() {
 
   if (!fontsLoaded) return null;
 
+  
+
   return (
     <>
       {/* O Stack diz: "Aqui dentro vão carregar as rotas. Não mostre o cabeçalho padrão." */}

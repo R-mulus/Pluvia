@@ -1,12 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
-     /* * Cores do Figma */
+    /* * Cores do Figma */
 
-     /* Cores de Fundo */
+    /* Cores de Fundo */
     --bg: hsl(0, 0%, 97%);
     --bg-medio: hsl(225, 4%, 85%);
     --bg-leve: hsl(220, 6%, 80%);
@@ -23,7 +23,8 @@
 
     /* Acentuação (Laranjas/Marrons) */
     --acentuacao-1: hsl(29, 100%, 50%);
-    --acentuacao-2: hsl(17, 60%, 42%);
+    --acentuacao-2: hsl(21, 57%, 29%);
+    /* --acentuacao-2: hsl(17, 60%, 42%); */
 
     /* Feedbacks e Linhas */
     --correto: hsl(145, 63%, 49%);
@@ -55,8 +56,9 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
- 
-  .dark:root {
+
+  /* * Pra se certificar que o tema escuro não será aplicado */
+  /* .dark:root {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -80,5 +82,12 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+  } */
+
+  /* * CLASSES GLOBAIS */
+  @layer utilities {
+    .rounded-pluvia {
+      @apply rounded-bl-[8px] rounded-tr-[8px];
+    }
   }
 }

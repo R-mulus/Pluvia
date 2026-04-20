@@ -11,25 +11,22 @@ export default function Login() {
 
   return (
     <View className="flex-1 bg-background">
-      {/* 1. Imagem de Fundo Absoluta */}
+      {/* // * Imagem de Fundo Absoluta */}
       <Image
         source={require("../../assets/images/background_p.jpg")}
         contentFit="cover"
-        transition={1000}
-        className="absolute" // Mantém o absolute do Tailwind
+        transition={250}
+        className="absolute"
         style={StyleSheet.absoluteFillObject} // Força o Android a esticar a imagem
       />
 
-      {/* 2. Overlay escuro opcional (para dar leitura aos inputs se a foto for clara) */}
-      {/* <View className="absolute w-full h-full bg-black/20" /> */}
-
-      {/* 3. Conteúdo da Tela */}
+      {/* // * Conteúdo da Tela */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1 p-4 gap-6 mt-10 pt-10"
       >
 
-        {/* Logo */}
+        {/* // * Logo */}
         <View className="items-center">
           <Image
             source={require("../../assets/images/logo.png")}
@@ -38,8 +35,7 @@ export default function Login() {
           />
         </View>
 
-        {/* Card de Login */}
-        {/* <View className="w-[90%] p-6 gap-4 shadow-2xl"> */}
+        {/* // * Container de Login */}
         <View className="w-full p-6 gap-8">
           {/* Container de campos de input */}
           <View className="gap-3">
@@ -50,7 +46,7 @@ export default function Login() {
             <View className="flex-row items-center border- border-borda bg-white rounded-xl overflow-hidden h-10">
               {/* Ícone */}
               <View className="bg-secundaria-azul w-12 h-full items-center justify-center rounded-br-lg">
-                <User size={24} color="white" />
+                <User size={24} color="white" strokeWidth={2.5}/>
               </View>
               <Input
                 placeholder="Usuário"
@@ -62,7 +58,7 @@ export default function Login() {
             <View className="flex-row items-center border- border-borda bg-white rounded-xl overflow-hidden h-10">
               {/* ícone */}
               <View className="bg-secundaria-azul w-12 h-full items-center justify-center">
-                <Lock size={24} color="white" />
+                <Lock size={24} color="white" strokeWidth={2.5}/>
               </View>
               <Input
                 placeholder="Senha"
@@ -72,7 +68,7 @@ export default function Login() {
             </View>
           </View>
 
-          {/* Botão e "Esqueci minha senha" */}
+          {/* // * Botão de "Entrar" e "Esqueci minha senha" */}
           <View className="gap-3">
             <Button
               className="bg-primaria-azul h-10 rounded-tl-none rounded-br-none rounded-bl-[10] rounded-tr-[10] text-bg"

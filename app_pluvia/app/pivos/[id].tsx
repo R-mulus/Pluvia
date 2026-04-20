@@ -12,10 +12,10 @@ export default function VisualizacaoPivo() {
 
   return (
     <View className="flex-1 items-center justify-center bg-background">
-      <Text className="text-2xl font-outfit-bold">
+      <Text className="text-2xl font-outfit-bold text-center">
         Você abriu o Pivô número: {id}
       </Text>
-      {/* Aqui entraria o seu SVG do Radar passando os dados desse ID específico */}
+      {/* Aqui entraria o SVG do Radar passando os dados desse ID específico */}
     </View>
   );
 }
