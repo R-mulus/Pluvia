@@ -157,7 +157,7 @@ export default function ListaDePivos() {
         className="flex-1"
         data={pivos}
         // injetando os dados no Card
-        renderItem={({ item }) => <PivotCard waterOn={false}/>}
+        renderItem={({ item }) => <PivotCard waterOn/>}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />

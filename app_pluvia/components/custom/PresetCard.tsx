@@ -16,7 +16,7 @@ import {
 export default function PresetCard() {
   return (
     // Container Principal em Row (Divide conteúdo principal e barra lateral)
-    <View className="flex-row bg-white rounded-[20px] border-[2px] border-[#cacaca] overflow-hidden mb-4">
+    <View className="flex-row bg-white rounded-[12px] border-[2px] border-[#cacaca] overflow-hidden">
 
       {/* 1. ÁREA ESQUERDA (Cabeçalho + Grid) - flex-1 empurra a barra para a direita */}
       <View className="flex-1">
@@ -26,7 +26,7 @@ export default function PresetCard() {
           
           {/* Aba do Título (Com o corte arredondado) */}
           <View className="bg-primaria-azul px-4 py-2 justify-center rounded-br-[16px] z-10 flex-wrap">
-            <Text className="text-white font-outfit-medium text-wrap leading-tight w-[80px]">
+            <Text className="text-white text-sm font-outfit-medium text-wrap leading-tight w-[80px]">
               Giro Duplo Carpado
             </Text>
           </View>
@@ -35,11 +35,11 @@ export default function PresetCard() {
           <View className="flex-1 flex-row items-center justify-start pl-4 pr-4 gap-2">
             <View className="flex-row items-center gap-1">
               <RefreshCw size={18} color="white" strokeWidth={2.5} />
-              <Text className="text-white">Horário</Text>
+              <Text className="text-white text-sm">Horário</Text>
             </View>
             <View className="flex-row items-center gap-1">
               <Droplet size={18} color="white" strokeWidth={2.5} />
-              <Text className="text-white">Irrigando</Text>
+              <Text className="text-white text-sm">Irrigando</Text>
             </View>
           </View>
 
@@ -53,14 +53,14 @@ export default function PresetCard() {
             <View className="flex-row items-center">
               <RotateCw size={24} color="#0D0D0D" strokeWidth={2.5} />
               <Text className="text-sm ml-2 text-texto font-outfit">
-                <Text className="font-outfit-bold">Volta Completa</Text>
+                <Text className="font-outfit-bold text-sm">Volta Completa</Text>
               </Text>
             </View>
             
             <View className="flex-row items-center">
               <Clock size={24} color="#0D0D0D" strokeWidth={2.5} />
               <Text className="text-sm ml-2 text-texto font-outfit">
-                Duração: <Text className="font-outfit-bold">3 h 30 min</Text>
+                Duração: <Text className="font-outfit-bold text-sm">3 h 30 min</Text>
               </Text>
             </View>
           </View>
@@ -70,14 +70,14 @@ export default function PresetCard() {
             <View className="flex-row items-center">
               <UndoDot size={24} color="#0D0D0D" strokeWidth={2.5} />
               <Text className="text-sm ml-2 text-texto font-outfit">
-                Inicio: <Text className="font-outfit-bold">195°</Text>
+                Inicio: <Text className="font-outfit-bold text-sm">195°</Text>
               </Text>
             </View>
             
             <View className="flex-row items-center">
               <Undo size={24} color="#0D0D0D" strokeWidth={2.5} />
               <Text className="text-sm ml-2 text-texto font-outfit">
-                Final: <Text className="font-outfit-bold">195°</Text>
+                Final: <Text className="font-outfit-bold text-sm">195°</Text>
               </Text>
             </View>
           </View>
