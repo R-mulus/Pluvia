@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { ChartPie, TableProperties, ChartColumnIncreasing, House } from "lucide-react-native";
+import { TableProperties, ChartColumnIncreasing, House } from "lucide-react-native";
 
 export default function TabsLayout() {
   return (

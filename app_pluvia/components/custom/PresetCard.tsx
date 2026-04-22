@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
+import { useRouter } from 'expo-router';
 import {
   RotateCw,
   Clock,
@@ -14,9 +15,11 @@ import {
 } from 'lucide-react-native';
 
 export default function PresetCard() {
+  const router = useRouter();
+
   return (
     // Container Principal em Row (Divide conteúdo principal e barra lateral)
-    <View className="flex-row bg-white rounded-[12px] border-[2px] border-[#cacaca] overflow-hidden">
+    <Pressable className="flex-row bg-white rounded-[12px] border-[2px] border-[#cacaca] overflow-hidden" onPress={() => router.push(`/(tabs)/pivos/editPreset`)}>
 
       {/* 1. ÁREA ESQUERDA (Cabeçalho + Grid) - flex-1 empurra a barra para a direita */}
       <View className="flex-1">
@@ -101,6 +104,6 @@ export default function PresetCard() {
         
       </View>
 
-    </View>
+    </Pressable>
   );
 }

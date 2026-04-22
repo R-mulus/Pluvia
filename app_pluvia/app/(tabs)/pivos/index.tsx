@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import type { TriggerRef } from "@rn-primitives/select";
 import Header from "@/components/custom/Header";
+import { Screen } from "@/components/custom/Screen";
 
 const fazendas = [
   { id: 1, label: "Fazenda 1", value: "fazenda_1" },
@@ -41,6 +42,7 @@ const fazendas = [
 export default function ListaDePivos() {
   const ref = React.useRef<TriggerRef>(null);
   const [open, setOpen] = useState(false); // Estado para controlar a abertura do Select
+  
   const insets = useSafeAreaInsets();
   const contentInsets = {
     top: insets.top,
@@ -68,9 +70,10 @@ export default function ListaDePivos() {
   ]);
 
   return (
-    <View className="flex-1 justify-center bg-bg gap-2 px-4 py-6 overflow-scroll">
+    <Screen className="justify-center gap-2 overflow-scroll">
       <Text className="text-2xl font-outfit-bold text-foreground">Pivôs</Text>
 
+      {/* // * Cabeçalho */}
       <View className="flex-row justify-between items-center">
         <Header title="Pivôs" subtitle="AXC23KJ09P" />
 
@@ -157,7 +160,7 @@ export default function ListaDePivos() {
         className="flex-1"
         data={pivos}
         // injetando os dados no Card
-        renderItem={({ item }) => <PivotCard waterOn/>}
+        renderItem={({ item }) => <PivotCard waterOn />}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
@@ -172,7 +175,7 @@ export default function ListaDePivos() {
       </Button>
       <Button
         className="w-full"
-        onPress={() => router.replace("/(tabs)/analise")}
+        onPress={() => router.replace("/(tabs)/analises")}
       >
         <Text>Ir para Análise</Text>
       </Button>
@@ -183,6 +186,12 @@ export default function ListaDePivos() {
       >
         <Text>Ir para Presets</Text>
       </Button>
-    </View>
+      <Button
+        className="w-full"
+        onPress={() => router.replace("/pivos/addPreset")}
+      >
+        <Text>Ir para Adicionar Preset</Text>
+      </Button>
+    </Screen>
   );
 }

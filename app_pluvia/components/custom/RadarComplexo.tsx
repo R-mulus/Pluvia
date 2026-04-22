@@ -142,7 +142,7 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
           return (
             <SvgText
               key={`label-${label.degrees}`}
-              x={point.x + 2} // O +2 que você adicionou para ajuste óptico
+              x={point.x + 2}
               y={point.y}
               fill={COLORS.branco}
               fontSize="10"
@@ -167,7 +167,7 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
         <Circle cx={labelPos.x} cy={labelPos.y} r="12" fill={COLORS.branco} stroke={COLORS.texto} strokeWidth="0.3" />
         <SvgText
           x={labelPos.x}
-          y={labelPos.y}
+          y={labelPos.y +1}
           fill={COLORS.texto}
           fontSize="8"
           fontFamily="Outfit_700Bold"

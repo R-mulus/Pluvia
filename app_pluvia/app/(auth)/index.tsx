@@ -43,19 +43,19 @@ export default function Login() {
               Faça seu Login
             </Text>
             {/* Campo de Usuário */}
-            <View className="flex-row items-center border- border-borda bg-white rounded-xl overflow-hidden h-10">
+            <View className="flex-row items-center border-[2px] border-[#B8B8B8] bg-white rounded-xl overflow-hidden h-10">
               {/* Ícone */}
               <View className="bg-secundaria-azul w-12 h-full items-center justify-center rounded-br-lg">
                 <User size={24} color="white" strokeWidth={2.5}/>
               </View>
               <Input
                 placeholder="Usuário"
-                className="flex-1 border-0 h-full px-4 bg-white"
+                className="border-0 h-full px-4 bg-white"
               />
             </View>
 
             {/* Campo de Senha */}
-            <View className="flex-row items-center border- border-borda bg-white rounded-xl overflow-hidden h-10">
+            <View className="flex-row items-center border-[2px] border-[#B8B8B8] bg-white rounded-xl overflow-hidden h-10">
               {/* ícone */}
               <View className="bg-secundaria-azul w-12 h-full items-center justify-center">
                 <Lock size={24} color="white" strokeWidth={2.5}/>
@@ -63,7 +63,7 @@ export default function Login() {
               <Input
                 placeholder="Senha"
                 secureTextEntry
-                className="flex-1 border-0 h-full px-4 bg-white"
+                className="border-0 h-full px-4 bg-white"
               />
             </View>
           </View>

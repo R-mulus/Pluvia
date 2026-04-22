@@ -9,11 +9,11 @@ function Switch({
   return (
     <SwitchPrimitives.Root
       className={cn(
-        'flex h-[1.15rem] w-8 shrink-0 flex-row items-center rounded-full border border-transparent shadow-sm shadow-black/5',
+        'flex h-[1.15rem] shrink-0 flex-row py-3 w-12 items-center rounded-full border-[2px] border-[#9A9A9A] shadow-sm shadow-black/5 bg-white',
         Platform.select({
           web: 'focus-visible:border-ring focus-visible:ring-ring/50 peer inline-flex outline-none transition-all focus-visible:ring-[3px] disabled:cursor-not-allowed',
         }),
-        props.checked ? 'bg-primary' : 'bg-input dark:bg-input/80',
+        props.checked ? 'bg-primaria-azul' : 'bg-white',
         props.disabled && 'opacity-50',
         className
       )}
@@ -25,8 +25,8 @@ function Switch({
             web: 'pointer-events-none block ring-0',
           }),
           props.checked
-            ? 'dark:bg-primary-foreground translate-x-3.5'
-            : 'dark:bg-foreground translate-x-0'
+            ? 'bg-white translate-x-6'
+            : 'bg-[#9A9A9A] translate-x-1'
         )}
       />
     </SwitchPrimitives.Root>

@@ -56,7 +56,7 @@ export default function PivotCard({
   return (
     <Pressable
       className="bg-white rounded-[12px] border-[#cacaca] border-[2px] overflow-hidden mb-4 gap-3 max-w-full active:opacity-70"
-      onPress={() => router.push(`/pivos/${id}`)}
+      onPress={() => router.push(`/(tabs)/pivos/[id]`)}
     >
       {/* LINHA DO CABEÇALHO */}
       <View className="flex-row justify-between">

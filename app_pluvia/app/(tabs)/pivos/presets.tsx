@@ -1,4 +1,3 @@
-// ! CÓDIGO DE EXEMPLO
 import { useState } from "react";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";

@@ -27,8 +27,7 @@
     /* --acentuacao-2: hsl(17, 60%, 42%); */
 
     /* Feedbacks e Linhas */
-    --correto: hsl(145, 63%, 49%);
-    --incorreto: hsl(6, 100%, 41%);
+    --incorreto: hsl(359, 58%, 42%);
     --borda: hsl(0, 0%, 30%);
 
     --background: 0 0% 100%;

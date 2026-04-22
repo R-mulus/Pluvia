@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useRouter, type Href } from "expo-router";
 
-export default function CadastrarUsuario() {
+export default function CadastrarPivo() {
   const router = useRouter();
 
   return (
     <View className="flex-1 items-center justify-center bg-background gap-6 p-4">
       <Text className="text-3xl font-outfit-bold text-primary">Pluvia</Text>
       <Text className="text-muted-foreground text-center">
-        Cadastrar Usuário
+        Cadastrar Pivô
       </Text>
 
       {/* Botão de Teste para fazer Logout */}
@@ -24,15 +24,15 @@ export default function CadastrarUsuario() {
       </Button>
       <Button
         className="w-full"
-        onPress={() => router.replace("/menu/fazenda")}
+        onPress={() => router.replace("/menu/addFazenda")}
       >
         <Text>Ir para Cadastrar Fazenda</Text>
       </Button>
       <Button
         className="w-full"
-        onPress={() => router.replace("/menu/pivo")}
+        onPress={() => router.replace("/menu/addUsuario")}
       >
-        <Text>Ir para Cadastrar Pivô</Text>
+        <Text>Ir para Cadastrar Usuário</Text>
       </Button>
     </View>
   );

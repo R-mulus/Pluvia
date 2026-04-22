@@ -74,7 +74,7 @@ function ToggleGroupItem({
             size: context.size || size,
           }),
           props.disabled && 'opacity-50',
-          ToggleGroupPrimitive.utils.getIsSelected(value, props.value) && 'bg-accent',
+          ToggleGroupPrimitive.utils.getIsSelected(value, props.value) && 'bg-primaria-azul',
           'min-w-0 shrink-0 rounded-none shadow-none',
           isFirst && 'rounded-l-md',
           isLast && 'rounded-r-md',
@@ -94,7 +94,7 @@ function ToggleGroupItem({
 
 function ToggleGroupIcon({ className, ...props }: React.ComponentProps<typeof Icon>) {
   const textClass = React.useContext(TextClassContext);
-  return <Icon className={cn('size-4 shrink-0', textClass, className)} {...props} />;
+  return <Icon className={cn('size-6 shrink-0', textClass, className)} {...props} />;
 }
 
 export { ToggleGroup, ToggleGroupIcon, ToggleGroupItem };

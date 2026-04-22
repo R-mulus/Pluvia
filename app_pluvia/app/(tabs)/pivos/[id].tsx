@@ -21,7 +21,6 @@ import {
   Layers,
   SquarePen,
 } from "lucide-react-native";
-// Importando o radar que construímos anteriormente
 import RadarComplexo from "@/components/custom/RadarComplexo";
 
 import Header from "@/components/custom/Header";
@@ -32,7 +31,7 @@ import PresetCard from "@/components/custom/PresetCard";
 function TopoDaTela() {
   return (
     <View className="flex-1 bg-white px-5 pt-10 pb-4">
-      {/* --- SEU CABEÇALHO (Otimizado) --- */}
+      {/* // * Cabeçalho */}
       <View className="self-stretch flex-row mb-4">
         <View className="flex-1 flex-row justify-between items-center">
           <View className="flex-row gap-2 items-center">
@@ -101,10 +100,10 @@ function TopoDaTela() {
         </View>
       </View>
 
-      <Separator className="my-5 bg-black" decorative />
+      <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- GRID DE MÉTRICAS --- */}
-      <View className="flex-row flex-wrap justify-between px-2 gap-y-4">
+      <View className="flex-row flex-wrap self-stretch justify-between gap-y-4">
         <View className="w-[48%] flex-row items-center gap-2">
           <Gauge size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
@@ -131,7 +130,7 @@ function TopoDaTela() {
         </View>
       </View>
 
-      <Separator className="my-5 bg-black" decorative />
+      <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- RESUMO DE VOLTAS E DURAÇÃO --- */}
       <View className="gap-y-3 px-2">
@@ -156,7 +155,7 @@ function TopoDaTela() {
         </View>
       </View>
 
-      <Separator className="my-5 bg-black" decorative />
+      <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- GRID DE MÉTRICAS DE SINAL --- */}
       <View className="flex-row flex-wrap justify-between px-2 gap-y-4">
@@ -188,7 +187,7 @@ function TopoDaTela() {
         </View>
       </View>
 
-      <Separator className="my-5 bg-black" decorative />
+      <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- CRONOGRAMA --- */}
       <View className="gap-y-3">
@@ -242,7 +241,7 @@ export default function VisualizacaoPivo() {
         renderItem={() => null}
         // Placeholder da tabela (Renderizado quando o data = [])
         ListEmptyComponent={
-          <View className="mx-5 py-10 bg-gray-100 rounded-xl border border-dashed border-gray-400 items-center justify-center">
+          <View className="mx-5 py-10 px-5 bg-gray-100 rounded-xl border border-dashed border-gray-400 items-center justify-center">
             <Text className="text-gray-500 font-outfit-medium text-center">
               [ Placeholder da Tabela de Cronogramas e Programações ]
             </Text>

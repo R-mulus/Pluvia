@@ -115,7 +115,7 @@ function SelectContent({
             >
               <SelectPrimitive.Content
                 className={cn(
-                  "bg-popover border-border relative z-50 min-w-[8rem] rounded-md border shadow-md shadow-black/5",
+                  "bg-popover border-border relative z-50 w-auto rounded-md border shadow-md shadow-black/5",
                   Platform.select({
                     web: cn(
                       "animate-in fade-in-0 zoom-in-95 origin-(--radix-select-content-transform-origin) max-h-52 overflow-y-auto overflow-x-hidden",
