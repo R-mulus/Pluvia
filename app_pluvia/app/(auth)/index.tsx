@@ -1,4 +1,10 @@
-import { View, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import {
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Image } from "expo-image";
@@ -11,25 +17,24 @@ export default function Login() {
 
   return (
     <View className="flex-1 bg-background">
-      {/* // * Imagem de Fundo Absoluta */}
+      {/* // * Imagem de Fundo */}
       <Image
-        source={require("../../assets/images/background_p.jpg")}
+        source={require("../../assets/images/background_p.jpg")} // O caminho deve ser absoluto
         contentFit="cover"
         transition={250}
         className="absolute"
         style={StyleSheet.absoluteFillObject} // Força o Android a esticar a imagem
       />
 
-      {/* // * Conteúdo da Tela */}
+      {/* // * Container Principal */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1 p-4 gap-6 mt-10 pt-10"
       >
-
         {/* // * Logo */}
         <View className="items-center">
           <Image
-            source={require("../../assets/images/logo.png")}
+            source={require("../../assets/images/logo.png")} // O caminho deve ser absoluto
             contentFit="contain"
             style={{ width: 150, height: 60 }}
           />
@@ -42,12 +47,13 @@ export default function Login() {
             <Text className="text-base font-outfit-medium text-texto text-start">
               Faça seu Login
             </Text>
+
             {/* Campo de Usuário */}
             <View className="flex-row items-center border-[2px] border-[#B8B8B8] bg-white rounded-xl overflow-hidden h-10">
-              {/* Ícone */}
               <View className="bg-secundaria-azul w-12 h-full items-center justify-center rounded-br-lg">
-                <User size={24} color="white" strokeWidth={2.5}/>
+                <User size={24} color="white" strokeWidth={2.5} />
               </View>
+
               <Input
                 placeholder="Usuário"
                 className="border-0 h-full px-4 bg-white"
@@ -58,8 +64,9 @@ export default function Login() {
             <View className="flex-row items-center border-[2px] border-[#B8B8B8] bg-white rounded-xl overflow-hidden h-10">
               {/* ícone */}
               <View className="bg-secundaria-azul w-12 h-full items-center justify-center">
-                <Lock size={24} color="white" strokeWidth={2.5}/>
+                <Lock size={24} color="white" strokeWidth={2.5} />
               </View>
+
               <Input
                 placeholder="Senha"
                 secureTextEntry
@@ -72,14 +79,16 @@ export default function Login() {
           <View className="gap-3">
             <Button
               className="bg-primaria-azul h-10 rounded-tl-none rounded-br-none rounded-bl-[10] rounded-tr-[10] text-bg"
-              onPress={() => router.replace("/(tabs)/pivos")}
+              onPress={() => router.replace("/(tabs)/pivos/")}
             >
               <Text className="font-outfit">Entrar</Text>
             </Button>
 
-            <Text className="text-subtexto text-center text-sm">
-              Esqueci minha senha
-            </Text>
+            <Pressable className="active:opacity-50">
+              <Text className="text-subtexto text-center text-sm underline">
+                Esqueci minha senha
+              </Text>
+            </Pressable>
           </View>
         </View>
       </KeyboardAvoidingView>

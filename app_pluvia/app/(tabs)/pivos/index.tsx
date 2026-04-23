@@ -85,7 +85,7 @@ export default function ListaDePivos() {
             ref={ref}
             className={`
           w-[180px] border-[1px] border-b-[1px] border-[#b8b8b8] rounded-[12px] bg-white
-          ${open ? "rounded-b-none border-b-0" : "rounded-[12px]"} 
+          ${open ? "rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"} 
         `}
           >
             <SelectValue placeholder="Fazendas" />
@@ -175,7 +175,7 @@ export default function ListaDePivos() {
       </Button>
       <Button
         className="w-full"
-        onPress={() => router.replace("/(tabs)/analises")}
+        onPress={() => router.replace("/(tabs)/analise/analises")}
       >
         <Text>Ir para Análise</Text>
       </Button>

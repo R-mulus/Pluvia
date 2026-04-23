@@ -5,7 +5,6 @@ import { ViewProps } from 'react-native';
 export function Screen({ children, className, ...props }: ViewProps) {
   return (
     // edges={['top']} garante que ele só aplique o espaço no topo. 
-    // Se quiser no fundo também para não bater na barra de gestos, use ['top', 'bottom']
     <SafeAreaView 
       edges={['top']} 
       className={`flex-1 bg-bg px-5 ${className}`} 
