@@ -117,5 +117,6 @@ export default function Menu() {
         <Text>Cadastrar Pivô</Text>
       </Button>
     </View>
+    </Screen>
   );
 }
