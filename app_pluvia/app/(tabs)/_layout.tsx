@@ -1,11 +1,14 @@
 import { Tabs } from "expo-router";
 import { TableProperties, ChartColumnIncreasing, House } from "lucide-react-native";
+import TopBar from "@/components/custom/TopBar";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // Esconde o cabeçalho padrão do celular
+        // headerShown: false, // Esconde o cabeçalho padrão do celular 
+        // ! BERNARDO: comentei o headerShown para aparecer o meu header (TopBar customizado)
+
         tabBarActiveTintColor: "#08654F", // A cor secundária verde quando clicado
         tabBarInactiveTintColor: "#666666", // Preto quando inativo
         tabBarLabelPosition: "below-icon",
@@ -19,9 +22,17 @@ export default function TabsLayout() {
         tabBarLabelStyle: {
           fontFamily: "Outfit_700Bold",
           fontSize: 12,
-        }
+        },
+        header: () => (
+            <TopBar 
+              notificationCount={2} 
+              onNotificationPress={() => console.log('Abrir notificações')} 
+              // ! BERNARDO: necessário ainda desenvolver a página de notificações
+            />
+          ),
       }}
     >
+
       <Tabs.Screen
         name="pivos"
         options={{

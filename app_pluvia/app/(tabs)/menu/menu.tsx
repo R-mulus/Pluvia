@@ -84,11 +84,38 @@ export default function Menu() {
       </Button>
       <Button
         className="w-full"
-        // onPress={() => router.replace("/(tabs)/analise/analises")}
+        onPress={() => router.replace("/(tabs)/analise/analises")} 
+        // ! BERNARDO: quando na sua pasta não tem "index" tem que linkar assim, se não era só analise memo **tava dando erro
       >
         <Text>Ir para Análise</Text>
       </Button>
-      </View>
-    </Screen>
+
+      {/* // ! BERNARDO: colocando a parte de cadastrar aqui pra separar */}
+      <Text className="text-2xl font-outfit-bold text-foreground">
+        Cadastrar
+      </Text>
+
+      <Button
+        className="w-full"
+        onPress={() => router.replace("/(tabs)/menu/addUsuario")}
+      >
+        <Text>Cadastrar Usuário</Text>
+      </Button>
+
+      <Button
+        className="w-full"
+        onPress={() => router.replace("/(tabs)/menu/addFazenda")}
+        
+      >
+        <Text>Cadastrar Fazenda</Text>
+      </Button>
+
+      <Button
+        className="w-full"
+        onPress={() => router.replace("/(tabs)/menu/addPivo")}
+      >
+        <Text>Cadastrar Pivô</Text>
+      </Button>
+    </View>
   );
 }

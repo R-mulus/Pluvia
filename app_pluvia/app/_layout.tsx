@@ -29,7 +29,10 @@ export default function RootLayout() {
 
   return (
     <>
-      <StatusBar style="dark" backgroundColor="#F7F7F7" translucent />
+      <StatusBar style="light" backgroundColor="transparent" translucent={true} />
+      {/* <StatusBar style="dark" backgroundColor="#F7F7F7" translucent /> */} 
+      {/* // ! BERNARDO: mudei a StatusBar para colocar os icones do celular em branco pois o contraste não estava legal */}
+
       {/* O Stack diz: "Aqui dentro vão carregar as rotas. Não mostre o cabeçalho padrão." */}
       <Stack screenOptions={{ headerShown: false }}>
         {/* Aqui nós avisamos que o grupo (tabs) existe */}
