@@ -30,13 +30,12 @@ import {
   Clock,
   Droplets,
   Zap,
+  TriangleAlert,
 } from "lucide-react-native";
-import {
-  BarChart,
-  LineChart,
-} from "react-native-gifted-charts";
+import { BarChart, LineChart } from "react-native-gifted-charts";
+import { Table, TableColumn } from "@/components/custom/Table";
 
-// * Dados Mockados para Gráficos e Selects
+// * Dados Mockados para Gráficos, Tabelas e Selects
 
 // * SELECTS
 const pivos = [
@@ -57,6 +56,138 @@ const fazendas = [
   { id: 1, label: "Fazenda 1", value: "fazenda_1" },
   { id: 2, label: "Fazenda 2", value: "fazenda_2" },
   { id: 3, label: "Fazenda 3", value: "fazenda_3" },
+];
+
+// * TABELAS
+export const logMock = [
+  {
+    id: "01",
+    data: "2026-03-25 14:32:10",
+    pivo: "01",
+    status: "Ativo",
+    evento: "101",
+    origem: "Operador",
+    operador: "João Pedro",
+    voltas: "1",
+    irrigacao: "Sim",
+    milimetros: "2.5 mm",
+    pressao: "24 PSI(mV)",
+    tensao: "384 V",
+    direcao: "Horário",
+    anguloAtual: "120°",
+    percentimetro: "100%",
+  },
+  {
+    id: "02",
+    data: "2026-03-25 14:20:23",
+    pivo: "01",
+    status: "Ativo",
+    evento: "101",
+    origem: "Operador",
+    operador: "João Pedro",
+    voltas: "1",
+    irrigacao: "Sim",
+    milimetros: "2.5 mm",
+    pressao: "24 PSI(mV)",
+    tensao: "384 V",
+    direcao: "Horário",
+    anguloAtual: "120°",
+    percentimetro: "100%",
+  },
+  {
+    id: "03",
+    data: "2026-03-25 14:00:13",
+    pivo: "01",
+    status: "Ativo",
+    evento: "101",
+    origem: "Operador",
+    operador: "João Pedro",
+    voltas: "1",
+    irrigacao: "Sim",
+    milimetros: "2.5 mm",
+    pressao: "24 PSI(mV)",
+    tensao: "384 V",
+    direcao: "Horário",
+    anguloAtual: "120°",
+    percentimetro: "100%",
+  },
+  {
+    id: "04",
+    data: "2026-03-25 13:45:05",
+    pivo: "01",
+    status: "Ativo",
+    evento: "101",
+    origem: "Operador",
+    operador: "João Pedro",
+    voltas: "1",
+    irrigacao: "Sim",
+    milimetros: "2.5 mm",
+    pressao: "24 PSI(mV)",
+    tensao: "384 V",
+    direcao: "Horário",
+    anguloAtual: "120°",
+    percentimetro: "100%",
+  },
+  {
+    id: "05",
+    data: "2026-03-25 13:32:41",
+    pivo: "01",
+    status: "Ativo",
+    evento: "101",
+    origem: "Operador",
+    operador: "João Pedro",
+    voltas: "1",
+    irrigacao: "Sim",
+    milimetros: "2.5 mm",
+    pressao: "24 PSI(mV)",
+    tensao: "384 V",
+    direcao: "Horário",
+    anguloAtual: "120°",
+    percentimetro: "100%",
+  },
+];
+
+export const alertasMock = [
+  {
+    id: "01",
+    tipo: "info",
+    icone: "gota",
+    evento: "Economia por Horário",
+    data: "20/03/2026",
+    hora: "21:00",
+    pivo: '"',
+    operador: '"',
+  },
+  {
+    id: "02",
+    tipo: "perigo",
+    icone: "alerta",
+    evento: "Pressão Acima de 50 PSI",
+    data: "20/03/2026",
+    hora: "00:24",
+    pivo: "01",
+    operador: "João Pedro",
+  },
+  {
+    id: "03",
+    tipo: "sucesso",
+    icone: "alerta",
+    evento: "Consumo de Energia Elevado",
+    data: "19/03/2026",
+    hora: "13:15",
+    pivo: "01",
+    operador: "Matheus X",
+  },
+  {
+    id: "04",
+    tipo: "info",
+    icone: "alerta",
+    evento: "Lâmina em Uso por Muito Tempo",
+    data: "19/03/2026",
+    hora: "14:30",
+    pivo: "02",
+    operador: "Bernardo W",
+  },
 ];
 
 // * GRÁFICOS
@@ -129,15 +260,18 @@ const valoresConsumoAgua = consumoAguaMock.map((item) => {
 // Consumo Real de Energia (AZUL)
 const consumoEnergiaReal = consumoEnergiaMock.map((item) => {
   const isMaiorOuIgual = item.real >= item.estimado;
-  
-  const positionClass = (isMaiorOuIgual || item.real === 0) ? "bottom-[10px]" : "top-[10px]";
+
+  const positionClass =
+    isMaiorOuIgual || item.real === 0 ? "bottom-[10px]" : "top-[10px]";
 
   return {
     value: item.real,
     label: item.label,
     customDataPoint: () => (
       <View className="items-center justify-center">
-        <Text className={`absolute ${positionClass} text-[10px] font-outfit-bold text-primaria-azul w-10 text-center z-10`}>
+        <Text
+          className={`absolute ${positionClass} text-[10px] font-outfit-bold text-primaria-azul w-10 text-center z-10`}
+        >
           {item.real}
         </Text>
         <View className="w-2.5 h-2.5 rounded-full bg-white border-[2px] border-primaria-azul" />
@@ -146,17 +280,20 @@ const consumoEnergiaReal = consumoEnergiaMock.map((item) => {
   };
 });
 
-  // Consumo Estimado de Energia (VERDE)
+// Consumo Estimado de Energia (VERDE)
 const consumoEnergiaEstimado = consumoEnergiaMock.map((item) => {
   const isMaior = item.estimado > item.real;
 
-  const positionClass = (isMaior || item.estimado === 0) ? "bottom-[10px]" : "top-[10px]";
+  const positionClass =
+    isMaior || item.estimado === 0 ? "bottom-[10px]" : "top-[10px]";
 
   return {
     value: item.estimado,
     customDataPoint: () => (
       <View className="items-center justify-center">
-        <Text className={`absolute ${positionClass} text-[10px] font-outfit-bold text-primaria-verde w-10 text-center z-10`}>
+        <Text
+          className={`absolute ${positionClass} text-[10px] font-outfit-bold text-primaria-verde w-10 text-center z-10`}
+        >
           {item.estimado}
         </Text>
         <View className="w-2.5 h-2.5 rounded-full bg-white border-[2px] border-primaria-verde" />
@@ -166,8 +303,7 @@ const consumoEnergiaEstimado = consumoEnergiaMock.map((item) => {
 });
 
 export default function Analises() {
-
- // * --- Código para o Funcionamento do Gráfico Horizontal em SVG ---
+  // * --- Código para o Funcionamento do Gráfico Horizontal em SVG ---
   const [containerWidth, setContainerWidth] = useState(0);
 
   // --- ESCALA DINÂMICA (A MÁGICA DOS VALORES MAIORES QUE 8) ---
@@ -226,51 +362,102 @@ export default function Analises() {
 
   const router = useRouter();
 
-  // Guardamos todo o conteúdo dentro desta variável para injetar no cabeçalho da lista
-  const ConteudoDaTela = (
-    <View className="gap-6 pt-4">
-      {/* // * Cabeçalho */}
-      <View className="flex-row w-full justify-between items-center">
-        <Header title="Análise" subtitle="AHCX21214BMM" />
-        <View className="flex-row gap-2 items-center">
-          <Select onOpenChange={setAnaliseOpen}>
-            <SelectTrigger
-              ref={ref}
-              className={`border-[1px] border-[#b8b8b8] bg-white w-[120px] ${analiseOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
-            >
-              <SelectValue placeholder="Fazendas" />
-            </SelectTrigger>
-            <SelectContent
-              insets={contentInsets}
-              className={`border-[#b8b8b8] bg-white w-[120px] ${analiseOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
-            >
-              <SelectGroup>
-                {fazendas.map((fazenda) => (
-                  <SelectItem
-                    key={fazenda.value}
-                    label={fazenda.label}
-                    value={fazenda.value}
-                    className={
-                      Number(fazenda.id) % 2 !== 0
-                        ? "bg-[#E1E1E1]"
-                        : "bg-transparent"
-                    }
-                  >
-                    {fazenda.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
-            <Download size={24} color="white" strokeWidth={2.5} />
-          </Pressable>
-        </View>
-      </View>
+  const colunasLog: TableColumn<(typeof logMock)[0]>[] = [
+    { key: "id", title: "ID", width: 60 },
+    { key: "data", title: "Data", width: 180 }, // Mais largo para caber data e hora juntos
+    { key: "pivo", title: "Pivô", width: 70 },
+    { key: "status", title: "Status", width: 90 },
+    { key: "evento", title: "Evento", width: 80 },
+    { key: "origem", title: "Origem", width: 100 },
+    { key: "operador", title: "Operador", width: 120 },
+    { key: "voltas", title: "Voltas", width: 80 },
+    { key: "irrigacao", title: "Irrigação", width: 100 },
+    { key: "milimetros", title: "Milímetros", width: 110 },
+    { key: "pressao", title: "Pressão", width: 110 },
+    { key: "tensao", title: "Tensão", width: 90 },
+    { key: "direcao", title: "Direção", width: 100 },
+    { key: "anguloAtual", title: "Ângulo Atual", width: 120 },
+    { key: "percentimetro", title: "Percentímetro", width: 130 },
+  ];
 
-      <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end">
-        <Funnel size={24} color="white" strokeWidth={2.5} />
-      </Pressable>
+  const colunasAlertas: TableColumn<(typeof alertasMock)[0]>[] = [
+    { key: "id", title: "ID", width: 60 },
+    {
+      key: "tag",
+      title: <TriangleAlert size={18} color="white" />,
+      width: 60,
+      renderCell: (item) => {
+        // Define a Cor de Fundo
+        let bgColor = "bg-[#00A0A6]"; // Padrão 'info'
+        if (item.tipo === "perigo") bgColor = "bg-[#D32F2F]";
+        if (item.tipo === "sucesso") bgColor = "bg-[#0AA146]";
+
+        // Define o Ícone Dinamicamente
+        const Icone = item.icone === "gota" ? Droplet : TriangleAlert;
+
+        return (
+          <View
+            className={`${bgColor} w-full py-3 items-center justify-center rounded-r-xl`}
+          >
+            <Icone size={20} color="white" />
+          </View>
+        );
+      },
+    },
+    { key: "evento", title: "Evento", width: 260 },
+    { key: "data", title: "Data", width: 110 },
+    { key: "hora", title: "Hora", width: 80 },
+    { key: "pivo", title: "Pivô", width: 70 },
+    { key: "operador", title: "Operador", width: 140 },
+  ];
+
+  // ** O conteúdo é guardado dentro desta variável para injetar no cabeçalho da lista
+  const ConteudoDaTela = (
+    <View className="gap-6">
+      {/* // * Cabeçalho */}
+      <View className="gap-1">
+        <View className="flex-row w-full justify-between items-center">
+          <Header title="Análise" subtitle="AHCX21214BMM" />
+          <View className="flex-row gap-2 items-center">
+            <Select onOpenChange={setAnaliseOpen}>
+              <SelectTrigger
+                ref={ref}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[120px] ${analiseOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+              >
+                <SelectValue placeholder="Fazendas" />
+              </SelectTrigger>
+              <SelectContent
+                insets={contentInsets}
+                className={`border-[#b8b8b8] bg-white w-[120px] ${analiseOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+              >
+                <SelectGroup>
+                  {fazendas.map((fazenda) => (
+                    <SelectItem
+                      key={fazenda.value}
+                      label={fazenda.label}
+                      value={fazenda.value}
+                      className={
+                        Number(fazenda.id) % 2 !== 0
+                          ? "bg-[#E1E1E1]"
+                          : "bg-transparent"
+                      }
+                    >
+                      {fazenda.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
+              <Download size={24} color="white" strokeWidth={2.5} />
+            </Pressable>
+          </View>
+        </View>
+
+        <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end">
+          <Funnel size={24} color="white" strokeWidth={2.5} />
+        </Pressable>
+      </View>
 
       {/* // * Alertas */}
       <View className="flex-row w-full justify-between items-center">
@@ -308,12 +495,7 @@ export default function Analises() {
         </View>
       </View>
 
-      {/* // * Placeholder */}
-      <View className="py-10 px-5 bg-gray-100 rounded-xl border border-dashed border-gray-400 items-center justify-center">
-        <Text className="text-gray-500 font-outfit-medium text-center">
-          [ Placeholder de Tabela ]
-        </Text>
-      </View>
+      <Table data={alertasMock} columns={colunasAlertas} />
 
       {/* // * Visão Geral */}
       <View className="self-stretch gap-5">
@@ -517,7 +699,7 @@ export default function Analises() {
               rulesColor="#CACACA"
               // Configuração Matemática (De 5 em 5 até 25 para espaçamento igual)
               showValuesAsTopLabel
-              topLabelTextStyle={{fontSize: 12, fontFamily: "Outfit_700Bold"}}
+              topLabelTextStyle={{ fontSize: 12, fontFamily: "Outfit_700Bold" }}
               maxValue={25}
               stepValue={5}
               noOfSections={5}
@@ -743,7 +925,9 @@ export default function Analises() {
         {/* // * Gráfico de Barras de Consumo de Água por Hora */}
         <View className="border-[2px] border-[#cacaca] rounded-[12px] pt-4 pl-2 pb-3">
           {/* Título do Eixo Y posicionado no topo esquerdo */}
-          <Text className="text-xs font-outfit-bold text-texto mb-2 pl-1">L/h</Text>
+          <Text className="text-xs font-outfit-bold text-texto mb-2 pl-1">
+            L/h
+          </Text>
 
           <View className="items-center justify-center">
             <BarChart
@@ -768,7 +952,7 @@ export default function Analises() {
               rulesColor="#CACACA"
               // Configuração Matemática (De 5 em 5 até 25 para espaçamento igual)
               showValuesAsTopLabel
-              topLabelTextStyle={{fontSize: 12, fontFamily: "Outfit_700Bold"}}
+              topLabelTextStyle={{ fontSize: 12, fontFamily: "Outfit_700Bold" }}
               maxValue={200}
               stepValue={50}
               noOfSections={5}
@@ -851,17 +1035,13 @@ export default function Analises() {
               {/* Item: Real */}
               <View className="flex-row items-center gap-1.5">
                 <View className="w-6 h-4 rounded-full bg-primaria-azul" />
-                <Text className="text-xs">
-                  Real
-                </Text>
+                <Text className="text-xs">Real</Text>
               </View>
 
               {/* Item: Estimado */}
               <View className="flex-row items-center gap-1.5">
                 <View className="w-6 h-4 rounded-full bg-primaria-verde" />
-                <Text className="text-xs">
-                  Estimado
-                </Text>
+                <Text className="text-xs">Estimado</Text>
               </View>
             </View>
           </View>
@@ -954,11 +1134,8 @@ export default function Analises() {
             </Pressable>
           </View>
         </View>
-        <View className="py-10 px-5 bg-gray-100 rounded-xl border border-dashed border-gray-400 items-center justify-center">
-          <Text className="text-gray-500 font-outfit-medium text-center">
-            [ Placeholder de Tabela ]
-          </Text>
-        </View>
+
+        <Table data={logMock} columns={colunasLog} />
       </View>
     </View>
   );
@@ -980,18 +1157,6 @@ export default function Analises() {
           onPress={() => router.replace("/" as Href)}
         >
           <Text>Sair (Voltar pro Login)</Text>
-        </Button>
-        <Button
-          className="w-full"
-          // onPress={() => router.replace("/(tabs)/pivos")}
-        >
-          <Text>Ir para pivôs</Text>
-        </Button>
-        <Button
-          className="w-full"
-          onPress={() => router.replace("/(tabs)/menu/menu")}
-        >
-          <Text>Ir para Menu</Text>
         </Button>
       </View>
     </Screen>

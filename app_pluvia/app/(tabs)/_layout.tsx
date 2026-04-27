@@ -1,4 +1,5 @@
 import { Tabs } from "expo-router";
+import { Drawer } from 'expo-router/drawer';
 import { TableProperties, ChartColumnIncreasing, House } from "lucide-react-native";
 import TopBar from "@/components/custom/TopBar";
 
@@ -56,6 +57,25 @@ export default function TabsLayout() {
           tabBarIcon: ({ color }) => <ChartColumnIncreasing size={24} color={color} />,
         }}
       />
+
+      {/* Para esconder o item de "presets" na barra */}
+      <Tabs.Screen 
+        name="presets" 
+        options={{ 
+          href: null,
+          title: 'Hidden Tab'
+        }} 
+      />
+
+      {/* Para esconder o item de "perfil" na barra */}
+      <Tabs.Screen 
+        name="perfil" 
+        options={{ 
+          href: null,
+          title: 'Hidden Tab'
+        }} 
+      />
     </Tabs>
+    
   );
 }

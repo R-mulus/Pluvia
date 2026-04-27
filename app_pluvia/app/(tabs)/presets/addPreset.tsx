@@ -31,10 +31,7 @@ export default function AdicionarPreset() {
   };
 
   return (
-    <Screen className="gap-4 pt-10 pb-4">
-      <Text className="text-center text-xl font-outfit-bold">
-        Adicionar Preset
-      </Text>
+    <Screen className="gap-4">
 
       {/* Cabeçalho */}
       <View className="flex-row justify-between">
@@ -189,10 +186,10 @@ export default function AdicionarPreset() {
           </ToggleGroup>
 
           <View className="flex-row items-center w-full gap-4">
-            <Button className="bg-incorreto rounded-none rounded-pluvia flex-1 h-[40]">
+            <Button className="bg-incorreto rounded-none rounded-pluvia flex-1 h-[40px]">
               <Text>Cancelar</Text>
             </Button>
-            <Button className="bg-primaria-verde rounded-none rounded-pluvia flex-1 h-[40]">
+            <Button className="bg-primaria-verde rounded-none rounded-pluvia flex-1 h-[40px]">
               <Text>Salvar</Text>
             </Button>
           </View>

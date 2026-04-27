@@ -19,7 +19,7 @@ export default function PresetCard() {
 
   return (
     // Container Principal em Row (Divide conteúdo principal e barra lateral)
-    <Pressable className="flex-row bg-white rounded-[12px] border-[2px] border-[#cacaca] overflow-hidden" onPress={() => router.push(`/(tabs)/pivos/editPreset`)}>
+    <Pressable className="flex-row bg-white rounded-[12px] border-[2px] border-[#cacaca] overflow-hidden" onPress={() => router.push(`/(tabs)/presets/editPreset`)}>
 
       {/* 1. ÁREA ESQUERDA (Cabeçalho + Grid) - flex-1 empurra a barra para a direita */}
       <View className="flex-1">

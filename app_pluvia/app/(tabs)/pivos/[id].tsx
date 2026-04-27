@@ -22,15 +22,90 @@ import {
   SquarePen,
 } from "lucide-react-native";
 import RadarComplexo from "@/components/custom/RadarComplexo";
-
+import { useRouter } from "expo-router";
 import Header from "@/components/custom/Header";
 import { Separator } from "@/components/ui/separator";
 import PresetCard from "@/components/custom/PresetCard";
+import { Screen } from "@/components/custom/Screen";
+import { Table, TableColumn } from "@/components/custom/Table";
+
+// * MOCK DA TABELA
+export const historicoPivoMock = [
+  {
+    id: "01",
+    data: "19/03/2026",
+    hora: "00:24",
+    duracao: "13 h 30 min",
+    voltas: "4 Voltas",
+    irrigacao: "Sim",
+    direcao: "Reverso",
+    inicial: "0°",
+    final: "80°",
+    percentimetro: "43%",
+    operador: "Bernardo Cunha",
+  },
+  {
+    id: "02",
+    data: "19/03/2026",
+    hora: "13:15",
+    duracao: "13 h 30 min",
+    voltas: "3 Voltas",
+    irrigacao: "Não",
+    direcao: "Horário",
+    inicial: "95°",
+    final: "112°",
+    percentimetro: "100%",
+    operador: "Mateus Felisberto Xavier Rosa", // O componente vai truncar isso perfeitamente!
+  },
+  {
+    id: "03",
+    data: "19/03/2026",
+    hora: "14:30",
+    duracao: "13 h 30 min",
+    voltas: "1 Volta",
+    irrigacao: "Sim",
+    direcao: "Horário",
+    inicial: "120°",
+    final: "180°",
+    percentimetro: "50%",
+    operador: "João Ninguém",
+  },
+  {
+    id: "04",
+    data: "20/03/2026",
+    hora: "03:00",
+    duracao: "13 h 30 min",
+    voltas: "Meia Volta",
+    irrigacao: "Sim",
+    direcao: "Reverso",
+    inicial: "10°",
+    final: "100°",
+    percentimetro: "25%",
+    operador: "Zé",
+  },
+];
+
+const colunasHistorico: TableColumn<(typeof historicoPivoMock)[0]>[] = [
+  { key: "id", title: "ID", width: 60 },
+  { key: "data", title: "Data", width: 110 },
+  { key: "hora", title: "Hora", width: 80 },
+  { key: "duracao", title: "Duração", width: 110 },
+  { key: "voltas", title: "Voltas", width: 100 },
+  { key: "irrigacao", title: "Irrigação", width: 90 },
+  { key: "direcao", title: "Direção", width: 100 },
+  { key: "inicial", title: "Inicial", width: 80 },
+  { key: "final", title: "Final", width: 80 },
+  { key: "percentimetro", title: "Percentímetro", width: 120 },
+  { key: "operador", title: "Operador", width: 140 },
+];
 
 // 1. COMPONENTE DO CABEÇALHO DA LISTA (Tudo acima da tabela)
 function TopoDaTela() {
+
+  const router = useRouter()
+
   return (
-    <View className="flex-1 bg-white px-5 pt-10 pb-4">
+    <Screen className="pb-4">
       {/* // * Cabeçalho */}
       <View className="self-stretch flex-row mb-4">
         <View className="flex-1 flex-row justify-between items-center">
@@ -67,7 +142,7 @@ function TopoDaTela() {
 
       {/* --- RADAR CENTRAL --- */}
       <View className="items-center justify-center mb-8">
-        <RadarComplexo size={260} currentAngle={120} startAngle={20} />
+        <RadarComplexo size={260} currentAngle={120} />
       </View>
 
       {/* --- LINHA DE STATUS (Em Funcionamento / Horário / Irrigando) --- */}
@@ -190,11 +265,11 @@ function TopoDaTela() {
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- CRONOGRAMA --- */}
-      <View className="gap-y-3">
+      <View className="gap-y-5">
         <View className="flex-row justify-between items-center">
           <Text className="font-outfit-bold">Cronograma</Text>
           <View className="flex-row gap-2">
-            <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12] w-[40] h-[40] items-center justify-center self-end">
+            <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12] w-[40] h-[40] items-center justify-center self-end" onPress={() => router.push(`/presets/[id]`)}>
               <Layers size={24} color="white" strokeWidth={2.5} />
             </Pressable>
             <Button className="rounded-pluvia rounded rounded-br-none rounded-tl-none bg-secundaria-azul h-[40] w-auto">
@@ -218,41 +293,37 @@ function TopoDaTela() {
             className="h-4 w-3 bg-secundaria-azul ml-8"
           />
           <PresetCard />
-          <Separator
-            orientation="vertical"
-            decorative
-            className="h-4 w-3 bg-secundaria-azul ml-8"
-          />
         </View>
       </View>
-    </View>
+
+      <Separator className="my-5 bg-[#B5B5B5]" decorative />
+
+      {/* // * Tabela */}
+      <View className="gap-y-5">
+        <Text className="font-outfit-bold">Cronograma</Text>
+
+        <Table data={historicoPivoMock} columns={colunasHistorico} />
+      </View>
+    </Screen>
   );
 }
 
 // 2. A TELA PRINCIPAL (Controlada pela FlashList)
 export default function VisualizacaoPivo() {
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-bg">
       <FlashList
         // O ListHeaderComponent carrega tudo que construímos acima
         ListHeaderComponent={TopoDaTela}
-        // Data vazia por enquanto, futuramente aqui entrarão seus cronogramas
+        // Data vazia por enquanto, futuramente aqui entrarão os cronogramas
         data={[]}
         renderItem={() => null}
-        // Placeholder da tabela (Renderizado quando o data = [])
-        ListEmptyComponent={
-          <View className="mx-5 py-10 px-5 bg-gray-100 rounded-xl border border-dashed border-gray-400 items-center justify-center">
-            <Text className="text-gray-500 font-outfit-medium text-center">
-              [ Placeholder da Tabela de Cronogramas e Programações ]
-            </Text>
-          </View>
-        }
         // Espaço no final da rolagem para a lista não colar na base do celular
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
 
       {/* --- BOTÃO INICIAR --- */}
-      <Pressable className="bg-primaria-azul rounded-pluvia py-2 items-center justify-center active:opacity-80 shadow-sm mb-6 mx-6">
+      <Pressable className="bg-primaria-azul rounded-pluvia py-2 items-center justify-center active:opacity-80 shadow-sm mb-6 mx-5">
         <Text className="text-white font-outfit-bold text-2xl">Iniciar</Text>
       </Pressable>
     </View>

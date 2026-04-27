@@ -71,7 +71,6 @@ export default function ListaDePivos() {
 
   return (
     <Screen className="justify-center gap-2 overflow-scroll">
-      <Text className="text-2xl font-outfit-bold text-foreground">Pivôs</Text>
 
       {/* // * Cabeçalho */}
       <View className="flex-row justify-between items-center">
@@ -172,25 +171,6 @@ export default function ListaDePivos() {
         onPress={() => router.replace("/" as Href)}
       >
         <Text>Sair (Voltar pro Login)</Text>
-      </Button>
-      <Button
-        className="w-full"
-        onPress={() => router.replace("/(tabs)/analise/analises")}
-      >
-        <Text>Ir para Análise</Text>
-      </Button>
-
-      <Button
-        className="w-full"
-        onPress={() => router.replace("/pivos/presets")}
-      >
-        <Text>Ir para Presets</Text>
-      </Button>
-      <Button
-        className="w-full"
-        onPress={() => router.replace("/pivos/addPreset")}
-      >
-        <Text>Ir para Adicionar Preset</Text>
       </Button>
     </Screen>
   );
