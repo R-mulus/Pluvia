@@ -6,7 +6,7 @@ type MenuItemProps = {
   icon: React.ReactNode;
   iconColor?: string | "#000",
   title: string;
-  titleColor?: string;
+  titleColor?: string | "#000";
   onPress: () => void;
 };
 
@@ -26,7 +26,7 @@ export default function MenuItem({
       <View className="flex-row items-center gap-4">
         {icon}
         {/* Fonte exata de 14px como no Figma */}
-        <Text className={`text-[14px] text-black font-medium ${titleColor}`}>{title}</Text>
+        <Text className={`text-[14px] font-medium ${titleColor}`}>{title}</Text>
       </View>
       <ChevronRight size={24} color={iconColor} />
     </TouchableOpacity>

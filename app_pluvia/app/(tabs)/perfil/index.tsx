@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CircleUser,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react-native";
 import { Separator } from "@/components/ui/separator";
 import MenuItem from "@/components/custom/ProfileItem";
+
 
 // ? Tipagem dos dados do usuário
 export type UserData = {
@@ -30,6 +32,7 @@ type PerfilProps = {
 export default function Perfil({ navigation, userData }: PerfilProps) {
   const insets = useSafeAreaInsets();
   const [user, setUser] = useState<UserData | null>(null);
+const router = useRouter();
 
   useEffect(() => {
     // Se o componente receber dados da API por props, usa eles.
@@ -158,7 +161,7 @@ export default function Perfil({ navigation, userData }: PerfilProps) {
             iconColor="#E52207"
             title="Sair"
             titleColor="text-[#E52207]"
-            onPress={() => handleNavegacao("SobreNos")}
+            onPress={() => router.push("/(auth)")}
           />
         </View>
       </ScrollView>

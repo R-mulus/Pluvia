@@ -364,7 +364,7 @@ export default function Analises() {
 
   const colunasLog: TableColumn<(typeof logMock)[0]>[] = [
     { key: "id", title: "ID", width: 60 },
-    { key: "data", title: "Data", width: 180 }, // Mais largo para caber data e hora juntos
+    { key: "data", title: "Data", width: 180 },
     { key: "pivo", title: "Pivô", width: 70 },
     { key: "status", title: "Status", width: 90 },
     { key: "evento", title: "Evento", width: 80 },
@@ -1148,17 +1148,6 @@ export default function Analises() {
         ListHeaderComponent={ConteudoDaTela}
         showsVerticalScrollIndicator={false}
       />
-
-      {/* // * Botões de Ação */}
-      <View className="gap-3 mt-4">
-        <Button
-          variant="destructive"
-          className="w-full"
-          onPress={() => router.replace("/" as Href)}
-        >
-          <Text>Sair (Voltar pro Login)</Text>
-        </Button>
-      </View>
     </Screen>
   );
 }

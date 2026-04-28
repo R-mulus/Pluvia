@@ -1,11 +1,10 @@
 import React from "react";
-import { View, Image, TouchableOpacity, Text, Platform } from "react-native";
+import { View, Image, TouchableOpacity, Text, Platform, DeviceEventEmitter } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { DrawerActions } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Bell, Menu } from "lucide-react-native";
 
-// ? Tipagem dos props do componente
 type TopBarProps = {
   showBackButton?: boolean;
   notificationCount?: number;
@@ -21,6 +20,18 @@ export default function TopBar({
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
+  // === LÓGICA DAS GAVETAS ===
+  const abrirNotificacoes = () => {
+    if (onNotificationPress) onNotificationPress(); // Executa função extra se você passar
+    DeviceEventEmitter.emit('MUDAR_GAVETA', 'notificacoes'); // Avisa o layout para trocar o miolo
+    navigation.dispatch(DrawerActions.openDrawer()); // Abre a gaveta
+  };
+
+  const abrirPerfil = () => {
+    DeviceEventEmitter.emit('MUDAR_GAVETA', 'perfil'); 
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
+
   return (
     <View
       className="bg-[#00A0A6] rounded-b-[24px]"
@@ -34,10 +45,8 @@ export default function TopBar({
         elevation: 8,
       }}
     >
-      {/* // * Container principal com "position relative" para segurar a logo absoluta */}
       <View className="flex-row items-center justify-between pb-3 h-16 relative">
         
-        {/* // ** ESQUERDA (Voltar) === */}
         <View className="z-10 items-start justify-center">
           {showBackButton && (
             <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7} className="p-1">
@@ -46,8 +55,6 @@ export default function TopBar({
           )}
         </View>
 
-        {/* // * CENTRO EXATO (Logo)*/}
-        {/* O absolute com left-0 e right-0 garante o centro perfeito independente das laterais */}
         <View className="absolute left-0 right-0 items-center justify-center pointer-events-none pb-5">
           <Image
             source={require("../../assets/images/logo_branca.png")}
@@ -56,9 +63,10 @@ export default function TopBar({
           />
         </View>
 
-        {/* // * DIREITA (Notificações e Menu) */}
         <View className="z-10 items-end justify-center flex-row gap-4">
-          <TouchableOpacity onPress={onNotificationPress} activeOpacity={0.7} className="p-1">
+          
+          {/* BOTÃO DO SINO: Chama a função que troca para notificações */}
+          <TouchableOpacity onPress={abrirNotificacoes} activeOpacity={0.7} className="p-1">
             <View>
               <Bell color="white" size={24} />
               {notificationCount > 0 && (
@@ -71,11 +79,11 @@ export default function TopBar({
             </View>
           </TouchableOpacity>
 
-          {/* // * Disparo do Drawer */}
+          {/* BOTÃO DO MENU: Chama a função que troca para o Perfil */}
           <TouchableOpacity 
             activeOpacity={0.7} 
             className="p-1"
-            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+            onPress={abrirPerfil}
           >
             <Menu color="white" size={24} />
           </TouchableOpacity>

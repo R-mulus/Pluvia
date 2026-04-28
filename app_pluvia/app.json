@@ -20,9 +20,10 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "edgeToEdgeEnabled": true,
+      "edgeToEdgeEnabled": false,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.app_pluvia"
+      "package": "com.anonymous.app_pluvia",
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "output": "static",
@@ -33,9 +34,9 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash_screen.png",
+          "image": "./assets/images/logo_branca.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#00A0A6",
           "dark": {
             "backgroundColor": "#00A0A6"
           }

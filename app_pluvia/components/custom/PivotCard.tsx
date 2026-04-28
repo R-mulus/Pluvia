@@ -20,6 +20,10 @@ interface PivotCardProps {
   nome?: string;
   waterOn?: boolean;
   warning?: boolean;
+  // Props adicionadas exclusivamente para o SVG dinâmico
+  anguloAtual?: number;
+  anguloInicio?: number;
+  anguloFinal?: number;
 }
 
 export default function PivotCard({
@@ -27,6 +31,9 @@ export default function PivotCard({
   nome,
   waterOn,
   warning,
+  anguloAtual = 90, // Valores padrão para não quebrar caso a API demore
+  anguloInicio = 0,
+  anguloFinal = 90,
 }: PivotCardProps) {
   const router = useRouter();
 
@@ -52,6 +59,38 @@ export default function PivotCard({
   const statusColorClass = getStatusColor();
   const wifiStatusColorClass = getWifiStatusColor();
   const radarColorHex = getRadarColor();
+
+  // === LÓGICA MATEMÁTICA DO SVG ===
+  // Converte os graus (0 a 360) em coordenadas X e Y no plano do SVG
+  const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
+    // Subtrai 90 para que o Grau 0 seja exatamente no topo (12 horas)
+    const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+    return {
+      x: centerX + radius * Math.cos(angleInRadians),
+      y: centerY + radius * Math.sin(angleInRadians),
+    };
+  };
+
+  // Desenha a fatia de pizza (Área Irrigada)
+  const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
+    const start = polarToCartesian(x, y, radius, startAngle);
+    const end = polarToCartesian(x, y, radius, endAngle);
+    
+    // Calcula a diferença para saber se o arco é maior que 180 graus (necessário para o SVG desenhar pelo lado certo)
+    let diff = endAngle - startAngle;
+    if (diff < 0) diff += 360;
+    const largeArcFlag = diff > 180 ? "1" : "0";
+
+    return [
+      "M", x, y,
+      "L", start.x, start.y,
+      "A", radius, radius, 0, largeArcFlag, 1, end.x, end.y,
+      "Z"
+    ].join(" ");
+  };
+
+  // Calcula a ponta da linha tracejada baseada no ângulo atual
+  const pontoAtual = polarToCartesian(40, 40, 40, anguloAtual);
 
   return (
     <Pressable
@@ -92,23 +131,31 @@ export default function PivotCard({
       {/* CONTEÚDO (Radar + Grid de Dados) */}
       <View className="flex-row gap-4 items-center justify-between">
         <View className="flex-row pl-3 pb-2 gap-4 items-center justify-start">
-          {/* Radar Fixo */}
+          
+          {/* RADAR DINÂMICO */}
           <View className="justify-center items-center">
             <Svg width={75} height={75} viewBox="0 0 80 80">
+              {/* Fundo do Radar */}
               <Circle cx="40" cy="40" r="40" fill="#D9D9D9" />
+              
+              {/* Área Irrigada Dinâmica */}
               <Path
-                d="M40,40 L40,0 A40,40 0 0,1 80,40 Z"
+                d={describeArc(40, 40, 40, anguloInicio, anguloFinal)}
                 fill={radarColorHex}
               />
+              
+              {/* Linha Tracejada (Ângulo Atual) */}
               <Line
                 x1="40"
                 y1="40"
-                x2="80"
-                y2="40"
+                x2={pontoAtual.x}
+                y2={pontoAtual.y}
                 stroke="#0D0D0D"
                 strokeWidth="3"
                 strokeDasharray="6 4"
               />
+              
+              {/* Linha Sólida (Grau 0 - Fixo apontando para cima) */}
               <Line
                 x1="40"
                 y1="40"

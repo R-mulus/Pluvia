@@ -1,13 +1,19 @@
 import { Tabs } from "expo-router";
-import { Drawer } from 'expo-router/drawer';
-import { TableProperties, ChartColumnIncreasing, House } from "lucide-react-native";
+import { useRouter } from "expo-router";
+import {
+  TableProperties,
+  ChartColumnIncreasing,
+  House,
+} from "lucide-react-native";
 import TopBar from "@/components/custom/TopBar";
 
 export default function TabsLayout() {
+  const router = useRouter();
+
   return (
     <Tabs
       screenOptions={{
-        // headerShown: false, // Esconde o cabeçalho padrão do celular 
+        // headerShown: false, // Esconde o cabeçalho padrão do celular
         // ! BERNARDO: comentei o headerShown para aparecer o meu header (TopBar customizado)
 
         tabBarActiveTintColor: "#08654F", // A cor secundária verde quando clicado
@@ -25,20 +31,27 @@ export default function TabsLayout() {
           fontSize: 12,
         },
         header: () => (
-            <TopBar 
-              notificationCount={2} 
-              onNotificationPress={() => console.log('Abrir notificações')} 
-              // ! BERNARDO: necessário ainda desenvolver a página de notificações
-            />
-          ),
+          <TopBar
+            notificationCount={2}
+            onNotificationPress={() => console.log("Abrir notificações")}
+            // ! BERNARDO: necessário ainda desenvolver a página de notificações
+          />
+        ),
       }}
     >
-
       <Tabs.Screen
         name="pivos"
         options={{
           title: "Pivôs",
-          tabBarIcon: ({ color }) => <TableProperties size={24} color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TableProperties size={24} color={color} />
+          ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.replace("/pivos");
+          },
         }}
       />
 
@@ -48,34 +61,42 @@ export default function TabsLayout() {
           title: "Menu",
           tabBarIcon: ({ color }) => <House size={24} color={color} />,
         }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.replace("/menu");
+          },
+        }}
       />
-      
+
       <Tabs.Screen
         name="analise"
         options={{
           title: "Análise",
-          tabBarIcon: ({ color }) => <ChartColumnIncreasing size={24} color={color} />,
+          
+          tabBarIcon: ({ color }) => (
+            <ChartColumnIncreasing size={24} color={color} />
+          ),
         }}
       />
 
       {/* Para esconder o item de "presets" na barra */}
-      <Tabs.Screen 
-        name="presets" 
-        options={{ 
+      <Tabs.Screen
+        name="presets"
+        options={{
           href: null,
-          title: 'Hidden Tab'
-        }} 
+          title: "Hidden Tab",
+        }}
       />
 
       {/* Para esconder o item de "perfil" na barra */}
-      <Tabs.Screen 
-        name="perfil" 
-        options={{ 
+      <Tabs.Screen
+        name="perfil"
+        options={{
           href: null,
-          title: 'Hidden Tab'
-        }} 
+          title: "Hidden Tab",
+        }}
       />
     </Tabs>
-    
   );
 }

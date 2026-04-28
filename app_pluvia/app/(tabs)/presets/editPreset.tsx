@@ -31,7 +31,7 @@ export default function EditarPreset() {
   };
 
   return (
-    <Screen className="gap-4">
+    <Screen>
 
       {/* Cabeçalho */}
       <View className="flex-row justify-between">
@@ -195,21 +195,6 @@ export default function EditarPreset() {
           </View>
         </View>
       </View>
-
-      {/* Botão de Teste para fazer Logout */}
-      <Button
-        variant="destructive"
-        className="w-full"
-        onPress={() => router.replace("/" as Href)}
-      >
-        <Text>Sair (Voltar pro Login)</Text>
-      </Button>
-      <Button
-        className="w-full"
-        onPress={() => router.replace("/pivos/presets")}
-      >
-        <Text>Ir lista de Presets</Text>
-      </Button>
     </Screen>
   );
 }

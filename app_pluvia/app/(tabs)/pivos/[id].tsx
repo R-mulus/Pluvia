@@ -96,7 +96,7 @@ const colunasHistorico: TableColumn<(typeof historicoPivoMock)[0]>[] = [
   { key: "inicial", title: "Inicial", width: 80 },
   { key: "final", title: "Final", width: 80 },
   { key: "percentimetro", title: "Percentímetro", width: 120 },
-  { key: "operador", title: "Operador", width: 140 },
+  { key: "operador", title: "Operador", width: 200 },
 ];
 
 // 1. COMPONENTE DO CABEÇALHO DA LISTA (Tudo acima da tabela)
@@ -105,7 +105,7 @@ function TopoDaTela() {
   const router = useRouter()
 
   return (
-    <Screen className="pb-4">
+    <Screen>
       {/* // * Cabeçalho */}
       <View className="self-stretch flex-row mb-4">
         <View className="flex-1 flex-row justify-between items-center">
@@ -300,7 +300,7 @@ function TopoDaTela() {
 
       {/* // * Tabela */}
       <View className="gap-y-5">
-        <Text className="font-outfit-bold">Cronograma</Text>
+        <Text className="font-outfit-bold">Histórico</Text>
 
         <Table data={historicoPivoMock} columns={colunasHistorico} />
       </View>

@@ -7,7 +7,7 @@ export function Screen({ children, className, ...props }: ViewProps) {
     // edges={['top']} garante que ele só aplique o espaço no topo.
     <View 
       // edges={['top']}
-      className={`flex-1 bg-bg px-5 pt-4 ${className}`} 
+      className={`flex-1 bg-bg px-5 py-4 gap-4 ${className}`} 
       {...props}
     >
       {children}

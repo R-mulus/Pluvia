@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Pressable, View, Platform } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { useRouter, type Href } from "expo-router";
+import { useRouter } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { Screen } from "@/components/custom/Screen";
 import { Separator } from "@/components/ui/separator";
@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/select";
 import type { TriggerRef } from "@rn-primitives/select";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // * SELECTS
@@ -254,7 +253,7 @@ const colunasAlertas: TableColumn<(typeof alertasMock)[0]>[] = [
 export default function Menu() {
   const ref = React.useRef<TriggerRef>(null);
   const router = useRouter();
-  const [value, setValue] = React.useState("usuarios");
+  const [tabValue, setTabValue] = React.useState("usuarios");
   const [alertasOpen, setAlertasOpen] = useState(false);
 
   const insets = useSafeAreaInsets();
@@ -274,8 +273,8 @@ export default function Menu() {
 
       <View className="w-full">
         <Tabs
-          value={value}
-          onValueChange={setValue}
+          value={tabValue}
+          onValueChange={setTabValue}
           className="w-full overflow-scroll"
         >
           <TabsList className="gap-2">
@@ -313,12 +312,12 @@ export default function Menu() {
       {/* // * Botões de Cadastro */}
       <View className="gap-4">
         <Button
-          className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-50 overflow-hidden"
-          onPress={() => router.replace("/(tabs)/menu/addFazenda")}
+          className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-80 overflow-hidden"
+          onPress={() => router.replace("/(tabs)/menu/addUsuario")}
         >
           <View className="flex-row gap-4">
-            <Tractor size={24} color="white" />
-            <Text className="text-white text-base">Cadastrar Fazenda</Text>
+            <Users size={24} color="white" />
+            <Text className="text-white text-base">Cadastrar Usuário</Text>
           </View>
           <Pressable className="rounded-bl-[12px] bg-secundaria-azul w-[40px] h-[40px] items-center justify-center">
             <Plus size={24} strokeWidth={2.5} color="white" />
@@ -327,11 +326,11 @@ export default function Menu() {
 
         <Button
           className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-50 overflow-hidden"
-          onPress={() => router.replace("/(tabs)/menu/addUsuario")}
+          onPress={() => router.replace("/(tabs)/menu/addFazenda")}
         >
           <View className="flex-row gap-4">
-            <Users size={24} color="white" />
-            <Text className="text-white text-base">Cadastrar Usuário</Text>
+            <Tractor size={24} color="white" />
+            <Text className="text-white text-base">Cadastrar Fazenda</Text>
           </View>
           <Pressable className="rounded-bl-[12px] bg-secundaria-azul w-[40px] h-[40px] items-center justify-center">
             <Plus size={24} strokeWidth={2.5} color="white" />
@@ -357,64 +356,53 @@ export default function Menu() {
       {/* // * Alertas */}
       <View className="w-full gap-4">
         <View className="flex-row w-full justify-between items-center">
-        <Text className="font-outfit-bold">Alertas</Text>
-        <View className="flex-row gap-2 items-center">
-          <Select onOpenChange={setAlertasOpen}>
-            <SelectTrigger
-              ref={ref}
-              className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
-            >
-              <SelectValue placeholder="Pivô" />
-            </SelectTrigger>
-            <SelectContent
-              insets={contentInsets}
-              className={`border-[#b8b8b8] bg-white w-[100px] ${alertasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
-            >
-              <SelectGroup>
-                {pivos.map((pivo) => (
-                  <SelectItem
-                    key={pivo.value}
-                    label={pivo.label}
-                    value={pivo.value}
-                    className={
-                      Number(pivo.id) % 2 !== 0
-                        ? "bg-[#E1E1E1]"
-                        : "bg-transparent"
-                    }
-                  >
-                    {pivo.label}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <Text className="font-outfit-bold">Alertas</Text>
+          <View className="flex-row gap-2 items-center">
+            <Select onOpenChange={setAlertasOpen}>
+              <SelectTrigger
+                ref={ref}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+              >
+                <SelectValue placeholder="Pivô" />
+              </SelectTrigger>
+              <SelectContent
+                insets={contentInsets}
+                className={`border-[#b8b8b8] bg-white w-[100px] ${alertasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+              >
+                <SelectGroup>
+                  {pivos.map((pivo) => (
+                    <SelectItem
+                      key={pivo.value}
+                      label={pivo.label}
+                      value={pivo.value}
+                      className={
+                        Number(pivo.id) % 2 !== 0
+                          ? "bg-[#E1E1E1]"
+                          : "bg-transparent"
+                      }
+                    >
+                      {pivo.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </View>
         </View>
-      </View>
 
-      <Table data={alertasMock} columns={colunasAlertas} />
+        <Table data={alertasMock} columns={colunasAlertas} />
       </View>
     </View>
   );
 
   return (
-    <Screen className="flex-1 px-0 gap-4 ">
+    <Screen className="flex-1 px-0">
       <FlashList
         data={[]}
         renderItem={() => null}
         ListHeaderComponent={ConteudoDaTela}
         showsVerticalScrollIndicator={false}
       />
-
-      {/* Botão de Teste para fazer Logout */}
-      <View>
-        <Button
-          variant="destructive"
-          className="w-full"
-          onPress={() => router.replace("/" as Href)}
-        >
-          <Text>Sair (Voltar pro Login)</Text>
-        </Button>
-      </View>
     </Screen>
   );
 }

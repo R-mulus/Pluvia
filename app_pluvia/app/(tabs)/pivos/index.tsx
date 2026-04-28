@@ -70,7 +70,7 @@ export default function ListaDePivos() {
   ]);
 
   return (
-    <Screen className="justify-center gap-2 overflow-scroll">
+    <Screen className="justify-center overflow-scroll">
 
       {/* // * Cabeçalho */}
       <View className="flex-row justify-between items-center">
@@ -159,19 +159,10 @@ export default function ListaDePivos() {
         className="flex-1"
         data={pivos}
         // injetando os dados no Card
-        renderItem={({ item }) => <PivotCard waterOn />}
+        renderItem={({ item }) => <PivotCard waterOn anguloAtual={30} anguloFinal={270} anguloInicio={0} />}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
-
-      {/* Botão de Teste para fazer Logout */}
-      <Button
-        variant="destructive"
-        className="w-full"
-        onPress={() => router.replace("/" as Href)}
-      >
-        <Text>Sair (Voltar pro Login)</Text>
-      </Button>
     </Screen>
   );
 }
