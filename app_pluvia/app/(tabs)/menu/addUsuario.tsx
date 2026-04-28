@@ -44,13 +44,13 @@ export default function CadastrarUsuario() {
             >
               <TabsList className="gap-2">
                 <TabsTrigger value="administrador" className="flex-1 border-2 border-primaria-azul rounded-xl">
-                  <Text>Administrador</Text>
+                  <Text className='text-[13px]'>Administrador</Text>
                 </TabsTrigger>
                 <TabsTrigger value="cliente" className="flex-1 border-2 border-primaria-azul rounded-xl">
-                  <Text>Cliente</Text>
+                  <Text className='text-[13px]'>Cliente</Text>
                 </TabsTrigger>
                 <TabsTrigger value="operador" className="flex-1 border-2 border-primaria-azul rounded-xl">
-                  <Text>Operador</Text>
+                  <Text className='text-[13px]'>Operador</Text>
                 </TabsTrigger>
               </TabsList>
               
