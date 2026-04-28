@@ -2,14 +2,14 @@ import React, { useRef } from 'react';
 import { View, ScrollView, KeyboardAvoidingView, Platform, TextInput } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { useRouter } from "expo-router";
+// import { useRouter } from "expo-router";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Screen } from "@/components/custom/Screen";
 import { Input } from "@/components/ui/input";
 import Header from '@/components/custom/Header';
 
 export default function CadastrarUsuario() {
-  const router = useRouter();
+  // const router = useRouter();
   const [tabValue, setTabValue] = React.useState("operador");
 
   const cpfRef = useRef<TextInput>(null);

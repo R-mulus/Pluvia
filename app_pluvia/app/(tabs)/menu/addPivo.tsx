@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { useRouter } from "expo-router";
+// import { useRouter } from "expo-router";
 import { Screen } from "@/components/custom/Screen";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/custom/Header";
@@ -42,14 +42,18 @@ const operadores = [
 ];
 
 export default function CadastrarPivo() {
-  const router = useRouter();
+  // const router = useRouter();
 
   // 1. ESTADOS INDEPENDENTES PARA CADA DIALOG
   const [dialogFazendaOpen, setDialogFazendaOpen] = useState(false);
-  const [selectedFazenda, setSelectedFazenda] = useState<(typeof fazendas)[0] | null>(null);
+  const [selectedFazenda, setSelectedFazenda] = useState<
+    (typeof fazendas)[0] | null
+  >(null);
 
   const [dialogOperadorOpen, setDialogOperadorOpen] = useState(false);
-  const [selectedOperador, setSelectedOperador] = useState<(typeof operadores)[0] | null>(null);
+  const [selectedOperador, setSelectedOperador] = useState<
+    (typeof operadores)[0] | null
+  >(null);
 
   // 2. REFS CORRIGIDAS PARA OS CAMPOS DO PIVÔ
   const nomeRef = useRef<TextInput>(null);
@@ -65,7 +69,7 @@ export default function CadastrarPivo() {
     <Screen>
       <KeyboardAvoidingView
         style={{ flex: 1, width: "100%" }}
-  behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -76,20 +80,30 @@ export default function CadastrarPivo() {
 
           <View className="w-full gap-3">
             <View className="gap-4 w-full">
-              
               {/* === DIALOG DA FAZENDA === */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Fazenda</Text>
 
-                <Dialog open={dialogFazendaOpen} onOpenChange={setDialogFazendaOpen}>
+                <Dialog
+                  open={dialogFazendaOpen}
+                  onOpenChange={setDialogFazendaOpen}
+                >
                   <DialogTrigger asChild>
                     <Pressable className="flex-row items-center border-[2px] border-[#b8b8b8] bg-white w-full overflow-hidden rounded-[12px] h-[48px]">
                       <View className="bg-[#00A0A6] px-4 items-center justify-center h-full">
                         <Tractor color="white" size={24} />
                       </View>
                       <View className="flex-1 px-3 items-start justify-center">
-                        <Text className={selectedFazenda ? "text-[#0D0D0D] text-sm font-outfit-medium" : "text-muted-foreground text-sm font-outfit-medium"}>
-                          {selectedFazenda ? selectedFazenda.label : "Selecione uma fazenda"}
+                        <Text
+                          className={
+                            selectedFazenda
+                              ? "text-[#0D0D0D] text-sm font-outfit-medium"
+                              : "text-muted-foreground text-sm font-outfit-medium"
+                          }
+                        >
+                          {selectedFazenda
+                            ? selectedFazenda.label
+                            : "Selecione uma fazenda"}
                         </Text>
                       </View>
                       <View className="px-4 items-center justify-center h-full">
@@ -101,19 +115,34 @@ export default function CadastrarPivo() {
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                       <DialogTitle>Fazenda</DialogTitle>
-                      <DialogDescription>Selecione a fazenda onde o pivô será instalado.</DialogDescription>
+                      <DialogDescription>
+                        Selecione a fazenda onde o pivô será instalado.
+                      </DialogDescription>
                     </DialogHeader>
 
                     <View className="grid gap-4">
                       <View className="grid gap-2">
-                        <Label htmlFor="buscar-fazenda" className="text-muted-foreground text-xs font-outfit">Buscar Fazenda</Label>
-                        <Input id="buscar-fazenda" placeholder="Nome da Fazenda" className="h-10" />
+                        <Label
+                          htmlFor="buscar-fazenda"
+                          className="text-muted-foreground text-xs font-outfit"
+                        >
+                          Buscar Fazenda
+                        </Label>
+                        <Input
+                          id="buscar-fazenda"
+                          placeholder="Nome da Fazenda"
+                          className="h-10"
+                        />
                       </View>
 
                       <View className="h-[240px] bg-popover border-border rounded-md border shadow-md shadow-black/5 p-1">
-                        <ScrollView showsVerticalScrollIndicator={true} keyboardShouldPersistTaps="handled">
+                        <ScrollView
+                          showsVerticalScrollIndicator={true}
+                          keyboardShouldPersistTaps="handled"
+                        >
                           {fazendas.map((fazenda) => {
-                            const isSelected = selectedFazenda?.value === fazenda.value;
+                            const isSelected =
+                              selectedFazenda?.value === fazenda.value;
                             return (
                               <TouchableOpacity
                                 key={fazenda.id}
@@ -121,13 +150,18 @@ export default function CadastrarPivo() {
                                 className={`relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 ${isSelected ? "bg-accent" : "active:bg-accent"}`}
                                 onPress={() => {
                                   setSelectedFazenda(fazenda);
-                                  setDialogFazendaOpen(false);
                                 }}
                               >
-                                <Text className="text-foreground text-sm font-outfit-medium">{fazenda.label}</Text>
+                                <Text className="text-foreground text-sm font-outfit-medium">
+                                  {fazenda.label}
+                                </Text>
                                 {isSelected && (
                                   <View className="absolute right-2 flex size-3.5 items-center justify-center">
-                                    <Check size={16} className="text-foreground shrink-0 font-outfit" strokeWidth={2.5} />
+                                    <Check
+                                      size={16}
+                                      className="text-foreground shrink-0 font-outfit"
+                                      strokeWidth={2.5}
+                                    />
                                   </View>
                                 )}
                               </TouchableOpacity>
@@ -140,7 +174,7 @@ export default function CadastrarPivo() {
                     <DialogFooter>
                       <DialogClose asChild>
                         <Button className="rounded-xl bg-primaria-azul">
-                          <Text className="text-white">Cancelar</Text>
+                          <Text className="text-white">Ok</Text>
                         </Button>
                       </DialogClose>
                     </DialogFooter>
@@ -152,15 +186,26 @@ export default function CadastrarPivo() {
               <View className="items-start gap-2">
                 <Text className="text-xs">Operador Responsável</Text>
 
-                <Dialog open={dialogOperadorOpen} onOpenChange={setDialogOperadorOpen}>
+                <Dialog
+                  open={dialogOperadorOpen}
+                  onOpenChange={setDialogOperadorOpen}
+                >
                   <DialogTrigger asChild>
                     <Pressable className="flex-row items-center border-[2px] border-[#b8b8b8] bg-white w-full overflow-hidden rounded-[12px] h-[48px]">
                       <View className="bg-[#00A0A6] px-4 items-center justify-center h-full">
                         <User color="white" size={24} />
                       </View>
                       <View className="flex-1 px-3 items-start justify-center">
-                        <Text className={selectedOperador ? "text-[#0D0D0D] text-sm font-outfit-medium" : "text-muted-foreground text-sm font-outfit-medium"}>
-                          {selectedOperador ? selectedOperador.label : "Selecione um operador"}
+                        <Text
+                          className={
+                            selectedOperador
+                              ? "text-[#0D0D0D] text-sm font-outfit-medium"
+                              : "text-muted-foreground text-sm font-outfit-medium"
+                          }
+                        >
+                          {selectedOperador
+                            ? selectedOperador.label
+                            : "Selecione um operador"}
                         </Text>
                       </View>
                       <View className="px-4 items-center justify-center h-full">
@@ -172,19 +217,34 @@ export default function CadastrarPivo() {
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
                       <DialogTitle>Operador</DialogTitle>
-                      <DialogDescription>Selecione o operador responsável por este pivô.</DialogDescription>
+                      <DialogDescription>
+                        Selecione o operador responsável por este pivô.
+                      </DialogDescription>
                     </DialogHeader>
 
                     <View className="grid gap-4">
                       <View className="grid gap-2">
-                        <Label htmlFor="buscar-operador" className="text-muted-foreground text-xs font-outfit">Buscar Operador</Label>
-                        <Input id="buscar-operador" placeholder="Nome do Operador" className="h-10" />
+                        <Label
+                          htmlFor="buscar-operador"
+                          className="text-muted-foreground text-xs font-outfit"
+                        >
+                          Buscar Operador
+                        </Label>
+                        <Input
+                          id="buscar-operador"
+                          placeholder="Nome do Operador"
+                          className="h-10"
+                        />
                       </View>
 
                       <View className="h-[240px] bg-popover border-border rounded-md border shadow-md shadow-black/5 p-1">
-                        <ScrollView showsVerticalScrollIndicator={true} keyboardShouldPersistTaps="handled">
+                        <ScrollView
+                          showsVerticalScrollIndicator={true}
+                          keyboardShouldPersistTaps="handled"
+                        >
                           {operadores.map((operador) => {
-                            const isSelected = selectedOperador?.value === operador.value;
+                            const isSelected =
+                              selectedOperador?.value === operador.value;
                             return (
                               <TouchableOpacity
                                 key={operador.id}
@@ -192,13 +252,18 @@ export default function CadastrarPivo() {
                                 className={`relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 ${isSelected ? "bg-accent" : "active:bg-accent"}`}
                                 onPress={() => {
                                   setSelectedOperador(operador);
-                                  setDialogOperadorOpen(false);
                                 }}
                               >
-                                <Text className="text-foreground text-sm font-outfit-medium">{operador.label}</Text>
+                                <Text className="text-foreground text-sm font-outfit-medium">
+                                  {operador.label}
+                                </Text>
                                 {isSelected && (
                                   <View className="absolute right-2 flex size-3.5 items-center justify-center">
-                                    <Check size={16} className="text-foreground shrink-0 font-outfit" strokeWidth={2.5} />
+                                    <Check
+                                      size={16}
+                                      className="text-foreground shrink-0 font-outfit"
+                                      strokeWidth={2.5}
+                                    />
                                   </View>
                                 )}
                               </TouchableOpacity>
@@ -211,7 +276,7 @@ export default function CadastrarPivo() {
                     <DialogFooter>
                       <DialogClose asChild>
                         <Button className="rounded-xl bg-primaria-azul">
-                          <Text className="text-white">Cancelar</Text>
+                          <Text className="text-white">Ok</Text>
                         </Button>
                       </DialogClose>
                     </DialogFooter>
@@ -333,7 +398,6 @@ export default function CadastrarPivo() {
               <Text>Adicionar</Text>
             </Button>
           </View>
-
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
