@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { useRouter } from "expo-router";
+// import { useRouter } from "expo-router";
 import { Screen } from "@/components/custom/Screen";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/custom/Header";
@@ -47,7 +47,7 @@ const clientes = [
 ];
 
 export default function CadastrarFazenda() {
-  const router = useRouter();
+  // const router = useRouter();
 
   // Estados do Dialog e do Cliente selecionado
   const [dialogOpen, setDialogOpen] = useState(false);

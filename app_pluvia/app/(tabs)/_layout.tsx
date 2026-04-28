@@ -1,5 +1,4 @@
-import { Tabs } from "expo-router";
-import { useRouter } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import {
   TableProperties,
   ChartColumnIncreasing,
