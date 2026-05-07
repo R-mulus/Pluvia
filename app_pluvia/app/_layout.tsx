@@ -46,7 +46,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <StatusBar style="light" backgroundColor="transparent" translucent={true} />
+      <StatusBar style="light" backgroundColor="transparent" translucent={true}/>
 
       <Drawer 
         // A MÁGICA: O conteúdo muda instantaneamente baseado no botão que foi clicado!

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useNavigation } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CircleUser,
@@ -13,7 +13,7 @@ import {
 } from "lucide-react-native";
 import { Separator } from "@/components/ui/separator";
 import MenuItem from "@/components/custom/ProfileItem";
-
+import { DrawerActions } from "@react-navigation/native";
 
 // ? Tipagem dos dados do usuário
 export type UserData = {
@@ -32,7 +32,7 @@ type PerfilProps = {
 export default function Perfil({ navigation, userData }: PerfilProps) {
   const insets = useSafeAreaInsets();
   const [user, setUser] = useState<UserData | null>(null);
-const router = useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     // Se o componente receber dados da API por props, usa eles.
@@ -137,17 +137,26 @@ const router = useRouter();
           <MenuItem
             icon={<CircleHelp size={24} color="#000" />}
             title="Sobre Nós"
-            onPress={() => handleNavegacao("SobreNos")}
+            onPress={() => {
+              router.push("/perfil/sobre");
+              navigation.dispatch(DrawerActions.closeDrawer());
+            }}
           />
           <MenuItem
             icon={<Headphones size={24} color="#000" />}
             title="Central de Ajuda"
-            onPress={() => handleNavegacao("CentralAjuda")}
+            onPress={() => {
+              router.push("/perfil/ajuda");
+              navigation.dispatch(DrawerActions.closeDrawer());
+            }}
           />
           <MenuItem
             icon={<Phone size={24} color="#000" />}
             title="Fale Conosco"
-            onPress={() => handleNavegacao("FaleConosco")}
+            onPress={() => {
+              router.push("/perfil/faleConosco");
+              navigation.dispatch(DrawerActions.closeDrawer());
+            }}
           />
         </View>
 

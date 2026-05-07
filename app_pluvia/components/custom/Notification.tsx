@@ -43,7 +43,7 @@ export default function Notification({ navigation }: any) {
               A lâmina de 3.2mm foi aplicada com sucesso. O equipamento está em repouso.
             </Text>
             <Text className="font-outfit-medium text-[10px] text-subtexto mt-1 self-end">
-              Agora mesmo
+              06:40
             </Text>
           </View>
         </TouchableOpacity>
@@ -69,7 +69,7 @@ export default function Notification({ navigation }: any) {
               O Pivô Sul detectou uma pressão acima de 50 PSI na linha principal.
             </Text>
             <Text className="font-outfit-medium text-[10px] text-subtexto mt-1 self-end">
-              Há 2 horas
+              06:07
             </Text>
           </View>
         </TouchableOpacity>
