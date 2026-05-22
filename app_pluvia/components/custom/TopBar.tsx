@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Image, TouchableOpacity, Text, Platform, DeviceEventEmitter } from "react-native";
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  Text,
+  Platform,
+  DeviceEventEmitter,
+} from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { DrawerActions } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,12 +30,12 @@ export default function TopBar({
   // === LÓGICA DAS GAVETAS ===
   const abrirNotificacoes = () => {
     if (onNotificationPress) onNotificationPress(); // Executa função extra se você passar
-    DeviceEventEmitter.emit('MUDAR_GAVETA', 'notificacoes'); // Avisa o layout para trocar o miolo
+    DeviceEventEmitter.emit("MUDAR_GAVETA", "notificacoes"); // Avisa o layout para trocar o miolo
     navigation.dispatch(DrawerActions.openDrawer()); // Abre a gaveta
   };
 
   const abrirPerfil = () => {
-    DeviceEventEmitter.emit('MUDAR_GAVETA', 'perfil'); 
+    DeviceEventEmitter.emit("MUDAR_GAVETA", "perfil");
     navigation.dispatch(DrawerActions.openDrawer());
   };
 
@@ -46,10 +53,16 @@ export default function TopBar({
       }}
     >
       <View className="flex-row items-center justify-between pb-3 h-16 relative">
-        
         <View className="z-10 items-start justify-center">
           {showBackButton && (
-            <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7} className="p-1">
+            <TouchableOpacity
+              onPress={() => {
+                if (router.canGoBack()) router.back();
+                else router.replace("/(tabs)/pivos");
+              }}
+              activeOpacity={0.7}
+              className="p-1"
+            >
               <ChevronLeft color="white" size={28} />
             </TouchableOpacity>
           )}
@@ -64,14 +77,20 @@ export default function TopBar({
         </View>
 
         <View className="z-10 items-end justify-center flex-row gap-4">
-          
           {/* BOTÃO DO SINO: Chama a função que troca para notificações */}
-          <TouchableOpacity onPress={abrirNotificacoes} activeOpacity={0.7} className="p-1">
+          <TouchableOpacity
+            onPress={abrirNotificacoes}
+            activeOpacity={0.7}
+            className="p-1"
+          >
             <View>
               <Bell color="white" size={24} />
               {notificationCount > 0 && (
                 <View className="absolute -top-1.5 -right-1.5 bg-[#E52207] rounded-full w-5 h-5 items-center justify-center">
-                  <Text className="text-white font-bold" style={{ fontSize: 10 }}>
+                  <Text
+                    className="text-white font-bold"
+                    style={{ fontSize: 10 }}
+                  >
                     {notificationCount > 99 ? "99+" : notificationCount}
                   </Text>
                 </View>
@@ -80,15 +99,14 @@ export default function TopBar({
           </TouchableOpacity>
 
           {/* BOTÃO DO MENU: Chama a função que troca para o Perfil */}
-          <TouchableOpacity 
-            activeOpacity={0.7} 
+          <TouchableOpacity
+            activeOpacity={0.7}
             className="p-1"
             onPress={abrirPerfil}
           >
             <Menu color="white" size={24} />
           </TouchableOpacity>
         </View>
-
       </View>
     </View>
   );

@@ -3,27 +3,23 @@ import { View, Pressable } from "react-native";
 import { Text } from "@/components/ui/text";
 import { useRouter } from "expo-router";
 import {
-  Droplet,
-  RefreshCw,
-  Wifi,
-  RotateCw,
-  Zap,
-  Gauge,
-  UndoDot,
-  Undo,
-  TriangleAlert,
+  Droplet, RefreshCw, Wifi, RotateCw, Zap, Gauge, UndoDot, Undo, TriangleAlert,
 } from "lucide-react-native";
 import Svg, { Circle, Path, Line } from "react-native-svg";
 
 interface PivotCardProps {
-  id?: string;
-  nome?: string;
-  waterOn?: boolean;
+  id: string;
+  nome: string;
+  waterOn: boolean;
   warning?: boolean;
-  // Props adicionadas exclusivamente para o SVG dinâmico
-  anguloAtual?: number;
-  anguloInicio?: number;
-  anguloFinal?: number;
+  anguloAtual: number;
+  anguloInicio: number;
+  anguloFinal: number;
+  tensao: number;
+  pressao: number;
+  lamina: number;
+  direcaoAtual: 'HORARIO' | 'ANTI_HORARIO' | 'PARADO' | null;
+  ultimaAtualizacao: string;
 }
 
 export default function PivotCard({
@@ -31,39 +27,36 @@ export default function PivotCard({
   nome,
   waterOn,
   warning,
-  anguloAtual = 90, // Valores padrão para não quebrar caso a API demore
-  anguloInicio = 0,
-  anguloFinal = 90,
+  anguloAtual,
+  anguloInicio,
+  anguloFinal,
+  tensao,
+  pressao,
+  lamina,
+  direcaoAtual,
+  ultimaAtualizacao,
 }: PivotCardProps) {
   const router = useRouter();
 
   const getStatusColor = () => {
-    if (waterOn === true) return "bg-primaria-azul";
-    if (waterOn === false) return "bg-[#753E20]"; // Marrom do Figma
-    return "bg-[#666666]"; // Cinza padrão (undefined)
+    if (waterOn) return "bg-primaria-azul";
+    if (waterOn === false) return "bg-[#753E20]";
+    return "bg-[#666666]";
   };
 
   const getWifiStatusColor = () => {
-    if (waterOn === true) return "bg-secundaria-azul";
+    if (waterOn) return "bg-secundaria-azul";
     if (waterOn === false) return "bg-[#4B2410]";
     return "bg-borda";
   };
 
-  // Função para pintar o SVG (Retorna apenas o HEX, sem o "bg-")
   const getRadarColor = () => {
-    if (waterOn === true) return "#00A0A6"; // O HEX da sua primaria-azul
-    if (waterOn === false) return "#753E20"; // Marrom
-    return "#666666"; // Cinza
+    if (waterOn) return "#00A0A6";
+    if (waterOn === false) return "#753E20";
+    return "#666666";
   };
 
-  const statusColorClass = getStatusColor();
-  const wifiStatusColorClass = getWifiStatusColor();
-  const radarColorHex = getRadarColor();
-
-  // === LÓGICA MATEMÁTICA DO SVG ===
-  // Converte os graus (0 a 360) em coordenadas X e Y no plano do SVG
   const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
-    // Subtrai 90 para que o Grau 0 seja exatamente no topo (12 horas)
     const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
     return {
       x: centerX + radius * Math.cos(angleInRadians),
@@ -71,173 +64,137 @@ export default function PivotCard({
     };
   };
 
-  // Desenha a fatia de pizza (Área Irrigada)
   const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
+    if (startAngle === endAngle) return "";
+
     const start = polarToCartesian(x, y, radius, startAngle);
     const end = polarToCartesian(x, y, radius, endAngle);
     
-    // Calcula a diferença para saber se o arco é maior que 180 graus (necessário para o SVG desenhar pelo lado certo)
     let diff = endAngle - startAngle;
-    if (diff < 0) diff += 360;
-    const largeArcFlag = diff > 180 ? "1" : "0";
+    
+    const isAntiHorario = direcaoAtual === 'ANTI_HORARIO';
+
+    if (isAntiHorario) {
+      if (diff > 0) diff -= 360;
+    } else {
+      if (diff < 0) diff += 360;
+    }
+
+    const largeArcFlag = Math.abs(diff) > 180 ? "1" : "0";
+    
+    const sweepFlag = isAntiHorario ? "0" : "1";
 
     return [
-      "M", x, y,
+      "M", x, y, 
       "L", start.x, start.y,
-      "A", radius, radius, 0, largeArcFlag, 1, end.x, end.y,
+      "A", radius, radius, 0, largeArcFlag, sweepFlag, end.x, end.y, 
       "Z"
     ].join(" ");
   };
 
-  // Calcula a ponta da linha tracejada baseada no ângulo atual
+  // Calculamos a ponta da linha baseada no ângulo ATUAL do pivô
   const pontoAtual = polarToCartesian(40, 40, 40, anguloAtual);
+
+  const dataFormatada = new Date(ultimaAtualizacao).toLocaleDateString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit'
+  });
 
   return (
     <Pressable
       className="bg-white rounded-[12px] border-[#cacaca] border-[2px] overflow-hidden mb-4 gap-3 max-w-full active:opacity-70"
-      onPress={() => router.push(`/(tabs)/pivos/[id]`)}
+      onPress={() => router.push(`/(tabs)/pivos/${id}`)}
     >
-      {/* LINHA DO CABEÇALHO */}
       <View className="flex-row justify-between">
-        {/* Título e Data */}
-        <View className="px-4 py-1">
+        <View className="px-2 py-1">
           <Text className="text-base font-outfit-medium text-texto">
-            {nome || "Pivô 1"} {/* Usando a prop nome dinamicamente */}
+            {nome}
           </Text>
-          <Text className="text-sm text-subtexto">21/03/2026 02:23</Text>
+          <Text className="text-sm text-subtexto">{dataFormatada}</Text>
         </View>
 
-        {/* Container da parte de status (Sincronizado com a cor da tag) */}
-        <View
-          className={`flex-row flex-1 rounded-bl-[12px] ${statusColorClass}`}
-        >
-          <View className="flex-row items-center rounded-bl-[12px] justify-center pl-6 pr-2 mr-auto">
+        <View className={`flex-row flex-1 rounded-bl-[12px] ${getStatusColor()}`}>
+          <View className="flex-row items-center rounded-bl-[12px] justify-center pl-2 pr-2 mr-auto">
             <View className="flex-row gap-1">
               <Droplet color="white" size={24} strokeWidth={2.5} />
               <RefreshCw color="white" size={24} strokeWidth={2.5} />
             </View>
-            <Text className="text-white font-outfit text-lg ml-2">Horário</Text>
+            <Text className="text-white font-outfit text-lg ml-2">
+              {direcaoAtual === 'HORARIO' ? 'Horário' : direcaoAtual === 'ANTI_HORARIO' ? 'Anti-Hor.' : 'Parado'}
+            </Text>
           </View>
 
-          {/* Parte Azul Escura (Wi-Fi) */}
-          <View
-            className={`w-[48px] h-auto justify-center items-center rounded-bl-[12] ${wifiStatusColorClass}`}
-          >
+          <View className={`w-[48px] h-auto justify-center items-center rounded-bl-[12] ${getWifiStatusColor()}`}>
             <Wifi color="white" size={24} strokeWidth={2.5} />
           </View>
         </View>
       </View>
 
-      {/* CONTEÚDO (Radar + Grid de Dados) */}
       <View className="flex-row gap-4 items-center justify-between">
         <View className="flex-row pl-3 pb-2 gap-4 items-center justify-start">
           
-          {/* RADAR DINÂMICO */}
           <View className="justify-center items-center">
             <Svg width={75} height={75} viewBox="0 0 80 80">
-              {/* Fundo do Radar */}
               <Circle cx="40" cy="40" r="40" fill="#D9D9D9" />
               
-              {/* Área Irrigada Dinâmica */}
-              <Path
-                d={describeArc(40, 40, 40, anguloInicio, anguloFinal)}
-                fill={radarColorHex}
+              {/* O ARCO: Preenchimento dinâmico crescendo do Início até o Atual */}
+              <Path 
+                d={describeArc(40, 40, 40, anguloInicio, anguloAtual)} 
+                fill={getRadarColor()} 
               />
               
-              {/* Linha Tracejada (Ângulo Atual) */}
-              <Line
-                x1="40"
-                y1="40"
-                x2={pontoAtual.x}
-                y2={pontoAtual.y}
-                stroke="#0D0D0D"
-                strokeWidth="3"
-                strokeDasharray="6 4"
-              />
+              {/* ATUAL: Linha tracejada indicando exatamente onde o pivô está na borda do arco */}
+              <Line x1="40" y1="40" x2={pontoAtual.x} y2={pontoAtual.y} stroke="#0D0D0D" strokeWidth="3" strokeDasharray="6 4" />
               
-              {/* Linha Sólida (Grau 0 - Fixo apontando para cima) */}
-              <Line
-                x1="40"
-                y1="40"
-                x2="40"
-                y2="0"
-                stroke="#0D0D0D"
-                strokeWidth="3"
-              />
+              {/* NORTE (0 Graus) Fixo */}
+              <Line x1="40" y1="40" x2="40" y2="0" stroke="#0D0D0D" strokeWidth="3" />
             </Svg>
           </View>
 
-          {/* Grid de Informações */}
           <View className="flex-row justify-start gap-4 py-3">
-            {/* Coluna 1 */}
             <View className="gap-y-1">
               <View className="flex-row items-center">
                 <RotateCw size={24} color="#0D0D0D" strokeWidth={2.5} />
-                <Text className="text-xs ml-1 text-texto font-outfit-medium">
-                  Posição:
-                </Text>
-                <Text className="text-xs ml-1 text-texto font-outfit-bold">
-                  180°
-                </Text>
+                <Text className="text-xs ml-1 text-texto font-outfit-medium">Posição:</Text>
+                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloAtual}°</Text>
               </View>
-
               <View className="flex-row flex-1 items-center justify-between">
                 <View className="flex-row items-center">
                   <UndoDot size={24} color="#0D0D0D" strokeWidth={2.5} />
-                  <Text className="text-xs ml-1 text-texto font-outfit-medium">
-                    Inicio:
-                  </Text>
+                  <Text className="text-xs ml-1 text-texto font-outfit-medium">Inicio:</Text>
                 </View>
-                <Text className="text-xs ml-1 text-texto font-outfit-bold">
-                  195°
-                </Text>
+                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloInicio}°</Text>
               </View>
-
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Undo size={24} color="#0D0D0D" strokeWidth={2.5} />
-                  <Text className="text-xs ml-1 text-texto font-outfit-medium">
-                    Final:
-                  </Text>
+                  <Text className="text-xs ml-1 text-texto font-outfit-medium">Final:</Text>
                 </View>
-                <Text className="text-xs ml-1 text-texto font-outfit-bold">
-                  195°
-                </Text>
+                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloFinal}°</Text>
               </View>
             </View>
 
-            {/* Coluna 2 */}
             <View className="gap-y-1">
               <View className="flex-row items-center">
                 <Zap size={24} color="#0D0D0D" strokeWidth={2.5} />
-                <Text className="text-xs ml-2 text-texto font-outfit-bold">
-                  384 V
-                </Text>
+                <Text className="text-xs ml-2 text-texto font-outfit-bold">{tensao} V</Text>
               </View>
-
               <View className="flex-row items-center">
                 <Gauge size={24} color="#0D0D0D" strokeWidth={2.5} />
-                <Text className="text-xs ml-2 text-texto font-outfit-bold">
-                  24 (mV)
-                </Text>
+                <Text className="text-xs ml-2 text-texto font-outfit-bold">{pressao} PSI</Text>
               </View>
-
               <View className="flex-row items-center">
                 <Droplet size={24} color="#0D0D0D" strokeWidth={2.5} />
-                <Text className="text-xs ml-2 text-texto font-outfit-bold">
-                  3.2 mm
-                </Text>
+                <Text className="text-xs ml-2 text-texto font-outfit-bold">{lamina} mm</Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* Tag de aviso Dinâmica */}
-        {warning ? (
+        {warning && (
           <View className="items-center justify-center px-3 self-stretch rounded-tl-[8px] bg-primaria-azul">
             <TriangleAlert size={24} color="white" strokeWidth={2.5} />
           </View>
-        ) : null}
+        )}
       </View>
     </Pressable>
   );

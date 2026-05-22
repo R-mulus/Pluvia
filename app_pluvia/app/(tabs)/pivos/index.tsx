@@ -1,168 +1,180 @@
-// ! CÓDIGO DE EXEMPLO
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import * as React from "react";
-import { View, Pressable, Platform } from "react-native";
+import { View, Pressable, Platform, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
-import { useRouter, type Href } from "expo-router";
+import { useRouter } from "expo-router";
 import PivotCard from "@/components/custom/PivotCard";
 import { FlashList } from "@shopify/flash-list";
 import { Funnel } from "lucide-react-native";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { TriggerRef } from "@rn-primitives/select";
 import Header from "@/components/custom/Header";
 import { Screen } from "@/components/custom/Screen";
 
-const fazendas = [
-  { id: 1, label: "Fazenda 1", value: "fazenda_1" },
-  { id: 2, label: "Fazenda 2", value: "fazenda_2" },
-  { id: 3, label: "Fazenda 3", value: "fazenda_3" },
-];
+// Importando Hooks Reais
+import { useDashboardTelemetria } from "@/hooks/api/useTelemetria";
+import { useFazendas } from "@/hooks/api/useFazendas";
 
 export default function ListaDePivos() {
   const ref = React.useRef<TriggerRef>(null);
-  const [open, setOpen] = useState(false); // Estado para controlar a abertura do Select
-  
+  const router = useRouter();
   const insets = useSafeAreaInsets();
+  
+  const [open, setOpen] = useState(false);
+  const [fazendaFiltro, setFazendaFiltro] = useState<{ label: string; value: string } | undefined>(undefined);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Substituímos o usePivos pelo hook do Dashboard completo
+  const { data: pivosDashboard, isPending: isLoadingPivos, refetch: refetchPivos } = useDashboardTelemetria();
+  const { data: fazendas, isPending: isLoadingFazendas, refetch: refetchFazendas } = useFazendas();
+
   const contentInsets = {
     top: insets.top,
-    bottom: Platform.select({
-      ios: insets.bottom,
-      android: insets.bottom + 24,
-    }),
-    left: 12,
-    right: 12,
+    bottom: Platform.select({ ios: insets.bottom, android: insets.bottom + 24 }),
+    left: 12, right: 12,
   };
-  const router = useRouter();
 
-  const [pivos, setPivos] = useState([
-    { id: "1", nome: "Pivô 1", voltagem: 384 },
-    { id: "2", nome: "Pivô 2", voltagem: 380 },
-    { id: "3", nome: "Pivô Sul", voltagem: 390 },
-    { id: "4", nome: "Pivô Norte", voltagem: 390 },
-    { id: "5", nome: "Pivô Sul", voltagem: 390 },
-    { id: "6", nome: "Pivô Sul", voltagem: 390 },
-    { id: "7", nome: "Pivô Sul", voltagem: 390 },
-    { id: "8", nome: "Pivô Sul", voltagem: 390 },
-    { id: "9", nome: "Pivô Sul", voltagem: 390 },
-    { id: "10", nome: "Pivô Sul", voltagem: 390 },
-    { id: "11", nome: "Pivô Sul", voltagem: 390 },
-  ]);
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([refetchPivos(), refetchFazendas()]);
+    setIsRefreshing(false);
+  };
+
+  const pivosExibidos = useMemo(() => {
+    if (!pivosDashboard) return [];
+    if (!fazendaFiltro || fazendaFiltro.value === "todos") return pivosDashboard;
+    return pivosDashboard.filter(pivo => pivo.fazenda_id === fazendaFiltro.value);
+  }, [pivosDashboard, fazendaFiltro]);
 
   return (
-    <Screen className="justify-center overflow-scroll">
+    <Screen className="justify-center overflow-scroll px-0">
+      <View>
+        
+        <View className="flex-row justify-between items-center mb-4">
+          <Header title="Pivôs" subtitle="AXC23KJ09P" />
 
-      {/* // * Cabeçalho */}
-      <View className="flex-row justify-between items-center">
-        <Header title="Pivôs" subtitle="AXC23KJ09P" />
+          {isLoadingFazendas ? (
+            <ActivityIndicator size="small" color="#00A0A6" />
+          ) : (
+            <Select
+  value={fazendaFiltro}
+  onValueChange={setFazendaFiltro}
+  onOpenChange={setOpen}
+>
+  <SelectTrigger
+    ref={ref}
+    className={`w-[220px] border-[1px] border-b-[1px] border-[#b8b8b8] bg-white ${open ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+  >
+    <SelectValue placeholder="Fazenda" />
+  </SelectTrigger>
+  
+  <SelectContent
+    insets={contentInsets}
+    className={`w-[220px] border-[#b8b8b8] bg-white ${open ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+  >
+    <SelectGroup>
+      
+      {/* OPÇÃO DE DESTAQUE */}
+      <SelectItem 
+        label="Todas as Fazendas" 
+        value="todos" 
+        className="border-b-[1px] border-[#b8b8b8] mb-1"
+      >
+        <Text className="font-outfit-bold text-white">
+          Todas as Fazendas
+        </Text>
+      </SelectItem>
 
-        <Select
-          onOpenChange={setOpen}
-          className="rounded-[12px] active:opacity-50"
+      {/* LISTA DINÂMICA DE FAZENDAS */}
+      {fazendas?.map((fazenda, index) => (
+        <SelectItem
+          key={fazenda.id}
+          label={fazenda.nome_fazenda}
+          value={fazenda.id}
+          className={index % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}
         >
-          <SelectTrigger
-            ref={ref}
-            className={`
-          w-[180px] border-[1px] border-b-[1px] border-[#b8b8b8] rounded-[12px] bg-white
-          ${open ? "rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"} 
-        `}
-          >
-            <SelectValue placeholder="Fazendas" />
-          </SelectTrigger>
-          <SelectContent
-            insets={contentInsets}
-            className={`
-          w-[180px] border-[#b8b8b8] bg-white
-          ${open ? "rounded-t-none" : "rounded-xl"}
-        `}
-          >
-            <SelectGroup>
-              {/* <SelectLabel>Fruits</SelectLabel> */}
-              {fazendas.map((fazenda) => (
-                <SelectItem
-                  key={fazenda.value}
-                  label={fazenda.label}
-                  value={fazenda.value}
-                  className={
-                    Number(fazenda.id) % 2 !== 0
-                      ? "bg-[#E1E1E1]"
-                      : "bg-transparent"
-                  }
-                >
-                  {fazenda.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          <Text className="font-outfit text-texto">
+            {fazenda.nome_fazenda}
+          </Text>
+        </SelectItem>
+      ))}
+      
+    </SelectGroup>
+  </SelectContent>
+</Select>
+          )}
+        </View>
+
+        <View className="w-full flex-row justify-end mb-4">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
+                <Funnel size={24} color="white" strokeWidth={2.5} />
+              </Pressable>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Filtro Avançado</DialogTitle>
+                <DialogDescription>Filtre os equipamentos por status operacional ou rede.</DialogDescription>
+              </DialogHeader>
+              <View className="grid gap-4">
+                <View className="grid gap-3">
+                  <Label>Status</Label>
+                  <Input placeholder="Ex: Irrigando" />
+                </View>
+              </View>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline"><Text>Cancelar</Text></Button>
+                </DialogClose>
+                <Button className="bg-primaria-azul"><Text className="text-white">Aplicar</Text></Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </View>
       </View>
 
-      {/* Filtro */}
-      <Dialog>
-        <DialogTrigger asChild>
-          <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12] w-[40] h-[40] items-center justify-center self-end">
-            <Funnel size={24} color="white" strokeWidth={2.5} />
-          </Pressable>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Filtro</DialogTitle>
-            <DialogDescription>
-              Make changes to your profile here. Click save when you&apos;re
-              done.
-            </DialogDescription>
-          </DialogHeader>
-          <View className="grid gap-4">
-            <View className="grid gap-3">
-              <Label htmlFor="name-1">Name</Label>
-              <Input id="name-1" defaultValue="Pedro Duarte" />
-            </View>
-            <View className="grid gap-3">
-              <Label htmlFor="username-1">Username</Label>
-              <Input id="username-1" defaultValue="@peduarte" />
-            </View>
-          </View>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">
-                <Text>Cancel</Text>
-              </Button>
-            </DialogClose>
-            <Button>
-              <Text>Save changes</Text>
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <FlashList
-        className="flex-1"
-        data={pivos}
-        // injetando os dados no Card
-        renderItem={({ item }) => <PivotCard waterOn anguloAtual={30} anguloFinal={270} anguloInicio={0} />}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-      />
+      {isLoadingPivos && !isRefreshing ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#00A0A6" />
+        </View>
+      ) : (
+        <FlashList
+          className="flex-1"
+          data={pivosExibidos}
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text className="text-center text-gray-500 mt-10 font-outfit">
+              Nenhum pivô encontrado para esta fazenda.
+            </Text>
+          }
+          renderItem={({ item }) => (
+            <PivotCard 
+              id={item.id}
+              nome={item.nome_pivo}
+              // Injeção dos dados reais provenientes da View do Supabase
+              waterOn={item.water_on}
+              warning={item.status_operacional === 'FALHA'}
+              anguloAtual={item.angulo_atual}
+              anguloInicio={item.angulo_inicio}
+              anguloFinal={item.angulo_final}
+              tensao={item.tensao}
+              pressao={item.pressao}
+              lamina={item.lamina}
+              direcaoAtual={item.direcao_atual}
+              ultimaAtualizacao={item.ultima_atualizacao || new Date().toISOString()}
+            />
+          )}
+        />
+      )}
     </Screen>
   );
 }
