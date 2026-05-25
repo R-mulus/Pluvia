@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { cronogramaService, ComandoAgendamentoDTO } from '@/services/api/cronograma.service';
+import { cronogramaService, CriarCronogramaDTO } from '@/services/api/cronograma.service';
 
 export function useCronogramasPivo(pivo_id: string) {
   return useQuery({
@@ -13,21 +13,9 @@ export function useCronogramasPivo(pivo_id: string) {
 export function useCriarCronograma() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (dados: ComandoAgendamentoDTO) => cronogramaService.agendarComando(dados),
+    mutationFn: (dados: CriarCronogramaDTO) => cronogramaService.agendarComando(dados),
     onSuccess: (_, variaveis) => {
       queryClient.invalidateQueries({ queryKey: ['cronograma', variaveis.pivo_id] });
-    },
-  });
-}
-
-export function useEditarCronograma() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, dados }: { id: string; dados: Partial<ComandoAgendamentoDTO> }) => 
-      cronogramaService.cancelarOuEditarAgendamento(id, dados),
-    onSuccess: (_, variaveis) => {
-      // Invalida a query específica do pivô se tivermos o pivo_id, caso contrário, invalida tudo de cronograma
-      queryClient.invalidateQueries({ queryKey: ['cronograma'] });
     },
   });
 }
@@ -41,3 +29,28 @@ export function useExcluirCronograma() {
     },
   });
 }
+
+export function useAtivarCronograma() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, pivo_id }: { id: string; pivo_id: string }) => cronogramaService.ativarCronograma(id, pivo_id),
+    onSuccess: (_, variaveis) => {
+      // Atualiza a lista automaticamente na tela
+      queryClient.invalidateQueries({ queryKey: ['cronograma', variaveis.pivo_id] });
+    },
+  });
+}
+
+// Adicione junto com os outros export functions no seu arquivo de hooks
+export function useControleCronograma() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, acao }: { id: string; acao: 'iniciar' | 'pausar' | 'continuar' }) => 
+      cronogramaService.controlarCronograma(id, acao),
+    onSuccess: () => {
+      // Invalida para a tela puxar o novo status imediatamente (ex: mudar o botão de Iniciar para Parar)
+      queryClient.invalidateQueries({ queryKey: ['cronograma'] });
+    },
+  });
+}
+

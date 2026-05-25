@@ -1,185 +1,208 @@
-import React from 'react';
-import { View, Pressable, Alert, ActivityIndicator } from 'react-native';
-import { Text } from '@/components/ui/text';
-import { useRouter } from 'expo-router';
+import React from "react";
+import { View, Pressable, Alert, ActivityIndicator } from "react-native";
+import { Text } from "@/components/ui/text";
+import { useRouter, usePathname } from "expo-router";
 import {
-  RotateCw,
-  RotateCcw,
   Clock,
   UndoDot,
   Undo,
   RefreshCw,
   Droplet,
+  DropletOff,
   X,
   SquarePen,
-  CalendarDays,
-  User
-} from 'lucide-react-native';
+  Plus,
+  Tag,
+  ArrowUp,
+  ArrowDown,
+  Trash2,
+  CheckCircle2,
+  PauseCircle,
+  PlayCircle
+} from "lucide-react-native";
 
-// Importe a interface e o hook que criamos anteriormente
-import { Agendamento } from '@/services/api/cronograma.service';
-import { useExcluirCronograma } from '@/hooks/api/useCronogramas';
+import { useExcluirPreset } from "@/hooks/api/usePresets";
 
 interface PresetCardProps {
-  data: Agendamento;
+  data: any;
+  variant?: "padrao" | "adicionar" | "passo" | "readonly";
+  onAdd?: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  onRemove?: () => void;
+  stepNumber?: number;
+  isFirst?: boolean;
+  isLast?: boolean;
 }
 
-export default function PresetCard({ data }: PresetCardProps) {
+export default function PresetCard({
+  data,
+  variant = "padrao",
+  onAdd,
+  onMoveUp,
+  onMoveDown,
+  onRemove,
+  stepNumber,
+  isFirst,
+  isLast
+}: PresetCardProps) {
   const router = useRouter();
-  const { mutateAsync: excluir, isPending: isExcluindo } = useExcluirCronograma();
+  const pathname = usePathname();
+  const { mutateAsync: excluir, isPending: isExcluindo } = useExcluirPreset();
 
-  // Desestruturação dos dados vindos do backend
-  const { comando, horario, nome_criador, id, pivo_id } = data;
+  const isAntiHorario = data.direcao === "ANTI_HORARIO";
+  const isIrrigando = data.irrigacao === true;
+  
+  // Lê o status real vindo do banco. Se não vier, assume 'aguardando'
+  const statusPasso = data.status_passo || 'aguardando';
+  const isExecutando = statusPasso === 'executando';
 
-  const isAntiHorario = comando.direcao === 'ANTI_HORARIO';
-  const isIrrigando = comando.irrigacao === true;
+  const hasHorario = !!data.horario;
+  let horaFormatada = "";
+  if (hasHorario) {
+    const dataHoraObj = new Date(data.horario);
+    horaFormatada = dataHoraObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  }
 
-  // Formatação segura de Data e Hora
-  const dataHoraObj = new Date(horario);
-  const dataFormatada = dataHoraObj.toLocaleDateString('pt-BR');
-  const horaFormatada = dataHoraObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-  // Ação de Deletar com trava de segurança mecânica/visual
   const handleExcluir = () => {
     Alert.alert(
-      "Excluir Agendamento",
-      "Tem certeza que deseja cancelar e remover este comando do cronograma?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Excluir", 
-          style: "destructive", 
-          onPress: async () => {
-            try {
-              await excluir(id);
-            } catch (error) {
-              Alert.alert("Erro", "Falha ao excluir o agendamento.");
-            }
-          } 
-        }
-      ]
+      "Excluir Predefinição",
+      "Tem certeza que deseja excluir esta predefinição da biblioteca?",
+      [{ text: "Cancelar", style: "cancel" }, { text: "Excluir", style: "destructive", onPress: async () => await excluir(data.preset_origem_id || data.id) }]
     );
   };
 
+  const irParaEdicao = () => {
+    router.push({
+      pathname: "/(tabs)/operacao/editPreset",
+      params: { id: data.preset_origem_id || data.id, pivo_id: data.pivo_id, fb_nome: data.nome, fb_lamina: data.lamina?.toString(), fb_angulo_inicial: data.angulo_inicial?.toString(), fb_angulo_final: data.angulo_final?.toString(), fb_irrigacao: data.irrigacao ? "true" : "false", fb_direcao: data.direcao, origem: pathname.includes("pivos") ? "pivo" : "lista" },
+    });
+  };
+
+  // Dinâmica de Cor do Cabeçalho: Azul Primário se estiver rodando, Azul Secundário se não
+  const headerBgClass = isExecutando && variant === "readonly" ? "bg-primaria-azul" : "bg-secundaria-azul";
+
   return (
-    <View className="flex-row bg-white rounded-[12px] border-[2px] border-[#cacaca] overflow-hidden">
-
-      {/* 1. ÁREA ESQUERDA (Cabeçalho + Grid) */}
+    <View className={`flex-row bg-white rounded-[12px] border-[2px] ${isExecutando && variant === "readonly" ? 'border-primaria-azul' : 'border-[#cacaca]'} overflow-hidden ${variant === 'readonly' ? 'pr-4' : ''}`}>
       <View className="flex-1">
-
+        
         {/* --- CABEÇALHO --- */}
-        <View className="flex-row bg-secundaria-azul">
-          
-          {/* Aba do Título -> Agora exibe a Hora */}
-          <View className="bg-primaria-azul px-4 py-2 justify-center items-center rounded-br-[16px] z-10 flex-wrap min-w-[80px]">
-            <Text className="text-white text-sm font-outfit-bold text-wrap leading-tight">
-              {horaFormatada}
-            </Text>
-          </View>
+        <View className={`flex-row ${headerBgClass} h-9 items-center transition-colors`}>
+          {variant === "passo" || variant === "readonly" ? (
+            <View className={`${isExecutando ? 'bg-white' : 'bg-primaria-azul'} px-4 h-full justify-center items-center rounded-br-[16px] z-10 min-w-[80px]`}>
+              <Text className={`${isExecutando ? 'text-primaria-azul' : 'text-white'} text-sm font-outfit-bold`}>Passo {stepNumber}</Text>
+            </View>
+          ) : hasHorario ? (
+            <View className="bg-primaria-azul px-4 h-full justify-center items-center rounded-br-[16px] z-10 min-w-[80px]">
+              <Text className="text-white text-sm font-outfit-bold">{horaFormatada}</Text>
+            </View>
+          ) : null}
 
-          {/* Status do Cabeçalho */}
-          <View className="flex-1 flex-row items-center justify-start pl-4 pr-4 gap-4">
+          <View className="flex-1 flex-row items-center justify-start pl-4 gap-4">
             <View className="flex-row items-center gap-1.5">
               <RefreshCw size={16} color="white" strokeWidth={2.5} />
-              <Text className="text-white text-sm font-outfit-medium">
-                {isAntiHorario ? 'Reverso' : 'Horário'}
-              </Text>
+              <Text className="text-white text-sm font-outfit-medium">{isAntiHorario ? "Reverso" : "Horário"}</Text>
             </View>
             <View className="flex-row items-center gap-1.5">
-              <Droplet size={16} color={isIrrigando ? "#0AA146" : "white"} strokeWidth={2.5} />
-              <Text className="text-white text-sm font-outfit-medium">
-                {isIrrigando ? 'Irrigando' : 'Seco'}
-              </Text>
+              {isIrrigando ? <Droplet size={16} color="white" strokeWidth={2.5} /> : <DropletOff size={16} color="white" strokeWidth={2.5} />}
+              <Text className="text-white text-sm font-outfit-medium">{isIrrigando ? "Irrigando" : "Seco"}</Text>
             </View>
           </View>
-
         </View>
 
         {/* --- CORPO / GRID --- */}
-        <View className="p-4 flex-row justify-between gap-4">
-          
-          {/* Coluna 1 (Métricas e Informações) */}
-          <View className="gap-3 flex-1">
-            <View className="flex-row items-center">
-              <Droplet size={20} color="#0D0D0D" strokeWidth={2.5} />
-              <Text className="text-sm ml-2 text-texto font-outfit">
-                Lâmina: <Text className="font-outfit-bold">{comando.lamina} mm</Text>
-              </Text>
-            </View>
-            
-            <View className="flex-row items-center">
-              <Clock size={20} color="#0D0D0D" strokeWidth={2.5} />
-              <Text className="text-sm ml-2 text-texto font-outfit">
-                Duração: <Text className="font-outfit-bold">-- h -- min</Text>
-              </Text>
-            </View>
-
-            <View className="flex-row items-center mt-1">
-              <User size={16} color="#666666" strokeWidth={2.5} />
-              <Text 
-                className="text-xs ml-1 text-subtexto font-outfit-medium" 
-                numberOfLines={1} 
-                ellipsizeMode="tail"
-              >
-                {nome_criador || "Desconhecido"}
-              </Text>
-            </View>
+        <View className={`p-4 flex-col gap-4 ${variant === 'readonly' ? 'pl-4' : ''}`}>
+          <View className="flex-row items-center">
+            <Tag size={20} color={isExecutando && variant === "readonly" ? "#00A0A6" : "black"} strokeWidth={2.5} />
+            <Text className={`text-base ml-2 font-outfit-bold flex-1 ${isExecutando && variant === "readonly" ? 'text-primaria-azul' : ''}`} numberOfLines={1} ellipsizeMode="tail">
+              {data.nome}
+            </Text>
           </View>
 
-          {/* Coluna 2 (Ângulos e Data) */}
-          <View className="gap-3 pr-2 flex-[0.8]">
-            <View className="flex-row items-center">
-              <UndoDot size={20} color="#0D0D0D" strokeWidth={2.5} />
-              <Text className="text-sm ml-2 text-texto font-outfit">
-                Início: <Text className="font-outfit-bold">{comando.angulo_inicial}°</Text>
-              </Text>
-            </View>
-            
-            <View className="flex-row items-center">
-              <Undo size={20} color="#0D0D0D" strokeWidth={2.5} />
-              <Text className="text-sm ml-2 text-texto font-outfit">
-                Final: <Text className="font-outfit-bold">{comando.angulo_final}°</Text>
-              </Text>
-            </View>
+          <View className="flex-row justify-between">
+            <View className="gap-3 flex-1 pr-2">
+              <View className="flex-row items-center">
+                <Droplet size={20} color="#0D0D0D" strokeWidth={2.5} />
+                <Text className="text-sm ml-2 text-texto font-outfit flex-1">
+                  Lâmina: <Text className="font-outfit-bold">{data.lamina ?? 0} mm</Text>
+                </Text>
+              </View>
+              
+              {/* O QUARTO ITEM DA GRID: DURAÇÃO vs STATUS */}
+              {variant === "readonly" ? (
+                <View className="flex-row items-center">
+                  {statusPasso === 'concluido' ? <CheckCircle2 size={20} color="#0AA146" /> : 
+                   statusPasso === 'executando' ? <ActivityIndicator size="small" color="#00A0A6" /> : 
+                   statusPasso === 'interrompido' ? <PauseCircle size={20} color="#D32F2F" /> :
+                   <Clock size={20} color="#666666" />}
+                  
+                  <Text className={`text-sm ml-2 font-outfit-bold flex-1 ${
+                    statusPasso === 'concluido' ? 'text-primaria-verde' : 
+                    statusPasso === 'executando' ? 'text-primaria-azul' : 
+                    statusPasso === 'interrompido' ? 'text-incorreto' : 'text-subtexto'
+                  }`}>
+                    {statusPasso === 'concluido' ? 'Concluído' : 
+                     statusPasso === 'executando' ? 'Em Execução' : 
+                     statusPasso === 'interrompido' ? 'Pausado' : 'Aguardando'}
+                  </Text>
+                </View>
+              ) : (
+                <View className="flex-row items-center">
+                  <Clock size={20} color="#0D0D0D" strokeWidth={2.5} />
+                  <Text className="text-sm ml-2 text-texto font-outfit flex-1">
+                    Duração: <Text className="font-outfit-bold">--h --min</Text>
+                  </Text>
+                </View>
+              )}
 
-            <View className="flex-row items-center mt-1">
-              <CalendarDays size={16} color="#666666" strokeWidth={2.5} />
-              <Text className="text-xs ml-1 text-subtexto font-outfit-medium">
-                {dataFormatada}
-              </Text>
+            </View>
+            <View className="gap-3 flex-1 pl-3">
+              <View className="flex-row items-center">
+                <UndoDot size={20} color="#0D0D0D" strokeWidth={2.5} />
+                <Text className="text-sm ml-2 text-texto font-outfit flex-1">
+                  Início: <Text className="font-outfit-bold">{data.angulo_inicial ?? 0}°</Text>
+                </Text>
+              </View>
+              <View className="flex-row items-center">
+                <Undo size={20} color="#0D0D0D" strokeWidth={2.5} />
+                <Text className="text-sm ml-2 text-texto font-outfit flex-1">
+                  Final: <Text className="font-outfit-bold">{data.angulo_final ?? 0}°</Text>
+                </Text>
+              </View>
             </View>
           </View>
-
         </View>
       </View>
 
-      {/* 2. BARRA LATERAL DIREITA (Ações) */}
-      <View className="bg-secundaria-azul w-12">
-        <View className="bg-primaria-azul rounded-tl-[8px] items-center justify-center flex-1 py-4 gap-6">
-          
-          <Pressable 
-            className="active:opacity-50 p-2" 
-            onPress={handleExcluir}
-            disabled={isExcluindo}
-          >
-            {isExcluindo ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <X size={24} color="white" strokeWidth={2.5} />
-            )}
-          </Pressable>
-          
-          <Pressable 
-            className="active:opacity-50 p-2"
-            // Direciona para a tela de edição passando o ID do agendamento e o ID do pivô
-            onPress={() => router.push(`/(tabs)/presets/${pivo_id}/editarCronograma?id=${id}`)}
-          >
-            <SquarePen size={22} color="white" strokeWidth={2.5} />
-          </Pressable>
-
+      {/* --- BARRA LATERAL DINÂMICA --- */}
+      {variant === "readonly" ? null : variant === "passo" ? (
+        <View className="w-12 bg-secundaria-azul">
+          <View className="bg-bg rounded-tl-[8px] items-center justify-between flex-1 py-2 border-l-[1px] border-[#cacaca]">
+            <Pressable onPress={onMoveUp} className={`p-2 rounded-full ${isFirst ? 'opacity-30' : 'active:opacity-50 bg-[#e0e0e0]'}`}><ArrowUp size={20} color="#0D0D0D" strokeWidth={3} /></Pressable>
+            <Pressable onPress={onRemove} className="p-2 active:opacity-50"><Trash2 size={24} color="#D32F2F" strokeWidth={2.5} /></Pressable>
+            <Pressable onPress={onMoveDown} className={`p-2 rounded-full ${isLast ? 'opacity-30' : 'active:opacity-50 bg-[#e0e0e0]'}`}><ArrowDown size={20} color="#0D0D0D" strokeWidth={3} /></Pressable>
+          </View>
         </View>
-      </View>
-
+      ) : variant === "adicionar" ? (
+        <View className="w-14 bg-secundaria-azul">
+          <View className="bg-primaria-azul flex-1 rounded-tl-[8px] overflow-hidden">
+            <Pressable onPress={onAdd} className="bg-primaria-verde flex-[1.5] items-center justify-center active:opacity-70"><Plus size={26} color="white" strokeWidth={3} /></Pressable>
+            <Pressable onPress={irParaEdicao} className="flex-1 items-center justify-center active:opacity-70 border-t-[1px] border-white/20"><SquarePen size={20} color="white" /></Pressable>
+            <Pressable onPress={handleExcluir} disabled={isExcluindo} className="flex-1 items-center justify-center active:opacity-70 bg-incorreto/20 border-t-[1px] border-white/20">
+              {isExcluindo ? <ActivityIndicator size="small" color="#FF6B6B" /> : <X size={22} color="#FF6B6B" strokeWidth={2.5} />}
+            </Pressable>
+          </View>
+        </View>
+      ) : (
+        <View className="bg-secundaria-azul w-12">
+          <View className="bg-primaria-azul rounded-tl-[8px] items-center justify-center flex-1 py-4 gap-6">
+            <Pressable className="active:opacity-50 p-2" onPress={handleExcluir} disabled={isExcluindo}>
+              {isExcluindo ? <ActivityIndicator size="small" color="white" /> : <X size={24} color="white" strokeWidth={2.5} />}
+            </Pressable>
+            <Pressable className="active:opacity-50 p-2" onPress={irParaEdicao}><SquarePen size={22} color="white" strokeWidth={2.5} /></Pressable>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

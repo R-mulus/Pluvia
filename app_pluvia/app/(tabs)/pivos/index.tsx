@@ -145,35 +145,35 @@ export default function ListaDePivos() {
         </View>
       ) : (
         <FlashList
-          className="flex-1"
-          data={pivosExibidos}
-          refreshing={isRefreshing}
-          onRefresh={onRefresh}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <Text className="text-center text-gray-500 mt-10 font-outfit">
-              Nenhum pivô encontrado para esta fazenda.
-            </Text>
-          }
-          renderItem={({ item }) => (
-            <PivotCard 
-              id={item.id}
-              nome={item.nome_pivo}
-              // Injeção dos dados reais provenientes da View do Supabase
-              waterOn={item.water_on}
-              warning={item.status_operacional === 'FALHA'}
-              anguloAtual={item.angulo_atual}
-              anguloInicio={item.angulo_inicio}
-              anguloFinal={item.angulo_final}
-              tensao={item.tensao}
-              pressao={item.pressao}
-              lamina={item.lamina}
-              direcaoAtual={item.direcao_atual}
-              ultimaAtualizacao={item.ultima_atualizacao || new Date().toISOString()}
-            />
-          )}
-        />
+            className="flex-1"
+            data={pivosExibidos}
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text className="text-center text-gray-500 mt-10 font-outfit">
+                Nenhum pivô encontrado para esta fazenda.
+              </Text>
+            }
+            renderItem={({ item }) => (
+              <PivotCard 
+                id={item.id}
+                nome={item.nome_pivo}
+                // Proteção: Se vier nulo do banco (parado), passamos fallback explícito
+                waterOn={item.water_on ?? null} 
+                warning={item.status_operacional === 'FALHA'}
+                anguloAtual={item.angulo_atual ?? 0}
+                anguloInicio={item.angulo_inicio ?? 0}
+                anguloFinal={item.angulo_final ?? 0}
+                tensao={item.tensao ?? 0}
+                pressao={item.pressao ?? 0}
+                lamina={item.lamina ?? 0}
+                direcaoAtual={item.direcao_atual}
+                ultimaAtualizacao={item.ultima_atualizacao || new Date().toISOString()}
+              />
+            )}
+          />
       )}
     </Screen>
   );

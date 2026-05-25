@@ -1,25 +1,44 @@
 import { api } from '@/lib/api';
 
-export type StatusCronograma = 'aguardando' | 'executando' | 'concluido' | 'falha';
+export type StatusExecucao = 'aguardando' | 'executando' | 'concluido' | 'falha' | 'interrompido';
 
-export interface ComandoAgendamentoDTO {
-  pivo_id: string;
-  comando: Record<string, any>;
-  horario: string;
+export interface PassoDTO {
+  preset_origem_id?: string | null;
+  nome: string;
+  angulo_inicial: number;
+  angulo_final: number;
+  lamina: number;
+  irrigacao: boolean;
+  direcao: 'HORARIO' | 'ANTI_HORARIO';
+  ordem: number; // <- ADICIONADO: Substitui o 'horario'
 }
 
-// A interface de retorno (GET) é diferente da de envio (POST)
-export interface Agendamento {
+export interface Passo extends PassoDTO {
+  id: string;
+  cronograma_id: string;
+  pivo_id: string;
+  status_passo: StatusExecucao;
+  created_at: string;
+}
+
+export interface CriarCronogramaDTO {
+  pivo_id: string;
+  nome: string;
+  horario_inicio: string; // <- ADICIONADO: O cronograma inteiro começa aqui
+  passos: PassoDTO[];
+}
+
+export interface Cronograma {
   id: string;
   pivo_id: string;
-  comando: Record<string, any>;
-  horario: string;
-  status_final: StatusCronograma;
-  updated_at: string;
-  
-  // Dados do Criador injetados pelo Backend via JOIN
-  criado_por: string; // O UUID (caso precise para alguma lógica de permissão)
-  nome_criador: string; // O texto pronto para a UI (Ex: "Mateus Felisberto...")
+  nome: string;
+  is_ativo: boolean;
+  status_final: StatusExecucao;
+  horario_inicio?: string; // <- ADICIONADO
+  created_at: string;
+  criado_por: string;
+  nome_criador: string; 
+  passos: Passo[]; 
 }
 
 export interface DefaultResponse<T> {
@@ -28,25 +47,29 @@ export interface DefaultResponse<T> {
 }
 
 export const cronogramaService = {
-  // Ajuste: Recebe o ID do pivô para buscar apenas os agendamentos dele
-  listarAgendamentosDoPivo: async (pivo_id: string): Promise<Agendamento[]> => {
-    // Usando query params para o backend filtrar (ex: /cronograma?pivo_id=123)
+  listarAgendamentosDoPivo: async (pivo_id: string): Promise<Cronograma[]> => {
     const { data } = await api.get(`/cronograma`, { params: { pivo_id } });
     return data;
   },
 
-  agendarComando: async (comando: ComandoAgendamentoDTO): Promise<DefaultResponse<Agendamento>> => {
-    const { data } = await api.post('/cronograma', comando);
+  ativarCronograma: async (id: string, pivo_id: string): Promise<DefaultResponse<Cronograma>> => {
+    const { data } = await api.patch(`/cronograma/${id}/ativar`, { pivo_id });
     return data;
   },
 
-  cancelarOuEditarAgendamento: async (id: string, comando: Partial<ComandoAgendamentoDTO>): Promise<DefaultResponse<Agendamento>> => {
-    const { data } = await api.patch(`/cronograma/${id}`, comando);
+  agendarComando: async (dados: CriarCronogramaDTO): Promise<DefaultResponse<Cronograma>> => {
+    const { data } = await api.post('/cronograma', dados);
     return data;
   },
 
   excluirComando: async (id: string): Promise<{ mensagem: string }> => {
     const { data } = await api.delete(`/cronograma/${id}`);
+    return data;
+  },
+
+  // Adicione isso no final do seu cronogramaService
+  controlarCronograma: async (id: string, acao: 'iniciar' | 'pausar' | 'continuar'): Promise<DefaultResponse<Cronograma>> => {
+    const { data } = await api.patch(`/cronograma/${id}/controle`, { acao });
     return data;
   }
 };

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { presetsService } from '@/services/api/presets.service';
+import { presetsService, CriarPresetDTO } from '@/services/api/presets.service';
 
 export function usePresetsPivo(pivo_id: string) {
   return useQuery({
@@ -12,7 +12,7 @@ export function usePresetsPivo(pivo_id: string) {
 export function useCriarPreset() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (dados: any) => presetsService.criar(dados),
+    mutationFn: (dados: CriarPresetDTO) => presetsService.criar(dados),
     onSuccess: (_, variaveis) => {
       queryClient.invalidateQueries({ queryKey: ['presets', variaveis.pivo_id] });
     },

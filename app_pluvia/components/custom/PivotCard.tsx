@@ -10,7 +10,7 @@ import Svg, { Circle, Path, Line } from "react-native-svg";
 interface PivotCardProps {
   id: string;
   nome: string;
-  waterOn: boolean;
+  waterOn: boolean | null; // Proteção: Agora aceita null quando o pivô estiver parado
   warning?: boolean;
   anguloAtual: number;
   anguloInicio: number;
@@ -39,25 +39,27 @@ export default function PivotCard({
   const router = useRouter();
 
   const getStatusColor = () => {
-    if (waterOn) return "bg-primaria-azul";
+    if (waterOn === true) return "bg-primaria-azul";
     if (waterOn === false) return "bg-[#753E20]";
-    return "bg-[#666666]";
+    return "bg-[#666666]"; // Se for null (parado), cai aqui lindamente.
   };
 
   const getWifiStatusColor = () => {
-    if (waterOn) return "bg-secundaria-azul";
+    if (waterOn === true) return "bg-secundaria-azul";
     if (waterOn === false) return "bg-[#4B2410]";
     return "bg-borda";
   };
 
   const getRadarColor = () => {
-    if (waterOn) return "#00A0A6";
+    if (waterOn === true) return "#00A0A6";
     if (waterOn === false) return "#753E20";
     return "#666666";
   };
 
   const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
-    const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+    // Fallback de segurança para evitar NaN caso chegue undefined
+    const safeAngle = angleInDegrees ?? 0; 
+    const angleInRadians = ((safeAngle - 90) * Math.PI) / 180.0;
     return {
       x: centerX + radius * Math.cos(angleInRadians),
       y: centerY + radius * Math.sin(angleInRadians),
@@ -65,12 +67,15 @@ export default function PivotCard({
   };
 
   const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
-    if (startAngle === endAngle) return "";
-
-    const start = polarToCartesian(x, y, radius, startAngle);
-    const end = polarToCartesian(x, y, radius, endAngle);
+    const safeStart = startAngle ?? 0;
+    const safeEnd = endAngle ?? 0;
     
-    let diff = endAngle - startAngle;
+    if (safeStart === safeEnd) return "";
+
+    const start = polarToCartesian(x, y, radius, safeStart);
+    const end = polarToCartesian(x, y, radius, safeEnd);
+    
+    let diff = safeEnd - safeStart;
     
     const isAntiHorario = direcaoAtual === 'ANTI_HORARIO';
 
@@ -81,7 +86,6 @@ export default function PivotCard({
     }
 
     const largeArcFlag = Math.abs(diff) > 180 ? "1" : "0";
-    
     const sweepFlag = isAntiHorario ? "0" : "1";
 
     return [
@@ -92,7 +96,6 @@ export default function PivotCard({
     ].join(" ");
   };
 
-  // Calculamos a ponta da linha baseada no ângulo ATUAL do pivô
   const pontoAtual = polarToCartesian(40, 40, 40, anguloAtual);
 
   const dataFormatada = new Date(ultimaAtualizacao).toLocaleDateString('pt-BR', {
@@ -135,17 +138,11 @@ export default function PivotCard({
           <View className="justify-center items-center">
             <Svg width={75} height={75} viewBox="0 0 80 80">
               <Circle cx="40" cy="40" r="40" fill="#D9D9D9" />
-              
-              {/* O ARCO: Preenchimento dinâmico crescendo do Início até o Atual */}
               <Path 
                 d={describeArc(40, 40, 40, anguloInicio, anguloAtual)} 
                 fill={getRadarColor()} 
               />
-              
-              {/* ATUAL: Linha tracejada indicando exatamente onde o pivô está na borda do arco */}
               <Line x1="40" y1="40" x2={pontoAtual.x} y2={pontoAtual.y} stroke="#0D0D0D" strokeWidth="3" strokeDasharray="6 4" />
-              
-              {/* NORTE (0 Graus) Fixo */}
               <Line x1="40" y1="40" x2="40" y2="0" stroke="#0D0D0D" strokeWidth="3" />
             </Svg>
           </View>
@@ -155,36 +152,36 @@ export default function PivotCard({
               <View className="flex-row items-center">
                 <RotateCw size={24} color="#0D0D0D" strokeWidth={2.5} />
                 <Text className="text-xs ml-1 text-texto font-outfit-medium">Posição:</Text>
-                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloAtual}°</Text>
+                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloAtual ?? 0}°</Text>
               </View>
               <View className="flex-row flex-1 items-center justify-between">
                 <View className="flex-row items-center">
                   <UndoDot size={24} color="#0D0D0D" strokeWidth={2.5} />
                   <Text className="text-xs ml-1 text-texto font-outfit-medium">Inicio:</Text>
                 </View>
-                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloInicio}°</Text>
+                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloInicio ?? 0}°</Text>
               </View>
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Undo size={24} color="#0D0D0D" strokeWidth={2.5} />
                   <Text className="text-xs ml-1 text-texto font-outfit-medium">Final:</Text>
                 </View>
-                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloFinal}°</Text>
+                <Text className="text-xs ml-1 text-texto font-outfit-bold">{anguloFinal ?? 0}°</Text>
               </View>
             </View>
 
             <View className="gap-y-1">
               <View className="flex-row items-center">
                 <Zap size={24} color="#0D0D0D" strokeWidth={2.5} />
-                <Text className="text-xs ml-2 text-texto font-outfit-bold">{tensao} V</Text>
+                <Text className="text-xs ml-2 text-texto font-outfit-bold">{tensao ?? 0} V</Text>
               </View>
               <View className="flex-row items-center">
                 <Gauge size={24} color="#0D0D0D" strokeWidth={2.5} />
-                <Text className="text-xs ml-2 text-texto font-outfit-bold">{pressao} PSI</Text>
+                <Text className="text-xs ml-2 text-texto font-outfit-bold">{pressao ?? 0} PSI</Text>
               </View>
               <View className="flex-row items-center">
                 <Droplet size={24} color="#0D0D0D" strokeWidth={2.5} />
-                <Text className="text-xs ml-2 text-texto font-outfit-bold">{lamina} mm</Text>
+                <Text className="text-xs ml-2 text-texto font-outfit-bold">{lamina ?? 0} mm</Text>
               </View>
             </View>
           </View>
