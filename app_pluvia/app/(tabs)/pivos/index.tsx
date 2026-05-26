@@ -139,4 +139,73 @@ export default function ListaDePivos() {
           <Dialog>
             <DialogTrigger asChild>
               {/* [WEB] Adicionado cursor-pointer e hover:opacity-80 */}
-              <Pressable className
+              <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
+                <Funnel size={24} color="white" strokeWidth={2.5} />
+              </Pressable>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Filtro Avançado</DialogTitle>
+                <DialogDescription>Filtre os equipamentos por status operacional ou rede.</DialogDescription>
+              </DialogHeader>
+              <View className="grid gap-4">
+                <View className="grid gap-3">
+                  <Label>Status</Label>
+                  <Input placeholder="Ex: Irrigando" />
+                </View>
+              </View>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline"><Text>Cancelar</Text></Button>
+                </DialogClose>
+                <Button className="bg-primaria-azul"><Text className="text-white">Aplicar</Text></Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </View>
+      </View>
+
+      {isLoadingPivos && !isRefreshing ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#00A0A6" />
+        </View>
+      ) : (
+        /* [WEB] numColumns agora é dinâmico (getColunas()). O 'key' precisa ser forçado a mudar quando as colunas mudam. */
+        <View className="flex-1 -mx-2 px-3">
+          <FlashList
+            key={`colunas-${getColunas()}`} 
+            className="flex-1"
+            data={pivosExibidos}
+            numColumns={getColunas()}
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text className="text-center text-gray-500 mt-10 font-outfit">
+                Nenhum pivô encontrado para esta fazenda.
+              </Text>
+            }
+            renderItem={({ item }) => (
+              <PivotCard 
+                id={item.id}
+                nome={item.nome_pivo}
+                // Proteção: Se vier nulo do banco (parado), passamos fallback explícito
+                waterOn={item.water_on ?? null} 
+                warning={item.status_operacional === 'FALHA'}
+                anguloAtual={item.angulo_atual ?? 0}
+                anguloInicio={item.angulo_inicio ?? 0}
+                anguloFinal={item.angulo_final ?? 0}
+                tensao={item.tensao ?? 0}
+                pressao={item.pressao ?? 0}
+                lamina={item.lamina ?? 0}
+                direcaoAtual={item.direcao_atual}
+                ultimaAtualizacao={item.ultima_atualizacao || new Date().toISOString()}
+              />
+            )}
+          />
+        </View>
+      )}
+    </Screen>
+  );
+}
