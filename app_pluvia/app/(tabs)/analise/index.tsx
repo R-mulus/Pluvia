@@ -6,8 +6,6 @@ import { Text } from "@/components/ui/text";
 import { Separator } from "@/components/ui/separator";
 import { useRouter, type Href } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
-import { Screen } from "@/components/custom/Screen";
-import Header from "@/components/custom/Header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { TriggerRef } from "@rn-primitives/select";
 import Svg, { Rect, Line, Text as SvgText, G } from "react-native-svg";
@@ -33,7 +31,11 @@ import {
   TriangleAlert,
 } from "lucide-react-native";
 import { BarChart, LineChart } from "react-native-gifted-charts";
+
+// ! COMPONENTES CUSTOM
 import { Table, TableColumn } from "@/components/custom/Table";
+import Header from "@/components/custom/Header";
+import { Screen } from "@/components/custom/Screen";
 
 // * Dados Mockados para Gráficos, Tabelas e Selects
 

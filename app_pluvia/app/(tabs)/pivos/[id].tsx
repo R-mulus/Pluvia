@@ -21,13 +21,16 @@ import {
   Layers,
   SquarePen,
 } from "lucide-react-native";
-import RadarComplexo from "@/components/custom/RadarComplexo";
 import { useRouter } from "expo-router";
-import Header from "@/components/custom/Header";
 import { Separator } from "@/components/ui/separator";
-import PresetCard from "@/components/custom/PresetCard";
+
+// ! IMPORTS CUSTOM
+import Header from "@/components/custom/Header";
 import { Screen } from "@/components/custom/Screen";
+
 import { Table, TableColumn } from "@/components/custom/Table";
+import PresetCard from "@/components/custom/PresetCard";
+import RadarComplexo from "@/components/custom/RadarComplexo";
 
 // * MOCK DA TABELA
 export const historicoPivoMock = [

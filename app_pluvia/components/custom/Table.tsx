@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Platform } from "react-native";
 import { Text } from "@/components/ui/text";
 
 // toda coluna precisa de uma chave, título e largura.
@@ -17,19 +17,27 @@ interface TabelaProps<T> {
 }
 
 export function Table<T>({ data, columns }: TabelaProps<T>) {
+
+  const totalColumnsWidth = columns.reduce((sum, col) => sum + col.width, 0);
+
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       className="w-full rounded-xl"
+      contentContainerStyle={{
+        minWidth: "100%", // 👈 Cresce para preencher a tela
+      }}
     >
-      <View className="rounded-xl">
+      
+      <View className="rounded-xl" style={{ minWidth: totalColumnsWidth, flex: 1 }}>
         {/* // * CABEÇALHO */}
         <View className="flex-row bg-primaria-azul rounded-t-md overflow-hidden border-b-[4px] border-b-white">
           {columns.map((col, index) => (
             <View
               key={col.key}
-              style={{ width: col.width }}
+              // style={{ width: col.width }}
+              style={{ width: col.width, flexGrow: 1 }}
               className={`py-3 items-center justify-center ${
                 // Adiciona o divisor branco, exceto na última coluna
                 index < columns.length - 1 ? "border-r-[2px] border-white" : ""
@@ -56,8 +64,21 @@ export function Table<T>({ data, columns }: TabelaProps<T>) {
             <View key={rowIndex} className={`flex-row ${rowBg}`}>
               {columns.map((col, colIndex) => {
                 // A primeira coluna do seu design sempre tem fundo azul e texto branco
+                // const isFirstCol = colIndex === 0;
+                // const defaultCellBg = isFirstCol ? "bg-[#00A0A6] " : "";
+                // const defaultTextColor = isFirstCol
+                //   ? "text-white font-outfit-bold"
+                //   : "text-[#0D0D0D] font-outfit";
+
                 const isFirstCol = colIndex === 0;
-                const defaultCellBg = isFirstCol ? "bg-[#00A0A6] " : "";
+
+                // Zebra striping também na coluna ID
+                const firstColBg = isEven
+                  ? "bg-primaria-azul"
+                  : "bg-secundaria-azul";
+
+                const defaultCellBg = isFirstCol ? firstColBg : "";
+
                 const defaultTextColor = isFirstCol
                   ? "text-white font-outfit-bold"
                   : "text-[#0D0D0D] font-outfit";
@@ -65,7 +86,8 @@ export function Table<T>({ data, columns }: TabelaProps<T>) {
                 return (
                   <View
                     key={col.key}
-                    style={{ width: col.width }}
+                    // style={{ width: col.width }}
+                    style={{ width: col.width, flexGrow: 1 }}
                     className={`justify-center ${defaultCellBg} ${
                       // Divisor cinza vertical: não aplica na primeira nem na última coluna
                       colIndex > 0 && colIndex < columns.length - 1
@@ -87,7 +109,7 @@ export function Table<T>({ data, columns }: TabelaProps<T>) {
                         </Text>
                       </View>
                     )}
-                  </View>
+                  </View> 
                 );
               })}
             </View>

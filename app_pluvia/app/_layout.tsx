@@ -1,6 +1,15 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA]
+ * * MODIFICAÇÕES REALIZADAS PARA ADAPTAÇÃO WEB:
+ * 1. LARGURA DA GAVETA (DRAWER): Adicionada condicional no 'drawerStyle.width'. 
+ * - No Mobile: Mantém os '85%' para respeitar o design original.
+ * - Na Web: Fixado em '400px'. Isso impede que a gaveta fique gigante em monitores de PC, mantendo o aspecto de painel lateral direito elegante.
+ * 2. IMPORTAÇÃO: Adicionado 'Platform' do 'react-native' para fazer a verificação de ambiente.
+ */
+
 import "../global.css";
 import { useEffect, useState } from "react";
-import { DeviceEventEmitter } from "react-native";
+import { DeviceEventEmitter, Platform } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import {
   useFonts,
@@ -15,7 +24,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Importe os dois conteúdos da gaveta
 import Perfil from "@/app/(tabs)/perfil";
-import Notificacoes from "@/components/custom/Notification"; // Componente que criaremos abaixo
+import Notificacoes from "@/components/custom/Notification"; 
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,7 +35,6 @@ export default function RootLayout() {
     Outfit_700Bold,
   });
 
-  // ! NOVO: Estado que controla qual componente renderizar dentro da gaveta
   const [tipoGaveta, setTipoGaveta] = useState<'perfil' | 'notificacoes'>('perfil');
 
   useEffect(() => {
@@ -34,7 +42,6 @@ export default function RootLayout() {
     if (fontsLoaded) SplashScreen.hideAsync();
   }, [fontsLoaded, error]);
 
-  // ! NOVO: Escuta o evento disparado pela TopBar
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener('MUDAR_GAVETA', (tipo) => {
       setTipoGaveta(tipo);
@@ -49,19 +56,19 @@ export default function RootLayout() {
       <StatusBar style="light" backgroundColor="transparent" translucent={true}/>
 
       <Drawer 
-        // A MÁGICA: O conteúdo muda instantaneamente baseado no botão que foi clicado!
         drawerContent={(props) => 
           tipoGaveta === 'perfil' ? <Perfil {...props} /> : <Notificacoes {...props} />
         }
         
         screenOptions={{ 
           headerShown: false,
-          drawerPosition: 'right', // Ambas abrem pela direita, mantendo a animação fluida
+          drawerPosition: 'right',
           swipeEnabled: false,
           drawerType: 'front', 
           drawerStyle: {
             backgroundColor: '#FFFFFF',
-            width: '85%',
+            // [WEB] A MÁGICA DA LARGURA ESTÁ AQUI:
+            width: Platform.OS === 'web' ? 400 : '85%',
           },
           overlayColor: 'rgba(0,0,0,0.5)', 
         }}

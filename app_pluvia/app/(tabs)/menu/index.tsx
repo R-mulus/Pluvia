@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useRouter } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
-import { Screen } from "@/components/custom/Screen";
 import { Separator } from "@/components/ui/separator";
 import {
   Tractor,
@@ -15,7 +14,6 @@ import {
   TriangleAlert,
   Droplet,
 } from "lucide-react-native";
-import { Table, TableColumn } from "@/components/custom/Table";
 import {
   Select,
   SelectContent,
@@ -27,6 +25,10 @@ import {
 import type { TriggerRef } from "@rn-primitives/select";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// ! IMPORTS CUSTOM
+import { Table, TableColumn } from "@/components/custom/Table";
+import { Screen } from "@/components/custom/Screen";
 
 // * SELECTS
 const pivos = [
@@ -309,46 +311,51 @@ export default function Menu() {
         </Tabs>
       </View>
 
+      <Separator className="my-2 bg-[#B5B5B5]" decorative />
+
       {/* // * Botões de Cadastro */}
-      <View className="gap-4">
-        <Button
-          className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-80 overflow-hidden"
-          onPress={() => router.replace("/(tabs)/menu/addUsuario")}
-        >
-          <View className="flex-row gap-4">
-            <Users size={24} color="white" />
-            <Text className="text-white text-base">Cadastrar Usuário</Text>
-          </View>
-          <Pressable className="rounded-bl-[12px] bg-secundaria-azul w-[40px] h-[40px] items-center justify-center">
-            <Plus size={24} strokeWidth={2.5} color="white" />
-          </Pressable>
-        </Button>
+      <View className="w-full gap-4">
+        <Text className="font-outfit-bold">Cadastro</Text>
+        <View className="w-full md:max-w-md gap-4">
+          <Button
+            className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-80 overflow-hidden"
+            onPress={() => router.replace("/(tabs)/menu/addUsuario")}
+          >
+            <View className="flex-row gap-4">
+              <Users size={24} color="white" />
+              <Text className="text-white text-base">Cadastrar Usuário</Text>
+            </View>
+            <Pressable className="rounded-bl-[12px] bg-secundaria-azul w-[40px] h-[40px] items-center justify-center">
+              <Plus size={24} strokeWidth={2.5} color="white" />
+            </Pressable>
+          </Button>
 
-        <Button
-          className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-50 overflow-hidden"
-          onPress={() => router.replace("/(tabs)/menu/addFazenda")}
-        >
-          <View className="flex-row gap-4">
-            <Tractor size={24} color="white" />
-            <Text className="text-white text-base">Cadastrar Fazenda</Text>
-          </View>
-          <Pressable className="rounded-bl-[12px] bg-secundaria-azul w-[40px] h-[40px] items-center justify-center">
-            <Plus size={24} strokeWidth={2.5} color="white" />
-          </Pressable>
-        </Button>
+          <Button
+            className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-50 overflow-hidden"
+            onPress={() => router.replace("/(tabs)/menu/addFazenda")}
+          >
+            <View className="flex-row gap-4">
+              <Tractor size={24} color="white" />
+              <Text className="text-white text-base">Cadastrar Fazenda</Text>
+            </View>
+            <Pressable className="rounded-bl-[12px] bg-secundaria-azul w-[40px] h-[40px] items-center justify-center">
+              <Plus size={24} strokeWidth={2.5} color="white" />
+            </Pressable>
+          </Button>
 
-        <Button
-          className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-50 overflow-hidden"
-          onPress={() => router.replace("/(tabs)/menu/addPivo")}
-        >
-          <View className="flex-row gap-4">
-            <CircleGauge size={24} color="white" />
-            <Text className="text-white text-base">Cadastrar Pivô</Text>
-          </View>
-          <Pressable className="rounded-bl-[12px] bg-secundaria-azul w-[40px] h-[40px] items-center justify-center">
-            <Plus size={24} strokeWidth={2.5} color="white" />
-          </Pressable>
-        </Button>
+          <Button
+            className="bg-primaria-azul w-full h-[40px] flex-row justify-between rounded-none rounded-pluvia pr-0 active:opacity-50 overflow-hidden"
+            onPress={() => router.replace("/(tabs)/menu/addPivo")}
+          >
+            <View className="flex-row gap-4">
+              <CircleGauge size={24} color="white" />
+              <Text className="text-white text-base">Cadastrar Pivô</Text>
+            </View>
+            <Pressable className="rounded-bl-[12px] bg-secundaria-azul w-[40px] h-[40px] items-center justify-center">
+              <Plus size={24} strokeWidth={2.5} color="white" />
+            </Pressable>
+          </Button>
+        </View>
       </View>
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />

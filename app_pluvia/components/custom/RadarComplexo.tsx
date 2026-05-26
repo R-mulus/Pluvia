@@ -1,11 +1,93 @@
+/**
+ * ⚠️ [PORTABILIDADE WEB EM ANDAMENTO]
+ *
+ * MODIFICAÇÕES REALIZADAS PARA ADAPTAÇÃO WEB:
+ *
+ * 1. IMPORTAÇÃO DO PLATFORM:
+ * - Adicionado 'Platform' do react-native para ajustes condicionais específicos da Web.
+ *
+ * 2. PRESERVE ASPECT RATIO NO SVG:
+ * - Adicionado:
+ *   preserveAspectRatio="xMidYMid meet"
+ * - Evita deformação, stretch e overflow do SVG no navegador.
+ *
+ * 3. REMOÇÃO DE fontFamily DENTRO DO SVG:
+ * - Removidos:
+ *   fontFamily="Outfit_400Regular"
+ *   fontFamily="Outfit_700Bold"
+ * - Fontes customizadas em SVG apresentavam serrilhado, vazamento e renderização inconsistente na Web.
+ *
+ * 4. CORREÇÃO DE CENTRALIZAÇÃO DE TEXTO SVG:
+ * - Substituído:
+ *   alignmentBaseline="middle"
+ * - Por:
+ *   dy=".35em"
+ * - alignmentBaseline possui comportamento inconsistente entre navegadores.
+ * - dy garante centralização visual mais estável na Web.
+ *
+ * 5. FONT WEIGHT VIA SVG:
+ * - Adicionado:
+ *   fontWeight="700"
+ * - Substitui a necessidade da fonte bold customizada dentro do SVG.
+ *
+ * 6. AJUSTE DE FONTES PARA WEB:
+ * - Font sizes aumentados condicionalmente na Web:
+ *   10 → 11
+ *   8 → 9
+ * - Navegadores renderizam SVG text menor e menos nítido que no mobile.
+ *
+ * 7. AJUSTE DE STROKE WIDTH:
+ * - Linhas abaixo de 1px ficavam borradas na Web.
+ * - Ajustes aplicados:
+ *   0.5 → 1
+ *   0.3 → 1
+ * - Mantido valor original no mobile.
+ *
+ * 8. SUAVIZAÇÃO DE TRAÇOS:
+ * - Adicionado:
+ *   strokeLinecap="round"
+ * - Aplicado em:
+ *   <Line />
+ *   <Path />
+ * - Reduz efeito serrilhado nas extremidades.
+ *
+ * 9. AJUSTE DE ESPESSURA DO PATH:
+ * - Alterado:
+ *   6 → 5 (Web)
+ * - Na Web o traço aparentava visualmente mais espesso.
+ *
+ * 10. AJUSTE VISUAL DOS TICKS:
+ * - Alterado:
+ *   1.5 → 1.2 (Web)
+ * - Evita estouro visual e excesso de peso nos marcadores.
+ *
+ * 11. REDUÇÃO DA OPACIDADE DOS ANÉIS:
+ * - Alterado:
+ *   opacity="0.4" → opacity="0.25"
+ * - Navegadores exibiam os círculos auxiliares visualmente muito fortes.
+ *
+ * 12. REMOÇÃO DE OFFSET MANUAL NO TEXTO:
+ * - Removido:
+ *   x={point.x + 2}
+ * - Mantido:
+ *   x={point.x}
+ * - Compensação manual quebrava alinhamento horizontal na Web.
+ */
+
+
 import React from 'react';
-import { View } from 'react-native';
-import Svg, { Circle, Line, Text as SvgText, Path } from 'react-native-svg';
+import { View, Platform } from 'react-native';
+import Svg, {
+  Circle,
+  Line,
+  Text as SvgText,
+  Path,
+} from 'react-native-svg';
 
 interface RadarComplexoProps {
   size?: number;
   currentAngle: number;
-  startAngle?: number; 
+  startAngle?: number;
 }
 
 const COLORS = {
@@ -15,19 +97,29 @@ const COLORS = {
   branco: "#FFFFFF",
 };
 
-export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle = 0 }: RadarComplexoProps) {
+export default function RadarComplexo({
+  size = 250,
+  currentAngle = 5,
+  startAngle = 0,
+}: RadarComplexoProps) {
+
   const svgSize = 200;
   const center = 100;
   const totalRadius = 100;
 
-  // 1. REGRA DO LIMITE: Garantir que não passe de 359 (se passar de 360, ele volta pro zero)
   const safeStart = startAngle % 360;
-  // Permite que o currentAngle chegue a 360 para representar a volta completa, 
-  // mas se for 361, vira 1.
-  const safeCurrent = currentAngle > 360 ? currentAngle % 360 : currentAngle;
+  const safeCurrent =
+    currentAngle > 360
+      ? currentAngle % 360
+      : currentAngle;
 
-  const polarToCartesian = (radius: number, angleInDegrees: number) => {
-    const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180.0);
+  const polarToCartesian = (
+    radius: number,
+    angleInDegrees: number
+  ) => {
+    const angleInRadians =
+      (angleInDegrees - 90) * (Math.PI / 180.0);
+
     return {
       x: center + (radius * Math.cos(angleInRadians)),
       y: center + (radius * Math.sin(angleInRadians)),
@@ -36,6 +128,7 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
 
   const rings = [];
   const numRings = 10;
+
   for (let i = 1; i < numRings; i++) {
     rings.push(
       <Circle
@@ -45,15 +138,17 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
         r={(totalRadius / numRings) * i}
         fill="none"
         stroke={COLORS.texto}
-        strokeWidth="0.5"
-        opacity="0.4"
+        strokeWidth={Platform.OS === "web" ? 1 : 0.5}
+        opacity="0.25"
       />
     );
   }
 
   const ticks = [];
+
   for (let i = 0; i < 360; i += 5) {
     const endPoint = polarToCartesian(totalRadius, i);
+    
     let startRadius = 0;
     let strokeWidth = 1;
 
@@ -62,10 +157,11 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
       strokeWidth = 2;
     } else {
       startRadius = totalRadius - 6;
-      strokeWidth = 1.5;
+      strokeWidth = Platform.OS === "web" ? 1.2 : 1.5;
     }
 
     const startPoint = polarToCartesian(startRadius, i);
+
     ticks.push(
       <Line
         key={`tick-${i}`}
@@ -75,6 +171,7 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
         y2={endPoint.y}
         stroke={COLORS.branco}
         strokeWidth={strokeWidth}
+        strokeLinecap="round"
       />
     );
   }
@@ -86,46 +183,105 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
     { degrees: 270, text: '270°' },
   ];
 
-  // 2. LÓGICA DO ARCO BLINDADA PARA 360 GRAUS
-  const getArcPath = (radius: number, startDeg: number, endDeg: number) => {
-    // Se o movimento for exatamente uma volta completa (360)
-    // Desenhamos duas metades de círculo (dois arcos de 180) para o SVG não bugar
-    if (endDeg - startDeg === 360 || (startDeg === 0 && endDeg === 360)) {
-        const start = polarToCartesian(radius, startDeg);
-        const mid = polarToCartesian(radius, startDeg + 180);
-        
-        return `
-          M ${start.x} ${start.y} 
-          A ${radius} ${radius} 0 1 1 ${mid.x} ${mid.y} 
-          A ${radius} ${radius} 0 1 1 ${start.x} ${start.y}
-        `;
+  const getArcPath = (
+    radius: number,
+    startDeg: number,
+    endDeg: number
+  ) => {
+
+    if (
+      endDeg - startDeg === 360 ||
+      (startDeg === 0 && endDeg === 360)
+    ) {
+
+      const start = polarToCartesian(radius, startDeg);
+
+      const mid = polarToCartesian(
+        radius,
+        startDeg + 180
+      );
+
+      return `
+        M ${start.x} ${start.y}
+        A ${radius} ${radius} 0 1 1 ${mid.x} ${mid.y}
+        A ${radius} ${radius} 0 1 1 ${start.x} ${start.y}
+      `;
     }
 
     let diff = endDeg - startDeg;
-    if (diff === 0) return ""; 
-    
+
+    if (diff === 0) return "";
+
     if (diff < 0) diff += 360;
+
     const largeArcFlag = diff > 180 ? 1 : 0;
 
     const start = polarToCartesian(radius, startDeg);
+
     const end = polarToCartesian(radius, endDeg);
 
-    return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
+    return `
+      M ${start.x} ${start.y}
+      A ${radius} ${radius}
+      0 ${largeArcFlag} 1
+      ${end.x} ${end.y}
+    `;
   };
 
-  const arcPath = getArcPath(totalRadius - 3, safeStart, safeCurrent);
+  const arcPath = getArcPath(
+    totalRadius - 3,
+    safeStart,
+    safeCurrent
+  );
 
-  const currentEndPoint = polarToCartesian(totalRadius, safeCurrent);
-  const startEndPoint = polarToCartesian(totalRadius, safeStart);
-  const labelPos = polarToCartesian(totalRadius * 0.65, safeCurrent);
+  const currentEndPoint = polarToCartesian(
+    totalRadius,
+    safeCurrent
+  );
+
+  const startEndPoint = polarToCartesian(
+    totalRadius,
+    safeStart
+  );
+
+  const labelPos = polarToCartesian(
+    totalRadius * 0.65,
+    safeCurrent
+  );
 
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-      <Svg width={size} height={size} viewBox={`0 0 ${svgSize} ${svgSize}`}>
-        
-        <Circle cx={center} cy={center} r={totalRadius} fill={COLORS.primariaVerde} />
+    <View
+      style={{
+        width: size,
+        height: size,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${svgSize} ${svgSize}`}
+        preserveAspectRatio="xMidYMid meet"
+      >
+
+        <Circle
+          cx={center}
+          cy={center}
+          r={totalRadius}
+          fill={COLORS.primariaVerde}
+        />
+
         {rings}
-        <Path d={arcPath} fill="none" stroke={COLORS.secundariaAzul} strokeWidth="6" />
+
+        <Path
+          d={arcPath}
+          fill="none"
+          stroke={COLORS.secundariaAzul}
+          strokeWidth={Platform.OS === "web" ? 5 : 6}
+          strokeLinecap="round"
+        />
+
         {ticks}
 
         <Line
@@ -138,17 +294,21 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
         />
 
         {angleLabels.map((label) => {
-          const point = polarToCartesian(totalRadius - 24, label.degrees);
+          const point = polarToCartesian(
+            totalRadius - 24,
+            label.degrees
+          );
+
           return (
             <SvgText
               key={`label-${label.degrees}`}
-              x={point.x + 2}
+              x={point.x}
               y={point.y}
               fill={COLORS.branco}
-              fontSize="10"
-              fontFamily="Outfit_400Regular"
+              fontSize={Platform.OS === "web" ? 11 : 10}
+              fontWeight="700"
               textAnchor="middle"
-              alignmentBaseline="middle"
+              dy=".35em"
             >
               {label.text}
             </SvgText>
@@ -164,21 +324,39 @@ export default function RadarComplexo({ size = 250, currentAngle = 5, startAngle
           strokeWidth="2"
         />
 
-        <Circle cx={labelPos.x} cy={labelPos.y} r="12" fill={COLORS.branco} stroke={COLORS.texto} strokeWidth="0.3" />
+        <Circle
+          cx={labelPos.x}
+          cy={labelPos.y}
+          r="12"
+          fill={COLORS.branco}
+          stroke={COLORS.texto}
+          strokeWidth={Platform.OS === "web" ? 1 : 0.3}
+        />
+
         <SvgText
           x={labelPos.x}
-          y={labelPos.y +1}
+          y={labelPos.y}
           fill={COLORS.texto}
-          fontSize="8"
-          fontFamily="Outfit_700Bold"
+          fontSize={Platform.OS === "web" ? 9 : 8}
+          fontWeight="700"
           textAnchor="middle"
-          alignmentBaseline="middle"
+          dy=".35em"
         >
-          {/* Se for 360, exibe visualmente 360 em vez de 0 */}
-          {`${safeCurrent === 0 && currentAngle === 360 ? 360 : safeCurrent}°`}
+          {`${safeCurrent === 0 && currentAngle === 360
+            ? 360
+            : safeCurrent
+          }°`}
         </SvgText>
 
-        <Circle cx={center} cy={center} r="4" fill={COLORS.branco} stroke={COLORS.texto} strokeWidth="1" />
+        <Circle
+          cx={center}
+          cy={center}
+          r="4"
+          fill={COLORS.branco}
+          stroke={COLORS.texto}
+          strokeWidth="1"
+        />
+
       </Svg>
     </View>
   );
