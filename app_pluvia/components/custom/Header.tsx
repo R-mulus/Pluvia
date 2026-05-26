@@ -10,8 +10,8 @@ interface HeaderProps {
 export default function Header({ title, subtitle }: HeaderProps) {
   return (
     // Container Principal
-    <View className="">
-      <Text className="font-outfit-bold text-xl">{title}</Text>
+    <View>
+      <Text className="font-outfit-bold text-xl" numberOfLines={1} >{title}</Text>
       <Text className="text-xs">{subtitle}</Text>
     </View>
   );

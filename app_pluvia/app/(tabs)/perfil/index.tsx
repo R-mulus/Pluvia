@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, ScrollView } from "react-native";
-import { useRouter, useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CircleUser,
@@ -14,6 +14,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import MenuItem from "@/components/custom/ProfileItem";
 import { DrawerActions } from "@react-navigation/native";
+import { useLogout } from "@/hooks/api/useLogout";
 
 // ? Tipagem dos dados do usuário
 export type UserData = {
@@ -33,6 +34,8 @@ export default function Perfil({ navigation, userData }: PerfilProps) {
   const insets = useSafeAreaInsets();
   const [user, setUser] = useState<UserData | null>(null);
   const router = useRouter();
+
+  const { realizarLogout } = useLogout();
 
   useEffect(() => {
     // Se o componente receber dados da API por props, usa eles.
@@ -170,7 +173,7 @@ export default function Perfil({ navigation, userData }: PerfilProps) {
             iconColor="#E52207"
             title="Sair"
             titleColor="text-[#E52207]"
-            onPress={() => router.push("/(auth)")}
+            onPress={realizarLogout}
           />
         </View>
       </ScrollView>

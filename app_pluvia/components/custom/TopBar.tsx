@@ -67,7 +67,10 @@ export default function TopBar({
         <View className="z-10 items-start justify-center">
           {showBackButton && (
             <TouchableOpacity 
-                onPress={() => router.back()} 
+                onPress={() => {
+                  if (router.canGoBack()) router.back();
+                  else router.replace("/(tabs)/pivos");
+                }} 
                 activeOpacity={0.7} 
                 className="p-1 cursor-pointer hover:opacity-80 transition-opacity"
             >

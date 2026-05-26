@@ -79,9 +79,9 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* Para esconder o item de "presets" na barra */}
+      {/* Para esconder o item de "operacao" na barra */}
       <Tabs.Screen
-        name="presets"
+        name="operacao"
         options={{
           href: null,
           title: "Hidden Tab",

@@ -497,7 +497,7 @@ export default function Analises() {
         </View>
       </View>
 
-      <Table data={alertasMock} columns={colunasAlertas} />
+      <Table data={alertasMock} columns={colunasAlertas} alerta/>
 
       {/* // * Visão Geral */}
       <View className="self-stretch gap-5">

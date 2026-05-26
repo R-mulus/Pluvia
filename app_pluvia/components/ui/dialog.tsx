@@ -89,7 +89,7 @@ function DialogContent({
 
 function DialogHeader({ className, ...props }: ViewProps) {
   return (
-    <View className={cn('flex flex-col gap-2 text-center sm:text-left', className)} {...props} />
+    <View className={cn('flex flex-col gap-2 text-center sm:text-left font-outfit', className)} {...props} />
   );
 }
 
@@ -108,7 +108,7 @@ function DialogTitle({
 }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn('text-foreground text-lg font-semibold leading-none', className)}
+      className={cn('text-foreground text-lg font-semibold leading-none font-outfit-medium', className)}
       {...props}
     />
   );
@@ -120,7 +120,7 @@ function DialogDescription({
 }: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
-      className={cn('text-muted-foreground text-sm', className)}
+      className={cn('text-muted-foreground text-sm font-outfit', className)}
       {...props}
     />
   );

@@ -14,9 +14,10 @@ export interface TableColumn<T> {
 interface TabelaProps<T> {
   data: T[];
   columns: TableColumn<T>[];
+  alerta?: boolean // ! Tabelas de alerta devem conter este prop para evitar erros de estilização
 }
 
-export function Table<T>({ data, columns }: TabelaProps<T>) {
+export function Table<T>({ data, columns, alerta }: TabelaProps<T>) {
 
   const totalColumnsWidth = columns.reduce((sum, col) => sum + col.width, 0);
 
@@ -59,17 +60,14 @@ export function Table<T>({ data, columns }: TabelaProps<T>) {
           // Lógica de Linhas Alternadas (Zebra Striping)
           const isEven = rowIndex % 2 === 0;
           const rowBg = isEven ? "bg-white" : "bg-[#EAEAEA]";
+          const isLastRow = rowIndex === data.length - 1;
 
           return (
-            <View key={rowIndex} className={`flex-row ${rowBg}`}>
+            <View key={rowIndex} className={`flex-row ${rowBg} ${
+                // Arredonda as pontas inferiores se for a última linha
+                isLastRow ? "rounded-b-xl overflow-hidden" : ""
+              }`}>
               {columns.map((col, colIndex) => {
-                // A primeira coluna do seu design sempre tem fundo azul e texto branco
-                // const isFirstCol = colIndex === 0;
-                // const defaultCellBg = isFirstCol ? "bg-[#00A0A6] " : "";
-                // const defaultTextColor = isFirstCol
-                //   ? "text-white font-outfit-bold"
-                //   : "text-[#0D0D0D] font-outfit";
-
                 const isFirstCol = colIndex === 0;
 
                 // Zebra striping também na coluna ID
@@ -93,7 +91,7 @@ export function Table<T>({ data, columns }: TabelaProps<T>) {
                       colIndex > 0 && colIndex < columns.length - 1
                         ? "border-r-[2px] border-[#CACACA]"
                         : ""
-                    }`}
+                    } ${!alerta ? "py-2" : ""}`}
                   >
                     {/* Se a coluna mandou uma renderização customizada, usa ela. Se não, usa o texto padrão. */}
                     {col.renderCell ? (
