@@ -1,3 +1,17 @@
+/**
+ * ✅ [PORTABILIDADE WEB E MOBILE CONCLUÍDA]
+ * * MODIFICAÇÕES REALIZADAS PARA ADAPTAÇÃO WEB/APP:
+ * 1. VISÃO GERAL CENTRALIZADA: 
+ * - O "Grid de Métricas" teve o flex ajustado para 'justify-center' com 'gap-x-12'.
+ * - A "Lista de Métricas" recebeu 'self-center w-full max-w-[400px]' para ficar perfeitamente no meio da tela no desktop.
+ * 2. REORDENAÇÃO DE GRÁFICOS: O gráfico "Quantidade de Falhas" (SVG) foi movido para cima dos outros três.
+ * 3. RESPONSIVIDADE TOTAL (SVG MATH):
+ * - Todos os gráficos agora são gerados via Svg. A largura de cada coluna/ponto é calculada matematicamente ('drawingWidth / length').
+ * - Isso faz com que TODOS os gráficos se adaptem automaticamente a qualquer tela (Mobile ou PC), ocupando toda a extensão disponível sem quebrar.
+ * - Corrigido o bug do "ScrollView" que espichava o gráfico no Expo Go (Mobile). Agora as Views possuem "w-full overflow-hidden" garantindo o tamanho perfeito.
+ * 4. FIX DOS NÚMEROS: Os valores do "Consumo de Água" foram corrigidos para o eixo Y certo ('yPos - 6') garantindo que fiquem acima das barras de água.
+ */
+
 import * as React from "react";
 import { useState } from "react";
 import { View, Platform, Pressable, LayoutChangeEvent } from "react-native";
@@ -8,7 +22,8 @@ import { useRouter, type Href } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { TriggerRef } from "@rn-primitives/select";
-import Svg, { Rect, Line, Text as SvgText, G } from "react-native-svg";
+// Importado Path e Circle para o Gráfico de Linhas
+import Svg, { Rect, Line, Text as SvgText, G, Path, Circle } from "react-native-svg";
 import {
   Select,
   SelectContent,
@@ -30,7 +45,6 @@ import {
   Zap,
   TriangleAlert,
 } from "lucide-react-native";
-import { BarChart, LineChart } from "react-native-gifted-charts";
 
 // ! COMPONENTES CUSTOM
 import { Table, TableColumn } from "@/components/custom/Table";
@@ -241,103 +255,43 @@ export const consumoEnergiaMock = [
   { label: "Dom", real: 180, estimado: 240 },
 ];
 
-// * Mocks dos Gráficos Modificados para que Apareça os Valores
-const valoresConsumoAgua = consumoAguaMock.map((item) => {
-  return {
-    ...item,
-    topLabelComponent: () => (
-      <View className="items-center w-[24px]">
-        {/* // * Valor da barra */}
-        {/* // * O top-1 empurra o número PARA DENTRO da barra azul. 
-              // * Se quiser que ele fique flutuando fora/acima da barra, 
-              // * troque para: "absolute bottom-1 text-texto" */}
-        <Text className="absolute bottom-1 text-xs font-outfit-bold text-subtexto z-[999]">
-          {item.value}
-        </Text>
-      </View>
-    ),
-  };
-});
-
-// Consumo Real de Energia (AZUL)
-const consumoEnergiaReal = consumoEnergiaMock.map((item) => {
-  const isMaiorOuIgual = item.real >= item.estimado;
-
-  const positionClass =
-    isMaiorOuIgual || item.real === 0 ? "bottom-[10px]" : "top-[10px]";
-
-  return {
-    value: item.real,
-    label: item.label,
-    customDataPoint: () => (
-      <View className="items-center justify-center">
-        <Text
-          className={`absolute ${positionClass} text-[10px] font-outfit-bold text-primaria-azul w-10 text-center z-10`}
-        >
-          {item.real}
-        </Text>
-        <View className="w-2.5 h-2.5 rounded-full bg-white border-[2px] border-primaria-azul" />
-      </View>
-    ),
-  };
-});
-
-// Consumo Estimado de Energia (VERDE)
-const consumoEnergiaEstimado = consumoEnergiaMock.map((item) => {
-  const isMaior = item.estimado > item.real;
-
-  const positionClass =
-    isMaior || item.estimado === 0 ? "bottom-[10px]" : "top-[10px]";
-
-  return {
-    value: item.estimado,
-    customDataPoint: () => (
-      <View className="items-center justify-center">
-        <Text
-          className={`absolute ${positionClass} text-[10px] font-outfit-bold text-primaria-verde w-10 text-center z-10`}
-        >
-          {item.estimado}
-        </Text>
-        <View className="w-2.5 h-2.5 rounded-full bg-white border-[2px] border-primaria-verde" />
-      </View>
-    ),
-  };
-});
-
 export default function Analises() {
-  // * --- Código para o Funcionamento do Gráfico Horizontal em SVG ---
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // --- ESCALA DINÂMICA (A MÁGICA DOS VALORES MAIORES QUE 8) ---
-  const maxDataValue = Math.max(...falhasPeriodoMock.map((item) => item.value));
-
-  // Encontra o teto múltiplo de 4 mais próximo, garantindo um mínimo de 8
-  const maxValue = Math.max(8, Math.ceil(maxDataValue / 4) * 4);
-  const step = maxValue / 4;
-
-  // Agora os passos são gerados matematicamente (ex: 0, 4, 8, 12, 16)
-  const gridSteps = [0, step, step * 2, step * 3, maxValue];
-
-  // --- LAYOUT DO GRÁFICO ---
-  const chartHeight = 240;
-  const leftAxisWidth = 40 + 8; // 8 é o padding esquerdo
-  const rightPadding = 40;
-  const topPadding = 20;
-  const bottomPadding = 30;
-
+  // --- LÓGICA DE ESCALA E COORDENADAS PARA TODOS OS GRÁFICOS SVG ---
   const handleLayout = (event: LayoutChangeEvent) => {
     setContainerWidth(event.nativeEvent.layout.width);
   };
 
-  const drawingWidth = Math.max(
-    0,
-    containerWidth - leftAxisWidth - rightPadding,
-  );
-  const rowHeight =
-    (chartHeight - topPadding - bottomPadding) / falhasPeriodoMock.length;
+  // Constantes de Layout Global para as caixas
+  const chartHeight = 240;
+  const leftAxisWidth = 48; // Eixo Y
+  const rightPadding = 20;  // Espaço extra na direita para respirar
+  const topPadding = 30;    // Espaço extra em cima pros valores
+  const bottomPadding = 30;
+  
+  const chartInnerHeight = chartHeight - topPadding - bottomPadding;
+  const drawingWidth = Math.max(0, containerWidth - leftAxisWidth - rightPadding);
+
+  // 1. Cálculos de Falhas (Horizontal)
+  const maxFalhasData = Math.max(...falhasPeriodoMock.map((item) => item.value));
+  const maxFalhasValue = Math.max(8, Math.ceil(maxFalhasData / 4) * 4);
+  const stepFalhas = maxFalhasValue / 4;
+  const falhasGridSteps = [0, stepFalhas, stepFalhas * 2, stepFalhas * 3, maxFalhasValue];
+  const falhasRowHeight = chartInnerHeight / falhasPeriodoMock.length;
   const barHeight = 16;
 
-  // * --- Código para o Funcionamento do Gráfico Horizontal em SVG ---
+  // 2. Cálculos de Tempo (Barras Verticais)
+  const tempoMax = 25;
+  const tempoSteps = [0, 5, 10, 15, 20, 25];
+
+  // 3. Cálculos de Água (Barras Verticais)
+  const aguaMax = 200;
+  const aguaSteps = [0, 50, 100, 150, 200];
+
+  // 4. Cálculos de Energia (Linhas)
+  const energiaMax = 400;
+  const energiaSteps = [0, 100, 200, 300, 400];
 
   const ref = React.useRef<TriggerRef>(null);
 
@@ -415,7 +369,7 @@ export default function Analises() {
 
   // ** O conteúdo é guardado dentro desta variável para injetar no cabeçalho da lista
   const ConteudoDaTela = (
-    <View className="gap-6">
+    <View className="gap-6 w-full pb-4">
       {/* // * Cabeçalho */}
       <View className="gap-1">
         <View className="flex-row w-full justify-between items-center">
@@ -424,7 +378,7 @@ export default function Analises() {
             <Select onOpenChange={setAnaliseOpen}>
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[120px] ${analiseOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[120px] cursor-pointer hover:opacity-90 ${analiseOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Fazendas" />
               </SelectTrigger>
@@ -450,13 +404,13 @@ export default function Analises() {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
+            <Pressable className="active:opacity-50 hover:opacity-80 cursor-pointer transition-opacity bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
               <Download size={24} color="white" strokeWidth={2.5} />
             </Pressable>
           </View>
         </View>
 
-        <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end">
+        <Pressable className="active:opacity-50 hover:opacity-80 cursor-pointer transition-opacity bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end">
           <Funnel size={24} color="white" strokeWidth={2.5} />
         </Pressable>
       </View>
@@ -468,7 +422,7 @@ export default function Analises() {
           <Select onOpenChange={setAlertasOpen}>
             <SelectTrigger
               ref={ref}
-              className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+              className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
             >
               <SelectValue placeholder="Pivô" />
             </SelectTrigger>
@@ -507,7 +461,7 @@ export default function Analises() {
             <Select onOpenChange={setGeralOpen}>
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] ${geralOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${geralOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Pivô" />
               </SelectTrigger>
@@ -533,7 +487,7 @@ export default function Analises() {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
+            <Pressable className="active:opacity-50 hover:opacity-80 cursor-pointer transition-opacity bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
               <Download size={24} color="white" strokeWidth={2.5} />
             </Pressable>
           </View>
@@ -556,8 +510,8 @@ export default function Analises() {
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
       {/* // * Grid de Métricas */}
-      <View className="flex-row flex-wrap justify-between gap-y-4">
-        <View className="gap-4 w-[50%] ">
+      <View className="flex-row flex-wrap justify-center gap-x-12 gap-y-4 w-full">
+        <View className="gap-4">
           <View className="flex-row items-center gap-2">
             <GaugeCircle size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
@@ -571,7 +525,7 @@ export default function Analises() {
             </Text>
           </View>
         </View>
-        <View className="gap-4 w-[50%]">
+        <View className="gap-4">
           <View className="flex-row items-center gap-2">
             <ArrowUpNarrowWide size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
@@ -590,7 +544,7 @@ export default function Analises() {
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
       {/* // * Lista de Métricas */}
-      <View className="self-stretch justify-between gap-y-3">
+      <View className="self-center w-full max-w-[400px] justify-between gap-y-3">
         <View className="flex-row items-center justify-between gap-2">
           <View className="flex-row items-center gap-2">
             <Droplets size={20} color="#0D0D0D" strokeWidth={2.5} />
@@ -631,7 +585,94 @@ export default function Analises() {
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* // * Tempo de Operação (Gráfico) */}
+      {/* ========================================================================= */}
+      {/* // * Gráfico 1: Quantidade de Falhas por Período (Barras Horizontais SVG) */}
+      {/* ========================================================================= */}
+      <View className="self-stretch gap-5">
+        <View className="flex-row w-full justify-between items-center">
+          <Text className="font-outfit-bold text-wrap w-[140px]">
+            Quantidade de Falhas por Período
+          </Text>
+          <View className="flex-row gap-2 items-center">
+            <Select onOpenChange={setFalhasOpen}>
+              <SelectTrigger
+                ref={ref}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${falhasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+              >
+                <SelectValue placeholder="Pivô" />
+              </SelectTrigger>
+              <SelectContent
+                insets={contentInsets}
+                className={`border-[#b8b8b8] bg-white w-[100px] ${falhasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+              >
+                <SelectGroup>
+                  {pivos.map((pivo) => (
+                    <SelectItem key={pivo.value} label={pivo.label} value={pivo.value} className={Number(pivo.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
+                      {pivo.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Pressable className="active:opacity-50 hover:opacity-80 cursor-pointer transition-opacity bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
+              <Download size={24} color="white" strokeWidth={2.5} />
+            </Pressable>
+          </View>
+        </View>
+
+        <View
+          onLayout={handleLayout}
+          className="bg-white border-[2px] border-[#cacaca] rounded-[12px] w-full overflow-hidden"
+        >
+          {(containerWidth > 0 || Platform.OS === 'web') && (
+            <Svg width={containerWidth || "100%"} height={chartHeight}>
+              {/* LINHAS DE GRADE E TEXTOS DO EIXO X */}
+              {falhasGridSteps.map((currentStep) => {
+                const xPos = leftAxisWidth + (currentStep / maxFalhasValue) * drawingWidth;
+                return (
+                  <G key={`grid-${currentStep}`}>
+                    <Line x1={xPos} y1={topPadding} x2={xPos} y2={chartHeight - bottomPadding} stroke="#DBDEE4" strokeWidth="1" />
+                    <SvgText x={xPos} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
+                      {currentStep}
+                    </SvgText>
+                  </G>
+                );
+              })}
+
+              {/* BARRAS, MESES E VALORES */}
+              {falhasPeriodoMock.map((item, index) => {
+                const barWidth = (item.value / maxFalhasValue) * drawingWidth;
+                const rowCenterY = topPadding + index * falhasRowHeight + falhasRowHeight / 2;
+                const barY = rowCenterY - barHeight / 2;
+
+                return (
+                  <G key={`bar-${item.label}`}>
+                    <SvgText x={leftAxisWidth - 10} y={rowCenterY + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
+                      {item.label}
+                    </SvgText>
+
+                    <Rect x={leftAxisWidth} y={barY} width={barWidth} height={barHeight} rx={4} fill="#00A0A6" />
+                    <Rect x={leftAxisWidth} y={barY} width={Math.min(4, barWidth)} height={barHeight} fill="#00A0A6" />
+
+                    <SvgText x={leftAxisWidth + barWidth + 4} y={rowCenterY + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_700Bold" color="#666666" textAnchor="start">
+                      {item.value}
+                    </SvgText>
+                  </G>
+                );
+              })}
+
+              {/* LINHA BASE DO EIXO Y */}
+              <Line x1={leftAxisWidth} y1={topPadding} x2={leftAxisWidth} y2={chartHeight - bottomPadding + 4} stroke="#0D0D0D" strokeWidth="0.5" />
+            </Svg>
+          )}
+        </View>
+      </View>
+
+      <Separator className="my-2 bg-[#B5B5B5]" decorative />
+
+      {/* ========================================================================= */}
+      {/* // * Gráfico 2: Tempo de Operação (Barras Verticais SVG) */}
+      {/* ========================================================================= */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold">Tempo de Operação</Text>
@@ -639,7 +680,7 @@ export default function Analises() {
             <Select onOpenChange={setTempoOpen}>
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[120px] ${tempoOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[120px] cursor-pointer hover:opacity-90 ${tempoOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Tempo" />
               </SelectTrigger>
@@ -649,16 +690,7 @@ export default function Analises() {
               >
                 <SelectGroup>
                   {tempo_operacao.map((tempo) => (
-                    <SelectItem
-                      key={tempo.value}
-                      label={tempo.label}
-                      value={tempo.value}
-                      className={
-                        Number(tempo.id) % 2 !== 0
-                          ? "bg-[#E1E1E1]"
-                          : "bg-transparent"
-                      }
-                    >
+                    <SelectItem key={tempo.value} label={tempo.label} value={tempo.value} className={Number(tempo.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {tempo.label}
                     </SelectItem>
                   ))}
@@ -671,218 +703,64 @@ export default function Analises() {
           </View>
         </View>
 
-        {/* // * Gráfico de Barras de Tempo de Operação */}
-        <View className="bg-white border-[2px] border-[#cacaca] rounded-[12px] pt-4 pl-2 pb-3">
-          {/* Título do Eixo Y posicionado no topo esquerdo */}
-          <Text className="text-xs font-outfit-bold text-texto mb-2">
-            Horas
-          </Text>
+        <View className="bg-white border-[2px] border-[#cacaca] rounded-[12px] pt-4 pl-2 pb-3 w-full overflow-hidden">
+          <Text className="text-xs font-outfit-bold text-texto mb-2">Horas</Text>
 
-          <View className="items-center justify-center">
-            <BarChart
-              data={tempoOperacaoMock}
-              // Estilização das Barras
-              frontColor="#00A0A6" // O Teal/Azul Primário do Pluvia
-              barWidth={24}
-              spacing={12}
-              barBorderTopLeftRadius={4} // Arredonda o topo
-              barBorderTopRightRadius={4} // Arredonda o topo
-              endSpacing={4}
-              // Configuração dos Eixos
-              hideYAxisText={false}
-              yAxisExtraHeight={18}
-              yAxisThickness={0} // Remove a linha vertical preta do eixo Y
-              xAxisThickness={1} // Mantém a linha horizontal base
-              stepHeight={30}
-              xAxisColor="#0D0D0D"
-              // Configuração da Grade (Linhas Horizontais Cinzas)
-              hideRules={false}
-              rulesType="solid"
-              rulesColor="#CACACA"
-              // Configuração Matemática (De 5 em 5 até 25 para espaçamento igual)
-              showValuesAsTopLabel
-              topLabelTextStyle={{ fontSize: 12, fontFamily: "Outfit_700Bold" }}
-              maxValue={25}
-              stepValue={5}
-              noOfSections={5}
-              // Estilização dos Textos dos Eixos
-              yAxisTextStyle={{
-                fontFamily: "Outfit_400Regular",
-                color: "#0D0D0D",
-                fontSize: 12,
-              }}
-              xAxisLabelTextStyle={{
-                fontFamily: "Outfit_400Regular",
-                color: "#0D0D0D",
-                fontSize: 12,
-              }}
-              // Comportamento
-              disableScroll={false}
-              isAnimated={true} // Adiciona aquela animação fluida quando a tela abre
-              showScrollIndicator={false}
-              animationDuration={400}
-            />
-          </View>
-
-          {/* Título do Eixo X posicionado no centro inferior */}
-          <Text className="text-xs font-outfit-bold text-center mt-2">
-            Pivôs
-          </Text>
-        </View>
-      </View>
-
-      <Separator className="my-2 bg-[#B5B5B5]" decorative />
-
-      {/* // * Quantidade de Falhas por Período */}
-      <View className="self-stretch gap-5">
-        <View className="flex-row w-full justify-between items-center">
-          <Text className="font-outfit-bold text-wrap w-[140px]">
-            Quantidade de Falhas por Período
-          </Text>
-          <View className="flex-row gap-2 items-center">
-            <Select onOpenChange={setFalhasOpen}>
-              <SelectTrigger
-                ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] ${falhasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
-              >
-                <SelectValue placeholder="Pivô" />
-              </SelectTrigger>
-              <SelectContent
-                insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[100px] ${falhasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
-              >
-                <SelectGroup>
-                  {pivos.map((pivo) => (
-                    <SelectItem
-                      key={pivo.value}
-                      label={pivo.label}
-                      value={pivo.value}
-                      className={
-                        Number(pivo.id) % 2 !== 0
-                          ? "bg-[#E1E1E1]"
-                          : "bg-transparent"
-                      }
-                    >
-                      {pivo.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
-              <Download size={24} color="white" strokeWidth={2.5} />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* // * Gráfico de Barras de Falhas por Período (SVG) */}
-        <View
-          onLayout={handleLayout}
-          className="bg-white border-[2px] border-[#cacaca] rounded-[12px] w-full overflow-hidden"
-        >
-          {containerWidth > 0 && (
-            <Svg width={containerWidth} height={chartHeight}>
-              {/* LINHAS DE GRADE E TEXTOS DO EIXO X */}
-              {gridSteps.map((currentStep) => {
-                const xPos =
-                  leftAxisWidth + (currentStep / maxValue) * drawingWidth;
+          {(containerWidth > 0 || Platform.OS === 'web') && (
+            <Svg width={containerWidth || "100%"} height={chartHeight}>
+              {/* LINHAS HORIZONTAIS DE GRADE */}
+              {tempoSteps.map((currentStep) => {
+                const yPos = topPadding + chartInnerHeight - (currentStep / tempoMax) * chartInnerHeight;
                 return (
-                  <G key={`grid-${currentStep}`}>
-                    <Line
-                      x1={xPos}
-                      y1={topPadding}
-                      x2={xPos}
-                      y2={chartHeight - bottomPadding}
-                      stroke="#DBDEE4"
-                      strokeWidth="1"
-                    />
-                    <SvgText
-                      x={xPos}
-                      y={chartHeight - bottomPadding + 20}
-                      fill="#0D0D0D"
-                      fontSize="12"
-                      fontFamily="Outfit_400Regular"
-                      textAnchor="middle"
-                    >
+                  <G key={`grid-h-${currentStep}`}>
+                    {/* Linha que vai até o final (drawingWidth) */}
+                    <Line x1={leftAxisWidth} y1={yPos} x2={leftAxisWidth + drawingWidth} y2={yPos} stroke="#CACACA" strokeWidth="1" />
+                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
                       {currentStep}
                     </SvgText>
                   </G>
                 );
               })}
 
-              {/* BARRAS, MESES E VALORES */}
-              {falhasPeriodoMock.map((item, index) => {
-                const barWidth = (item.value / maxValue) * drawingWidth;
-                const rowCenterY =
-                  topPadding + index * rowHeight + rowHeight / 2;
-                const barY = rowCenterY - barHeight / 2;
+              {/* BARRAS VERTICAIS DINÂMICAS */}
+              {tempoOperacaoMock.map((item, index) => {
+                const stepX = drawingWidth / tempoOperacaoMock.length;
+                const barWidth = Math.min(24, stepX * 0.8);
+                const xCenter = leftAxisWidth + index * stepX + stepX / 2;
+                const xPos = xCenter - barWidth / 2;
+                const barH = (item.value / tempoMax) * chartInnerHeight;
+                const yPos = topPadding + chartInnerHeight - barH;
 
                 return (
-                  <G key={`bar-${item.label}`}>
-                    {/* Texto do Mês (Esquerda) */}
-                    <SvgText
-                      x={leftAxisWidth - 10}
-                      y={rowCenterY + 4}
-                      fill="#0D0D0D"
-                      fontSize="12"
-                      fontFamily="Outfit_400Regular"
-                      textAnchor="end"
-                    >
-                      {item.label}
+                  <G key={`bar-v-${item.label}`}>
+                    <Rect x={xPos} y={yPos} width={barWidth} height={barH} rx={4} fill="#00A0A6" />
+                    <Rect x={xPos} y={yPos + 4} width={barWidth} height={Math.max(0, barH - 4)} fill="#00A0A6" />
+
+                    <SvgText x={xCenter} y={yPos - 6} fill="#666666" fontSize="12" fontFamily="Outfit_700Bold" textAnchor="middle">
+                      {item.value}
                     </SvgText>
 
-                    {/* Retângulos da Barra (Curva na direita, reta na esquerda) */}
-                    <Rect
-                      x={leftAxisWidth}
-                      y={barY}
-                      width={barWidth}
-                      height={barHeight}
-                      rx={4}
-                      fill="#00A0A6"
-                    />
-                    <Rect
-                      x={leftAxisWidth}
-                      y={barY}
-                      width={Math.min(4, barWidth)}
-                      height={barHeight}
-                      fill="#00A0A6"
-                    />
-
-                    {/* 3. O VALOR NUMÉRICO À DIREITA DA BARRA */}
-                    <SvgText
-                      // Soma a largura do eixo + a largura da barra + 8px de margem
-                      x={leftAxisWidth + barWidth + 4}
-                      y={rowCenterY + 4}
-                      fill="#0D0D0D"
-                      fontSize="12"
-                      // Usando Bold para o número ter peso visual
-                      fontFamily="Outfit_700Bold"
-                      color="#666666"
-                      textAnchor="start"
-                    >
-                      {item.value}
+                    <SvgText x={xCenter} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
+                      {item.label}
                     </SvgText>
                   </G>
                 );
               })}
 
-              {/* LINHA BASE DO EIXO Y */}
-              <Line
-                x1={leftAxisWidth}
-                y1={topPadding}
-                x2={leftAxisWidth}
-                y2={chartHeight - bottomPadding + 4}
-                stroke="#0D0D0D"
-                strokeWidth="0.5"
-              />
+              {/* LINHA BASE DO EIXO X */}
+              <Line x1={leftAxisWidth} y1={topPadding + chartInnerHeight} x2={leftAxisWidth + drawingWidth} y2={topPadding + chartInnerHeight} stroke="#0D0D0D" strokeWidth="1" />
             </Svg>
           )}
+
+          <Text className="text-xs font-outfit-bold text-center mt-2">Pivôs</Text>
         </View>
       </View>
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* // * Consumo de Água por Hora */}
+      {/* ========================================================================= */}
+      {/* // * Gráfico 3: Consumo de Água por Hora (Barras Verticais SVG) */}
+      {/* ========================================================================= */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold text-wrap w-[140px]">
@@ -892,7 +770,7 @@ export default function Analises() {
             <Select onOpenChange={setAguaOpen}>
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] ${aguaOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${aguaOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Pivô" />
               </SelectTrigger>
@@ -902,16 +780,7 @@ export default function Analises() {
               >
                 <SelectGroup>
                   {pivos.map((pivo) => (
-                    <SelectItem
-                      key={pivo.value}
-                      label={pivo.label}
-                      value={pivo.value}
-                      className={
-                        Number(pivo.id) % 2 !== 0
-                          ? "bg-[#E1E1E1]"
-                          : "bg-transparent"
-                      }
-                    >
+                    <SelectItem key={pivo.value} label={pivo.label} value={pivo.value} className={Number(pivo.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {pivo.label}
                     </SelectItem>
                   ))}
@@ -924,69 +793,62 @@ export default function Analises() {
           </View>
         </View>
 
-        {/* // * Gráfico de Barras de Consumo de Água por Hora */}
-        <View className="border-[2px] border-[#cacaca] rounded-[12px] pt-4 pl-2 pb-3">
-          {/* Título do Eixo Y posicionado no topo esquerdo */}
-          <Text className="text-xs font-outfit-bold text-texto mb-2 pl-1">
-            L/h
-          </Text>
+        <View className="bg-white border-[2px] border-[#cacaca] rounded-[12px] pt-4 pl-2 pb-3 w-full overflow-hidden">
+          <Text className="text-xs font-outfit-bold text-texto mb-2 pl-1">L/h</Text>
 
-          <View className="items-center justify-center">
-            <BarChart
-              data={valoresConsumoAgua}
-              // Estilização das Barras
-              frontColor="#00A0A6" // O Teal/Azul Primário do Pluvia
-              barWidth={28}
-              spacing={12}
-              barBorderTopLeftRadius={4} // Arredonda o topo
-              barBorderTopRightRadius={4} // Arredonda o topo
-              endSpacing={4}
-              // Configuração dos Eixos
-              hideYAxisText={false}
-              yAxisExtraHeight={16}
-              yAxisThickness={0} // Remove a linha vertical preta do eixo Y
-              xAxisThickness={1} // Mantém a linha horizontal base
-              stepHeight={50}
-              xAxisColor="#0D0D0D"
-              // Configuração da Grade (Linhas Horizontais Cinzas)
-              hideRules={false}
-              rulesType="solid"
-              rulesColor="#CACACA"
-              // Configuração Matemática (De 5 em 5 até 25 para espaçamento igual)
-              showValuesAsTopLabel
-              topLabelTextStyle={{ fontSize: 12, fontFamily: "Outfit_700Bold" }}
-              maxValue={200}
-              stepValue={50}
-              noOfSections={5}
-              // Estilização dos Textos dos Eixos
-              yAxisTextStyle={{
-                fontFamily: "Outfit_400Regular",
-                color: "#0D0D0D",
-                fontSize: 12,
-              }}
-              xAxisLabelTextStyle={{
-                fontFamily: "Outfit_400Regular",
-                color: "#0D0D0D",
-                fontSize: 12,
-              }}
-              // Comportamento
-              disableScroll={false}
-              isAnimated={true} // Adiciona aquela animação fluida quando a tela abre
-              showScrollIndicator={false}
-              animationDuration={400}
-            />
-          </View>
+          {(containerWidth > 0 || Platform.OS === 'web') && (
+            <Svg width={containerWidth || "100%"} height={chartHeight}>
+              {/* LINHAS HORIZONTAIS DE GRADE */}
+              {aguaSteps.map((currentStep) => {
+                const yPos = topPadding + chartInnerHeight - (currentStep / aguaMax) * chartInnerHeight;
+                return (
+                  <G key={`grid-h-agua-${currentStep}`}>
+                    <Line x1={leftAxisWidth} y1={yPos} x2={leftAxisWidth + drawingWidth} y2={yPos} stroke="#CACACA" strokeWidth="1" />
+                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
+                      {currentStep}
+                    </SvgText>
+                  </G>
+                );
+              })}
 
-          {/* Título do Eixo X posicionado no centro inferior */}
-          {/* <Text className="text-xs font-outfit-bold text-center mt-2">
-            Pivôs
-          </Text> */}
+              {/* BARRAS VERTICAIS DINÂMICAS */}
+              {consumoAguaMock.map((item, index) => {
+                const stepX = drawingWidth / consumoAguaMock.length;
+                const barWidth = Math.min(28, stepX * 0.8);
+                const xCenter = leftAxisWidth + index * stepX + stepX / 2;
+                const xPos = xCenter - barWidth / 2;
+                const barH = (item.value / aguaMax) * chartInnerHeight;
+                const yPos = topPadding + chartInnerHeight - barH;
+
+                return (
+                  <G key={`bar-v-agua-${item.label}`}>
+                    <Rect x={xPos} y={yPos} width={barWidth} height={barH} rx={4} fill="#00A0A6" />
+                    <Rect x={xPos} y={yPos + 4} width={barWidth} height={Math.max(0, barH - 4)} fill="#00A0A6" />
+
+                    {/* [FIX] Texto alinhado corretamente (yPos - 6) no topo da barra! */}
+                    <SvgText x={xCenter} y={yPos - 6} fill="#666666" fontSize="12" fontFamily="Outfit_700Bold" textAnchor="middle">
+                      {item.value}
+                    </SvgText>
+
+                    <SvgText x={xCenter} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
+                      {item.label}
+                    </SvgText>
+                  </G>
+                );
+              })}
+
+              {/* LINHA BASE DO EIXO X */}
+              <Line x1={leftAxisWidth} y1={topPadding + chartInnerHeight} x2={leftAxisWidth + drawingWidth} y2={topPadding + chartInnerHeight} stroke="#0D0D0D" strokeWidth="1" />
+            </Svg>
+          )}
         </View>
       </View>
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* // * Consumo de Energia */}
+      {/* ========================================================================= */}
+      {/* // * Gráfico 4: Consumo de Energia (Linhas SVG) */}
+      {/* ========================================================================= */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold text-wrap">Consumo de Energia</Text>
@@ -994,7 +856,7 @@ export default function Analises() {
             <Select onOpenChange={setEnergiaOpen}>
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] ${energiaOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${energiaOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Pivô" />
               </SelectTrigger>
@@ -1004,16 +866,7 @@ export default function Analises() {
               >
                 <SelectGroup>
                   {pivos.map((pivo) => (
-                    <SelectItem
-                      key={pivo.value}
-                      label={pivo.label}
-                      value={pivo.value}
-                      className={
-                        Number(pivo.id) % 2 !== 0
-                          ? "bg-[#E1E1E1]"
-                          : "bg-transparent"
-                      }
-                    >
+                    <SelectItem key={pivo.value} label={pivo.label} value={pivo.value} className={Number(pivo.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {pivo.label}
                     </SelectItem>
                   ))}
@@ -1026,21 +879,15 @@ export default function Analises() {
           </View>
         </View>
 
-        {/* // * Gráfico de Linhas de Consumo de Energia */}
-        <View className="bg-white border-[2px] border-[#cacaca] rounded-[12px] pt-4 pl-2 pb-3">
+        <View className="bg-white border-[2px] border-[#cacaca] rounded-[12px] pt-4 pl-2 pb-3 w-full overflow-hidden">
           {/* HEADER: Título do Eixo e Legenda Customizada */}
           <View className="flex-row justify-between items-center mb-6 pl-1">
             <Text className="text-xs font-outfit-bold text-texto">KWh</Text>
-
-            {/* Container da Legenda */}
             <View className="flex-row items-center gap-4 pr-2">
-              {/* Item: Real */}
               <View className="flex-row items-center gap-1.5">
                 <View className="w-6 h-4 rounded-full bg-primaria-azul" />
                 <Text className="text-xs">Real</Text>
               </View>
-
-              {/* Item: Estimado */}
               <View className="flex-row items-center gap-1.5">
                 <View className="w-6 h-4 rounded-full bg-primaria-verde" />
                 <Text className="text-xs">Estimado</Text>
@@ -1048,50 +895,86 @@ export default function Analises() {
             </View>
           </View>
 
-          {/* GRÁFICO DE LINHAS */}
-          <View className="items-center justify-center">
-            <LineChart
-              // Passamos os dois arrays de dados gerados acima
-              data={consumoEnergiaReal}
-              data2={consumoEnergiaEstimado}
-              // Cores e espessuras das linhas de conexão
-              color1="#00A0A6"
-              color2="#0AA146"
-              thickness1={2}
-              thickness2={2}
-              // Espaçamentos e Limites
-              initialSpacing={16}
-              yAxisExtraHeight={16}
-              xAxisLabelsVerticalShift={8}
-              // Configuração Matemática da Escala
-              maxValue={400}
-              stepValue={100}
-              noOfSections={4}
-              stepHeight={45}
-              // Eixos e Grades
-              hideYAxisText={false}
-              yAxisThickness={0}
-              xAxisThickness={1}
-              xAxisColor="#0D0D0D"
-              hideRules={false}
-              rulesType="solid"
-              rulesColor="#CACACA"
-              // Estilização dos Textos dos Eixos
-              yAxisTextStyle={{
-                fontFamily: "Outfit_400Regular",
-                color: "#0D0D0D",
-                fontSize: 12,
-              }}
-              xAxisLabelTextStyle={{
-                fontFamily: "Outfit_400Regular",
-                color: "#0D0D0D",
-                fontSize: 12,
-              }}
-              // Animação inicial
-              isAnimated={true}
-              animationDuration={400}
-            />
-          </View>
+          {/* GRÁFICO DE LINHAS EM SVG DINÂMICO */}
+          {(containerWidth > 0 || Platform.OS === 'web') && (
+            <Svg width={containerWidth || "100%"} height={chartHeight}>
+              {/* LINHAS HORIZONTAIS DE GRADE */}
+              {energiaSteps.map((currentStep) => {
+                const yPos = topPadding + chartInnerHeight - (currentStep / energiaMax) * chartInnerHeight;
+                return (
+                  <G key={`grid-h-ene-${currentStep}`}>
+                    <Line x1={leftAxisWidth} y1={yPos} x2={leftAxisWidth + drawingWidth} y2={yPos} stroke="#CACACA" strokeWidth="1" />
+                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
+                      {currentStep}
+                    </SvgText>
+                  </G>
+                );
+              })}
+
+              {/* PATHS (LINHAS DOS GRÁFICOS) */}
+              <Path
+                d={`M ${consumoEnergiaMock.map((item, i) => {
+                  const stepX = drawingWidth / consumoEnergiaMock.length;
+                  const x = leftAxisWidth + i * stepX + stepX / 2;
+                  const y = topPadding + chartInnerHeight - (item.real / energiaMax) * chartInnerHeight;
+                  return `${x} ${y}`;
+                }).join(" L ")}`}
+                fill="none"
+                stroke="#00A0A6"
+                strokeWidth="2"
+              />
+
+              <Path
+                d={`M ${consumoEnergiaMock.map((item, i) => {
+                  const stepX = drawingWidth / consumoEnergiaMock.length;
+                  const x = leftAxisWidth + i * stepX + stepX / 2;
+                  const y = topPadding + chartInnerHeight - (item.estimado / energiaMax) * chartInnerHeight;
+                  return `${x} ${y}`;
+                }).join(" L ")}`}
+                fill="none"
+                stroke="#0AA146"
+                strokeWidth="2"
+              />
+
+              {/* PONTOS (BOLINHAS) E TEXTOS */}
+              {consumoEnergiaMock.map((item, index) => {
+                const stepX = drawingWidth / consumoEnergiaMock.length;
+                const xPos = leftAxisWidth + index * stepX + stepX / 2;
+                
+                const yReal = topPadding + chartInnerHeight - (item.real / energiaMax) * chartInnerHeight;
+                const yEstimado = topPadding + chartInnerHeight - (item.estimado / energiaMax) * chartInnerHeight;
+                
+                // Lógica de posição (cima ou baixo) para os números não se encavalarem
+                const isRealMaior = item.real >= item.estimado;
+                const txtYReal = isRealMaior || item.real === 0 ? yReal - 10 : yReal + 16;
+                const txtYEstimado = !isRealMaior || item.estimado === 0 ? yEstimado - 10 : yEstimado + 16;
+
+                return (
+                  <G key={`points-ene-${item.label}`}>
+                    {/* Linha base do X (Label dos dias) */}
+                    <SvgText x={xPos} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
+                      {item.label}
+                    </SvgText>
+
+                    {/* Pontos Real (AZUL) */}
+                    <Circle cx={xPos} cy={yReal} r={4} fill="#FFFFFF" stroke="#00A0A6" strokeWidth={2} />
+                    <SvgText x={xPos} y={txtYReal} fill="#00A0A6" fontSize="10" fontFamily="Outfit_700Bold" textAnchor="middle">
+                      {item.real}
+                    </SvgText>
+
+                    {/* Pontos Estimado (VERDE) */}
+                    <Circle cx={xPos} cy={yEstimado} r={4} fill="#FFFFFF" stroke="#0AA146" strokeWidth={2} />
+                    <SvgText x={xPos} y={txtYEstimado} fill="#0AA146" fontSize="10" fontFamily="Outfit_700Bold" textAnchor="middle">
+                      {item.estimado}
+                    </SvgText>
+                  </G>
+                );
+              })}
+
+              {/* LINHA BASE DO EIXO X */}
+              <Line x1={leftAxisWidth} y1={topPadding + chartInnerHeight} x2={leftAxisWidth + drawingWidth} y2={topPadding + chartInnerHeight} stroke="#0D0D0D" strokeWidth="1" />
+            </Svg>
+          )}
         </View>
       </View>
 
@@ -1105,7 +988,7 @@ export default function Analises() {
             <Select onOpenChange={setLogOpen}>
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] ${logOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${logOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Pivô" />
               </SelectTrigger>
@@ -1131,7 +1014,7 @@ export default function Analises() {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Pressable className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
+            <Pressable className="active:opacity-50 hover:opacity-80 cursor-pointer transition-opacity bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
               <Download size={24} color="white" strokeWidth={2.5} />
             </Pressable>
           </View>
