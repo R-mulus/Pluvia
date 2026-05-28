@@ -79,7 +79,7 @@ export default function ListaDePivos() {
     <Screen className="justify-center overflow-scroll px-0">
       <View>
         
-        <View className="flex-row justify-between items-center mb-4 px-3">
+        <View className="flex-row justify-between items-center mb-4">
           <Header title="Pivôs" subtitle="AXC23KJ09P" />
 
           {isLoadingFazendas ? (
@@ -135,7 +135,7 @@ export default function ListaDePivos() {
           )}
         </View>
 
-        <View className="w-full flex-row justify-end mb-4 px-3">
+        <View className="w-full flex-row justify-end mb-4">
           <Dialog>
             <DialogTrigger asChild>
               {/* [WEB] Adicionado cursor-pointer e hover:opacity-80 */}
@@ -171,7 +171,7 @@ export default function ListaDePivos() {
         </View>
       ) : (
         /* [WEB] numColumns agora é dinâmico (getColunas()). O 'key' precisa ser forçado a mudar quando as colunas mudam. */
-        <View className="flex-1 -mx-2 px-3">
+        <View className="flex-1 -mx-2 px-0">
           <FlashList
             key={`colunas-${getColunas()}`} 
             className="flex-1"
