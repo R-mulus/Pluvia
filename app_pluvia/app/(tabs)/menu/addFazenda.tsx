@@ -1,3 +1,11 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA]
+ * * MODIFICAÇÕES REALIZADAS PARA ADAPTAÇÃO WEB (Seguindo o padrão do App):
+ * 1. LAYOUT CENTRALIZADO: O Header se mantém 'full-width', e o formulário junto com os botões foi envelopado em uma View com 'web:max-w-2xl web:mx-auto self-center' para não esticar em monitores.
+ * 2. CAMPOS LADO A LADO: Substituído o 'w-[48%]' por 'flex-1' nas duplas de inputs (Lat/Long, Cidade/Estado, Área/Cultura) para uma responsividade mais fluida.
+ * 3. FEEDBACK DE MOUSE: Inserido 'cursor-pointer hover:opacity-90' no Pressable que abre o Dialog do Proprietário.
+ */
+
 import React, { useRef, useState } from "react";
 import {
   View,
@@ -145,18 +153,27 @@ export default function CadastrarFazenda() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 40, gap: 24 }}
         >
+          {/* ✅ MUDANÇA 1: Header permanece full-width, fora do container centralizado */}
           <Header title="Cadastrar Fazenda" subtitle="AXCP2134HIM" />
 
-          <View className="w-full gap-3">
+          {/*
+           * ✅ MUDANÇA 2: Container central do formulário (Padrão do App).
+           * - No mobile: ocupa 100% da largura.
+           * - Na web: max-w-2xl limita a largura e mx-auto centraliza.
+           * // ! - as veis bota um mt-6 (margin top)
+           */}
+          <View className="w-full web:max-w-2xl web:mx-auto self-center gap-6">
             <View className="gap-4 w-full">
+              
               {/* === DIALOG DO PROPRIETÁRIO === */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Proprietário</Text>
 
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
+                    {/* [WEB] cursor-pointer e hover adicionados ao Pressable */}
                     <Pressable
-                      className={`flex-row items-center border-[2px] bg-white w-full overflow-hidden rounded-[12px] h-[40px] ${errors.proprietario_id ? "border-red-500" : "border-[#b8b8b8]"}`}
+                      className={`flex-row items-center border-[2px] bg-white w-full overflow-hidden rounded-[12px] h-[40px] cursor-pointer hover:opacity-90 transition-opacity ${errors.proprietario_id ? "border-red-500" : "border-[#b8b8b8]"}`}
                     >
                       <View className="bg-[#00A0A6] px-4 items-center justify-center h-[40px] w-[40px]">
                         <UserIcon color="white" size={24} strokeWidth={2.5} />
@@ -206,7 +223,7 @@ export default function CadastrarFazenda() {
                               <TouchableOpacity
                                 key={usuario.id}
                                 activeOpacity={0.7}
-                                className={`relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 ${isSelected ? "bg-[#E1E1E1]" : "active:bg-[#E1E1E1]"}`}
+                                className={`relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 cursor-pointer hover:bg-[#E1E1E1] ${isSelected ? "bg-[#E1E1E1]" : "active:bg-[#E1E1E1]"}`}
                                 onPress={() => {
                                   setSelectedProprietario({
                                     id: usuario.id,
@@ -254,7 +271,7 @@ export default function CadastrarFazenda() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={nomeRef}
-                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.nome_fazenda ? "border-red-500" : ""}`}
+                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.nome_fazenda ? "border-red-500" : "border-secundaria-azul"}`}
                       placeholder="Exemplo"
                       autoCapitalize="words"
                       returnKeyType="next"
@@ -281,7 +298,7 @@ export default function CadastrarFazenda() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={codigoRef}
-                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.codigo_identificacao ? "border-red-500" : ""}`}
+                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.codigo_identificacao ? "border-red-500" : "border-secundaria-azul"}`}
                       placeholder="ABC1234-5D"
                       autoCapitalize="characters"
                       returnKeyType="next"
@@ -308,7 +325,7 @@ export default function CadastrarFazenda() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={enderecoRef}
-                      className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                      className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                       placeholder="Rua Exemplo"
                       autoCapitalize="words"
                       returnKeyType="next"
@@ -322,8 +339,9 @@ export default function CadastrarFazenda() {
               </View>
 
               {/* === COORDENADAS (SEPARADAS) === */}
+              {/* [WEB] Substituído w-[48%] por flex-1 para alinhamento fluído e preenchimento perfeito */}
               <View className="flex-row gap-3">
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Latitude</Text>
                   <Controller
                     control={control}
@@ -331,7 +349,7 @@ export default function CadastrarFazenda() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={latRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="-12.3456"
                         keyboardType="numbers-and-punctuation"
                         returnKeyType="next"
@@ -343,7 +361,7 @@ export default function CadastrarFazenda() {
                     )}
                   />
                 </View>
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Longitude</Text>
                   <Controller
                     control={control}
@@ -351,7 +369,7 @@ export default function CadastrarFazenda() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={longRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="-45.6789"
                         keyboardType="numbers-and-punctuation"
                         returnKeyType="next"
@@ -366,8 +384,9 @@ export default function CadastrarFazenda() {
               </View>
 
               {/* === CIDADE E ESTADO === */}
+              {/* [WEB] flex-1 nos containers filhos */}
               <View className="flex-row gap-3">
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Cidade</Text>
                   <Controller
                     control={control}
@@ -375,7 +394,7 @@ export default function CadastrarFazenda() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={cidadeRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="Exemplo"
                         autoCapitalize="words"
                         returnKeyType="next"
@@ -387,7 +406,7 @@ export default function CadastrarFazenda() {
                     )}
                   />
                 </View>
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Estado</Text>
                   <Controller
                     control={control}
@@ -395,7 +414,7 @@ export default function CadastrarFazenda() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={estadoRef}
-                        className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.estado ? "border-red-500" : ""}`}
+                        className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.estado ? "border-red-500" : "border-secundaria-azul"}`}
                         placeholder="MG"
                         autoCapitalize="characters"
                         maxLength={2}
@@ -416,16 +435,17 @@ export default function CadastrarFazenda() {
               </View>
 
               {/* === ÁREA E CULTURA === */}
+              {/* [WEB] flex-1 nos containers filhos */}
               <View className="flex-row gap-3">
-                <View className="items-start gap-2 w-[48%]">
-                  <Text className="text-xs">Área Total (Hectares)</Text>
+                <View className="items-start gap-2 flex-1">
+                  <Text numberOfLines={1} ellipsizeMode="tail" className="text-xs">Área Total (Hectares)</Text>
                   <Controller
                     control={control}
                     name="area_total"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={areaRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="1000"
                         keyboardType="numeric"
                         returnKeyType="next"
@@ -437,8 +457,8 @@ export default function CadastrarFazenda() {
                     )}
                   />
                 </View>
-                <View className="items-start gap-2 w-[48%]">
-                  <Text className="text-xs">
+                <View className="items-start gap-2 flex-1">
+                  <Text numberOfLines={1} ellipsizeMode="tail" className="text-xs">
                     Culturas (Separar por vírgula)
                   </Text>
                   <Controller
@@ -447,7 +467,7 @@ export default function CadastrarFazenda() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={culturaRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="Café, Soja"
                         autoCapitalize="words"
                         returnKeyType="done"
@@ -460,32 +480,34 @@ export default function CadastrarFazenda() {
                 </View>
               </View>
             </View>
-          </View>
 
-          {/* === BOTÕES DE AÇÃO === */}
-          <View className="flex-row items-center w-full gap-4 mt-5">
-            <Button
-              className="bg-incorreto rounded-none rounded-pluvia flex-1 h-[40px]"
-              onPress={() => {
-                if (router.canGoBack()) router.back();
-                else router.push("/(tabs)/menu");
-              }}
-              disabled={isCreating}
-            >
-              <Text>Cancelar</Text>
-            </Button>
+            {/* === BOTÕES DE AÇÃO === */}
+            {/* Mantidos dentro da view web:max-w-2xl para acompanhar a largura do form */}
+            <View className="flex-row items-center w-full gap-4 mt-5">
+              <Button
+                className="bg-incorreto rounded-none rounded-pluvia flex-1 h-[40px]"
+                onPress={() => {
+                  if (router.canGoBack()) router.back();
+                  else router.push("/(tabs)/menu");
+                }}
+                disabled={isCreating}
+              >
+                <Text>Cancelar</Text>
+              </Button>
 
-            <Button
-              className="bg-primaria-verde rounded-none rounded-pluvia flex-1 h-[40px]"
-              onPress={handleSubmit(onSubmit)}
-              disabled={isCreating}
-            >
-              {isCreating ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text>Adicionar</Text>
-              )}
-            </Button>
+              <Button
+                className="bg-primaria-verde rounded-none rounded-pluvia flex-1 h-[40px]"
+                onPress={handleSubmit(onSubmit)}
+                disabled={isCreating}
+              >
+                {isCreating ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text>Adicionar</Text>
+                )}
+              </Button>
+            </View>
+            
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

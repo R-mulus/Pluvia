@@ -116,41 +116,97 @@ export default function CadastrarUsuario() {
         style={{ flex: 1, width: "100%" }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 40, gap: 24 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: 40,
+            gap:24,
+          }}
         >
-          <Header title='Cadastrar Usuário' subtitle='AXCP2134HIM'/>
-          
-          <View className="w-full gap-3">
-            
+
+          {/* ✅ MUDANÇA 1: Header permanece full-width, fora do container centralizado */}
+          <Header title='Cadastrar Usuário' subtitle='AXCP2134HIM' />
+
+          {/*
+           * ✅ MUDANÇA 2: Container central do formulário.
+           * - No mobile: ocupa 100% da largura (comportamento original).
+           * - Na web: max-w-xl limita a largura, mx-auto centraliza,
+           *   e px-4 garante respiro lateral em telas menores.
+           * // ! - as veis bota um mt-6 (margin top)
+           */}
+          <View className="w-full web:max-w-2xl web:mx-auto self-center gap-6">
+
             {/* === ABAS DE CARGO === */}
             <Tabs
               value={cargoAtual}
               onValueChange={(val) => setValue('cargo', val as Cargo)}
-              className="w-full"
+              className="w-full h-auto"
             >
-              <TabsList className="gap-2">
-                <TabsTrigger value="Administrador" className="flex-1 border-2 border-primaria-azul rounded-xl">
-                  <Text className='text-[13px]'>Administrador</Text>
+              <TabsList className="w-full flex-row flex-wrap items-stretch gap-3 bg-transparent p-0">
+                <TabsTrigger
+                  value="Administrador"
+                  className="
+                    flex-1
+                    min-w-[95px]
+                    border-2
+                    border-primaria-azul
+                    rounded-xl
+                    items-center
+                    justify-center
+                  "
+                >
+                  <Text className="text-[13px] text-center">
+                    Administrador
+                  </Text>
                 </TabsTrigger>
-                <TabsTrigger value="Cliente" className="flex-1 border-2 border-primaria-azul rounded-xl">
-                  <Text className='text-[13px]'>Cliente</Text>
+
+                <TabsTrigger
+                  value="Cliente"
+                  className="
+                    flex-1
+                    min-w-[95px] 
+                    border-2
+                    border-primaria-azul
+                    rounded-xl
+                    items-center
+                    justify-center
+                  "
+                >
+                  <Text className="text-[13px] text-center">
+                    Cliente
+                  </Text>
                 </TabsTrigger>
-                <TabsTrigger value="Operador" className="flex-1 border-2 border-primaria-azul rounded-xl">
-                  <Text className='text-[13px]'>Operador</Text>
+
+                <TabsTrigger
+                  value="Operador"
+                  className="
+                    flex-1
+                    min-w-[95px]
+                    border-2
+                    border-primaria-azul
+                    rounded-xl
+                    items-center
+                    justify-center
+                  "
+                >
+                  <Text className="text-[13px] text-center">
+                    Operador
+                  </Text>
                 </TabsTrigger>
+
               </TabsList>
               
-              <TabsContent value="Administrador"></TabsContent>
-              <TabsContent value="Cliente"></TabsContent>
-              <TabsContent value="Operador"></TabsContent>
+              <TabsContent value="Administrador" className="hidden"></TabsContent>
+              <TabsContent value="Cliente" className="hidden"></TabsContent>
+              <TabsContent value="Operador" className="hidden"></TabsContent>
             </Tabs>
 
             {/* === FORMULÁRIO === */}
             <View className="gap-4 w-full">
-              
+
               <View className="items-start gap-2">
                 <Text className="text-xs">Nome</Text>
                 <Controller
@@ -158,7 +214,7 @@ export default function CadastrarUsuario() {
                   name="nome"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
-                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.nome ? 'border-red-500' : ''}`}
+                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-secundaria-azul border-l-secundaria-azul ${errors.nome ? 'border-red-500' : ''}`}
                       placeholder="Exemplo"
                       autoCapitalize="words"
                       returnKeyType="next"
@@ -180,13 +236,12 @@ export default function CadastrarUsuario() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={cpfRef}
-                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.cpf_cnpj ? 'border-red-500' : ''}`}
+                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-secundaria-azul border-l-secundaria-azul ${errors.cpf_cnpj ? 'border-red-500' : ''}`}
                       placeholder="00.000.000/0000-00"
                       keyboardType="numeric"
                       returnKeyType="next"
                       onBlur={onBlur}
-                      // Aplica a máscara em tempo real durante a digitação
-                      onChangeText={(text) => onChange(maskCpfCnpj(text))} 
+                      onChangeText={(text) => onChange(maskCpfCnpj(text))}
                       value={value}
                       maxLength={18}
                       onSubmitEditing={() => emailRef.current?.focus()}
@@ -204,7 +259,7 @@ export default function CadastrarUsuario() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={emailRef}
-                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.email ? 'border-red-500' : ''}`}
+                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-secundaria-azul border-l-secundaria-azul ${errors.email ? 'border-red-500' : ''}`}
                       placeholder="exemplo@email.com"
                       keyboardType="email-address"
                       autoCapitalize="none"
@@ -228,7 +283,7 @@ export default function CadastrarUsuario() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={senhaRef}
-                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.senha_token ? 'border-red-500' : ''}`}
+                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-secundaria-azul border-l-secundaria-azul ${errors.senha_token ? 'border-red-500' : ''}`}
                       placeholder="Senha"
                       secureTextEntry={true}
                       returnKeyType="next"
@@ -243,7 +298,7 @@ export default function CadastrarUsuario() {
               </View>
 
               <View className="flex-row gap-3">
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Telefone</Text>
                   <Controller
                     control={control}
@@ -251,12 +306,11 @@ export default function CadastrarUsuario() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={telefoneRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-secundaria-azul border-l-secundaria-azul"
                         placeholder="(99) 9999-9999"
                         keyboardType="phone-pad"
                         returnKeyType="next"
                         onBlur={onBlur}
-                        // Aplica a máscara em tempo real
                         onChangeText={(text) => onChange(maskPhone(text))}
                         value={value}
                         maxLength={15}
@@ -265,7 +319,7 @@ export default function CadastrarUsuario() {
                     )}
                   />
                 </View>
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">WhatsApp</Text>
                   <Controller
                     control={control}
@@ -273,12 +327,11 @@ export default function CadastrarUsuario() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={wppRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-secundaria-azul border-l-secundaria-azul"
                         placeholder="(99) 99999-9999"
                         keyboardType="phone-pad"
                         returnKeyType="done"
                         onBlur={onBlur}
-                        // Aplica a máscara em tempo real
                         onChangeText={(text) => onChange(maskPhone(text))}
                         value={value}
                         maxLength={15}
@@ -288,30 +341,35 @@ export default function CadastrarUsuario() {
                 </View>
               </View>
             </View>
-          </View>
 
-          {/* === BOTÕES DE AÇÃO === */}
-          <View className="flex-row items-center w-full gap-4 mt-5">
-            <Button 
-              className="bg-incorreto rounded-none rounded-pluvia flex-1 h-[40px]"
-              onPress={() => {
-                if (router.canGoBack()) router.back();
-                else router.push("/(tabs)/menu");
-              }}
-              disabled={isPending}
-            >
-              <Text>Cancelar</Text>
-            </Button>
-            
-            <Button 
-              className="bg-primaria-verde rounded-none rounded-pluvia flex-1 h-[40px]"
-              onPress={handleSubmit(onSubmit)}
-              disabled={isPending}
-            >
-              {isPending ? <ActivityIndicator color="white" /> : <Text>Adicionar</Text>}
-            </Button>
-          </View>
+            {/* === BOTÕES DE AÇÃO === */}
+            {/*
+             * ✅ Os botões ficam dentro do mesmo container centralizado,
+             * então acompanham automaticamente a largura do formulário
+             * tanto no mobile quanto na web. Nenhuma alteração necessária aqui.
+             */}
+            <View className="flex-row items-center w-full gap-4 mt-5">
+              <Button
+                className="bg-incorreto rounded-none rounded-pluvia flex-1 h-[40px]"
+                onPress={() => {
+                  if (router.canGoBack()) router.back();
+                  else router.push("/(tabs)/menu");
+                }}
+                disabled={isPending}
+              >
+                <Text>Cancelar</Text>
+              </Button>
 
+              <Button
+                className="bg-primaria-verde rounded-none rounded-pluvia flex-1 h-[40px]"
+                onPress={handleSubmit(onSubmit)}
+                disabled={isPending}
+              >
+                {isPending ? <ActivityIndicator color="white" /> : <Text>Adicionar</Text>}
+              </Button>
+            </View>
+
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>

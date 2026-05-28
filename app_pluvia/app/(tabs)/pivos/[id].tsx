@@ -28,8 +28,9 @@ import { Separator } from "@/components/ui/separator";
 import Header from "@/components/custom/Header";
 import { Screen } from "@/components/custom/Screen";
 import { Table, TableColumn } from "@/components/custom/Table";
-import PresetCard from "@/components/custom/PresetCard";
 import RadarComplexo from "@/components/custom/RadarComplexo";
+
+import PresetCard from "@/components/custom/PresetCard";
 
 import { usePivo } from "@/hooks/api/usePivos";
 import { useDashboardTelemetria } from "@/hooks/api/useTelemetria";

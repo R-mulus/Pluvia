@@ -1,3 +1,11 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA]
+ * * MODIFICAÇÕES REALIZADAS PARA ADAPTAÇÃO WEB (Padrão do App):
+ * 1. LAYOUT CENTRALIZADO: O Header se mantém 'full-width', e o formulário junto com os botões foi envelopado em uma View com 'web:max-w-2xl web:mx-auto self-center' para não esticar em monitores.
+ * 2. CAMPOS LADO A LADO: Substituído o 'w-[48%]' por 'flex-1' nas duplas de inputs (Marca/Raio, Latitude/Longitude) para uma responsividade mais fluida.
+ * 3. FEEDBACK DE MOUSE: Inserido 'cursor-pointer hover:opacity-90' nos Pressables que abrem os Dialogs de Fazenda e Operador.
+ */
+
 import React, { useRef, useState } from "react";
 import {
   View,
@@ -165,10 +173,18 @@ export default function CadastrarPivo() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 40, gap: 24 }}
         >
+          {/* ✅ MUDANÇA 1: Header permanece full-width, fora do container centralizado */}
           <Header title="Cadastrar Pivô" subtitle="AXCP2134HIM" />
 
-          <View className="w-full gap-3">
+          {/*
+           * ✅ MUDANÇA 2: Container central do formulário (Padrão do App).
+           * - No mobile: ocupa 100% da largura.
+           * - Na web: max-w-2xl limita a largura e mx-auto centraliza.
+           * // ! - as veis bota um mt-6 (margin top)
+           */}
+          <View className="w-full web:max-w-2xl web:mx-auto self-center gap">
             <View className="gap-4 w-full">
+              
               {/* === DIALOG DA FAZENDA === */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Fazenda</Text>
@@ -178,8 +194,9 @@ export default function CadastrarPivo() {
                   onOpenChange={setDialogFazendaOpen}
                 >
                   <DialogTrigger asChild>
+                    {/* [WEB] cursor-pointer e hover adicionados ao Pressable */}
                     <Pressable
-                      className={`flex-row items-center border-[2px] bg-white w-full overflow-hidden rounded-[12px] h-[48px] ${errors.fazenda_id ? "border-red-500" : "border-[#b8b8b8]"}`}
+                      className={`flex-row items-center border-[2px] bg-white w-full overflow-hidden rounded-[12px] h-[48px] cursor-pointer hover:opacity-90 transition-opacity ${errors.fazenda_id ? "border-red-500" : "border-[#b8b8b8]"}`}
                     >
                       <View className="bg-[#00A0A6] px-4 items-center justify-center h-full">
                         <Tractor color="white" size={24} />
@@ -228,7 +245,7 @@ export default function CadastrarPivo() {
                               <TouchableOpacity
                                 key={fazenda.id}
                                 activeOpacity={0.7}
-                                className={`relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 ${isSelected ? "bg-accent" : "active:bg-accent"}`}
+                                className={`relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 cursor-pointer hover:bg-[#E1E1E1] ${isSelected ? "bg-accent" : "active:bg-accent"}`}
                                 onPress={() => {
                                   setSelectedFazenda({
                                     id: fazenda.id,
@@ -276,8 +293,9 @@ export default function CadastrarPivo() {
                   onOpenChange={setDialogOperadorOpen}
                 >
                   <DialogTrigger asChild>
+                    {/* [WEB] cursor-pointer e hover adicionados ao Pressable */}
                     <Pressable
-                      className={`flex-row items-center border-[2px] bg-white w-full overflow-hidden rounded-[12px] h-[48px] ${errors.operador_id ? "border-red-500" : "border-[#b8b8b8]"}`}
+                      className={`flex-row items-center border-[2px] bg-white w-full overflow-hidden rounded-[12px] h-[48px] cursor-pointer hover:opacity-90 transition-opacity ${errors.operador_id ? "border-red-500" : "border-[#b8b8b8]"}`}
                     >
                       <View className="bg-[#00A0A6] px-4 items-center justify-center h-full">
                         <User color="white" size={24} />
@@ -326,7 +344,7 @@ export default function CadastrarPivo() {
                               <TouchableOpacity
                                 key={operador.id}
                                 activeOpacity={0.7}
-                                className={`relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 ${isSelected ? "bg-accent" : "active:bg-accent"}`}
+                                className={`relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 cursor-pointer hover:bg-[#E1E1E1] ${isSelected ? "bg-accent" : "active:bg-accent"}`}
                                 onPress={() => {
                                   setSelectedOperador({
                                     id: operador.id,
@@ -369,7 +387,7 @@ export default function CadastrarPivo() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={nomeRef}
-                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.nome_pivo ? "border-red-500" : ""}`}
+                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.nome_pivo ? "border-red-500" : "border-secundaria-azul"}`}
                       placeholder="Pivô Central 01"
                       autoCapitalize="words"
                       returnKeyType="next"
@@ -396,7 +414,7 @@ export default function CadastrarPivo() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={codigoSerieRef}
-                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.codigo_serie ? "border-red-500" : ""}`}
+                      className={`rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul ${errors.codigo_serie ? "border-red-500" : "border-secundaria-azul"}`}
                       placeholder="ABC1234-5D"
                       autoCapitalize="characters"
                       returnKeyType="next"
@@ -423,7 +441,7 @@ export default function CadastrarPivo() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={vazaoRef}
-                      className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                      className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                       placeholder="123 L/h"
                       autoCapitalize="none"
                       returnKeyType="next"
@@ -445,7 +463,7 @@ export default function CadastrarPivo() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <Input
                       ref={modeloRef}
-                      className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                      className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                       placeholder="Zimmatic 9500"
                       autoCapitalize="words"
                       returnKeyType="next"
@@ -459,8 +477,9 @@ export default function CadastrarPivo() {
               </View>
 
               {/* === MARCA / FABRICANTE E RAIO === */}
+              {/* [WEB] Substituído w-[48%] por flex-1 para preenchimento fluído */}
               <View className="flex-row gap-3">
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Marca</Text>
                   <Controller
                     control={control}
@@ -468,7 +487,7 @@ export default function CadastrarPivo() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={marcaRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="Lindsay"
                         autoCapitalize="words"
                         returnKeyType="next"
@@ -480,7 +499,7 @@ export default function CadastrarPivo() {
                     )}
                   />
                 </View>
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Raio do Pivô (km)</Text>
                   <Controller
                     control={control}
@@ -488,7 +507,7 @@ export default function CadastrarPivo() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={raioRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="1.2"
                         keyboardType="numeric"
                         returnKeyType="next"
@@ -503,8 +522,9 @@ export default function CadastrarPivo() {
               </View>
 
               {/* === COORDENADAS === */}
+              {/* [WEB] Substituído w-[48%] por flex-1 para preenchimento fluído */}
               <View className="flex-row gap-3">
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Latitude</Text>
                   <Controller
                     control={control}
@@ -512,7 +532,7 @@ export default function CadastrarPivo() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={latRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="-12.3456"
                         keyboardType="numbers-and-punctuation"
                         returnKeyType="next"
@@ -524,7 +544,7 @@ export default function CadastrarPivo() {
                     )}
                   />
                 </View>
-                <View className="items-start gap-2 w-[48%]">
+                <View className="items-start gap-2 flex-1">
                   <Text className="text-xs">Longitude</Text>
                   <Controller
                     control={control}
@@ -532,7 +552,7 @@ export default function CadastrarPivo() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <Input
                         ref={longRef}
-                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul"
+                        className="rounded-[12px] border-[2px] border-l-[16px] bg-white border-l-secundaria-azul border-secundaria-azul"
                         placeholder="-45.6789"
                         keyboardType="numbers-and-punctuation"
                         returnKeyType="done"
@@ -545,32 +565,34 @@ export default function CadastrarPivo() {
                 </View>
               </View>
             </View>
-          </View>
 
-          {/* === BOTÕES DE AÇÃO === */}
-          <View className="flex-row items-center w-full gap-4 mt-5">
-            <Button
-              className="bg-incorreto rounded-none rounded-pluvia flex-1 h-[40px]"
-              onPress={() => {
-                if (router.canGoBack()) router.back();
-                else router.push("/(tabs)/pivos");
-              }}
-              disabled={isCreating}
-            >
-              <Text>Cancelar</Text>
-            </Button>
+            {/* === BOTÕES DE AÇÃO === */}
+            {/* Mantidos dentro da view web:max-w-2xl para acompanhar a largura do form */}
+            <View className="flex-row items-center w-full gap-4 mt-5">
+              <Button
+                className="bg-incorreto rounded-none rounded-pluvia flex-1 h-[40px]"
+                onPress={() => {
+                  if (router.canGoBack()) router.back();
+                  else router.push("/(tabs)/pivos");
+                }}
+                disabled={isCreating}
+              >
+                <Text>Cancelar</Text>
+              </Button>
 
-            <Button
-              className="bg-primaria-verde rounded-none rounded-pluvia flex-1 h-[40px]"
-              onPress={handleSubmit(onSubmit)}
-              disabled={isCreating}
-            >
-              {isCreating ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text>Adicionar</Text>
-              )}
-            </Button>
+              <Button
+                className="bg-primaria-verde rounded-none rounded-pluvia flex-1 h-[40px]"
+                onPress={handleSubmit(onSubmit)}
+                disabled={isCreating}
+              >
+                {isCreating ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text>Adicionar</Text>
+                )}
+              </Button>
+            </View>
+            
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
