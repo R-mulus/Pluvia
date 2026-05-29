@@ -18,3 +18,11 @@ export function useLogsConexao(pivoId: string, limit: number = 24) {
     enabled: !!pivoId,
   });
 }
+
+export function useAlertas(pivoId?: string, limit: number = 50) {
+  return useQuery({
+    queryKey: ['alertas', pivoId, limit],
+    queryFn: () => logsService.buscarAlertas(limit, pivoId),
+    refetchInterval: 1000 * 30, // Polling de backup
+  });
+}

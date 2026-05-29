@@ -13,7 +13,7 @@
  */
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { View, Platform, Pressable, LayoutChangeEvent } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
@@ -46,21 +46,16 @@ import {
   TriangleAlert,
 } from "lucide-react-native";
 
-// ! COMPONENTES CUSTOM
+// ! COMPONENTES CUSTOM E HOOKS
 import { Table, TableColumn } from "@/components/custom/Table";
 import Header from "@/components/custom/Header";
 import { Screen } from "@/components/custom/Screen";
+import { usePivos } from "@/hooks/api/usePivos";
+import { useAlertas, useLogsEventos } from "@/hooks/api/useLogs";
 
-// * Dados Mockados para Gráficos, Tabelas e Selects
+// * Dados Mockados para Gráficos e Selects
 
-// * SELECTS
-const pivos = [
-  { id: 1, label: "Todos", value: "todos" },
-  { id: 2, label: "Pivô 1", value: "pivo_1" },
-  { id: 3, label: "Pivô 2", value: "pivo_2" },
-  { id: 4, label: "Pivô 3", value: "pivo_3" },
-];
-
+// * SELECTS (Mantido apenas os que não vem do banco)
 const tempo_operacao = [
   { id: 1, label: "Dia", value: "dia" },
   { id: 2, label: "Semana", value: "semana" },
@@ -74,140 +69,7 @@ const fazendas = [
   { id: 3, label: "Fazenda 3", value: "fazenda_3" },
 ];
 
-// * TABELAS
-export const logMock = [
-  {
-    id: "01",
-    data: "2026-03-25 14:32:10",
-    pivo: "01",
-    status: "Ativo",
-    evento: "101",
-    origem: "Operador",
-    operador: "João Pedro",
-    voltas: "1",
-    irrigacao: "Sim",
-    milimetros: "2.5 mm",
-    pressao: "24 PSI(mV)",
-    tensao: "384 V",
-    direcao: "Horário",
-    anguloAtual: "120°",
-    percentimetro: "100%",
-  },
-  {
-    id: "02",
-    data: "2026-03-25 14:20:23",
-    pivo: "01",
-    status: "Ativo",
-    evento: "101",
-    origem: "Operador",
-    operador: "João Pedro",
-    voltas: "1",
-    irrigacao: "Sim",
-    milimetros: "2.5 mm",
-    pressao: "24 PSI(mV)",
-    tensao: "384 V",
-    direcao: "Horário",
-    anguloAtual: "120°",
-    percentimetro: "100%",
-  },
-  {
-    id: "03",
-    data: "2026-03-25 14:00:13",
-    pivo: "01",
-    status: "Ativo",
-    evento: "101",
-    origem: "Operador",
-    operador: "João Pedro",
-    voltas: "1",
-    irrigacao: "Sim",
-    milimetros: "2.5 mm",
-    pressao: "24 PSI(mV)",
-    tensao: "384 V",
-    direcao: "Horário",
-    anguloAtual: "120°",
-    percentimetro: "100%",
-  },
-  {
-    id: "04",
-    data: "2026-03-25 13:45:05",
-    pivo: "01",
-    status: "Ativo",
-    evento: "101",
-    origem: "Operador",
-    operador: "João Pedro",
-    voltas: "1",
-    irrigacao: "Sim",
-    milimetros: "2.5 mm",
-    pressao: "24 PSI(mV)",
-    tensao: "384 V",
-    direcao: "Horário",
-    anguloAtual: "120°",
-    percentimetro: "100%",
-  },
-  {
-    id: "05",
-    data: "2026-03-25 13:32:41",
-    pivo: "01",
-    status: "Ativo",
-    evento: "101",
-    origem: "Operador",
-    operador: "João Pedro",
-    voltas: "1",
-    irrigacao: "Sim",
-    milimetros: "2.5 mm",
-    pressao: "24 PSI(mV)",
-    tensao: "384 V",
-    direcao: "Horário",
-    anguloAtual: "120°",
-    percentimetro: "100%",
-  },
-];
-
-export const alertasMock = [
-  {
-    id: "01",
-    tipo: "info",
-    icone: "gota",
-    evento: "Economia por Horário",
-    data: "20/03/2026",
-    hora: "21:00",
-    pivo: '"',
-    operador: '"',
-  },
-  {
-    id: "02",
-    tipo: "perigo",
-    icone: "alerta",
-    evento: "Pressão Acima de 50 PSI",
-    data: "20/03/2026",
-    hora: "00:24",
-    pivo: "01",
-    operador: "João Pedro",
-  },
-  {
-    id: "03",
-    tipo: "sucesso",
-    icone: "alerta",
-    evento: "Consumo de Energia Elevado",
-    data: "19/03/2026",
-    hora: "13:15",
-    pivo: "01",
-    operador: "Matheus X",
-  },
-  {
-    id: "04",
-    tipo: "info",
-    icone: "alerta",
-    evento: "Lâmina em Uso por Muito Tempo",
-    data: "19/03/2026",
-    hora: "14:30",
-    pivo: "02",
-    operador: "Bernardo W",
-  },
-];
-
 // * GRÁFICOS
-
 // Tempo de Operação (Gráfico de Barras Vertical)
 export const tempoOperacaoMock = [
   { label: "01", value: 4 },
@@ -295,6 +157,63 @@ export default function Analises() {
 
   const ref = React.useRef<TriggerRef>(null);
 
+  // * HOOKS DE BANCO DE DADOS (Pivôs, Alertas e Logs)
+  const { data: pivos } = usePivos();
+  const pivosDropdownOptions = useMemo(() => pivos || [], [pivos]);
+
+  const [filtroAlerta, setFiltroAlerta] = useState<string>("todos");
+  const [filtroLog, setFiltroLog] = useState<string>("todos");
+  
+  const { data: alertasReais } = useAlertas(filtroAlerta);
+  // O endpoint de logs foi desenhado para receber o id especifico, ou usamos 'todos'
+  const { data: logsReais } = useLogsEventos(filtroLog);
+
+  // * FORMATAÇÕES
+  const alertasFormatados = useMemo(() => {
+    if (!alertasReais) return [];
+    return alertasReais.map((log: any) => {
+      const dateObj = new Date(log.timestamp);
+      const nomeOperador = Array.isArray(log.usuarios) ? log.usuarios[0]?.nome : log.usuarios?.nome;
+      const nomePivo = Array.isArray(log.pivos) ? log.pivos[0]?.nome_pivo : log.pivos?.nome_pivo;
+
+      return {
+        id: log.id.substring(0, 5).toUpperCase(),
+        tipo: log.tipo_evento === "erro" || log.tipo_evento === "falha" ? "perigo" : "info",
+        icone: "alerta",
+        evento: log.codigo ? log.codigo.replace(/_/g, " ") : "Alerta do Sistema",
+        data: dateObj.toLocaleDateString("pt-BR"),
+        hora: dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+        pivo: nomePivo || log.pivo_id?.substring(0, 5) || "-",
+        operador: nomeOperador || "Sistema Autônomo",
+      };
+    });
+  }, [alertasReais]);
+
+  const logsFormatados = useMemo(() => {
+    if (!logsReais) return [];
+    return logsReais.map((log: any) => {
+      const dateObj = new Date(log.timestamp);
+      const nomeOperador = Array.isArray(log.usuarios) ? log.usuarios[0]?.nome : log.usuarios?.nome;
+      const nomePivo = Array.isArray(log.pivos) ? log.pivos[0]?.nome_pivo : log.pivos?.nome_pivo;
+
+      return {
+        id: log.id.substring(0, 5).toUpperCase(),
+        data: `${dateObj.toLocaleDateString("pt-BR")} ${dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+        pivo: nomePivo || log.pivo_id?.substring(0, 5) || "-",
+        status: log.tipo_evento,
+        evento: log.codigo ? log.codigo.replace(/_/g, " ") : "-",
+        origem: "Sistema",
+        operador: nomeOperador || "Autônomo",
+        // Campos que não temos nos event_logs ficam com "-" para não quebrar a sua tabela gigante
+        voltas: "-", irrigacao: "-", milimetros: "-", pressao: "-", tensao: "-", direcao: "-", anguloAtual: "-", percentimetro: "-",
+      };
+    });
+  }, [logsReais]);
+
+  const alertasPreview = useMemo(() => alertasFormatados.slice(0, 15), [alertasFormatados]);
+  const logsPreview = useMemo(() => logsFormatados.slice(0, 15), [logsFormatados]);
+
+
   // * useStates que controlam os componentes de Select
   const [analiseOpen, setAnaliseOpen] = useState(false);
   const [alertasOpen, setAlertasOpen] = useState(false);
@@ -318,12 +237,13 @@ export default function Analises() {
 
   const router = useRouter();
 
-  const colunasLog: TableColumn<(typeof logMock)[0]>[] = [
+  // Colunas atualizadas para any (removendo typeof mock)
+  const colunasLog: TableColumn<any>[] = [
     { key: "id", title: "ID", width: 60 },
     { key: "data", title: "Data", width: 180 },
     { key: "pivo", title: "Pivô", width: 70 },
     { key: "status", title: "Status", width: 90 },
-    { key: "evento", title: "Evento", width: 80 },
+    { key: "evento", title: "Evento", width: 160 },
     { key: "origem", title: "Origem", width: 100 },
     { key: "operador", title: "Operador", width: 120 },
     { key: "voltas", title: "Voltas", width: 80 },
@@ -336,25 +256,19 @@ export default function Analises() {
     { key: "percentimetro", title: "Percentímetro", width: 130 },
   ];
 
-  const colunasAlertas: TableColumn<(typeof alertasMock)[0]>[] = [
+  const colunasAlertas: TableColumn<any>[] = [
     { key: "id", title: "ID", width: 60 },
     {
       key: "tag",
       title: <TriangleAlert size={18} color="white" />,
       width: 60,
       renderCell: (item) => {
-        // Define a Cor de Fundo
-        let bgColor = "bg-[#00A0A6]"; // Padrão 'info'
+        let bgColor = "bg-[#00A0A6]";
         if (item.tipo === "perigo") bgColor = "bg-[#D32F2F]";
         if (item.tipo === "sucesso") bgColor = "bg-[#0AA146]";
-
-        // Define o Ícone Dinamicamente
         const Icone = item.icone === "gota" ? Droplet : TriangleAlert;
-
         return (
-          <View
-            className={`${bgColor} w-full py-3 items-center justify-center rounded-r-xl`}
-          >
+          <View className={`${bgColor} w-full py-3 items-center justify-center rounded-r-xl`}>
             <Icone size={20} color="white" />
           </View>
         );
@@ -367,7 +281,6 @@ export default function Analises() {
     { key: "operador", title: "Operador", width: 140 },
   ];
 
-  // ** O conteúdo é guardado dentro desta variável para injetar no cabeçalho da lista
   const ConteudoDaTela = (
     <View className="gap-6 w-full pb-4">
       {/* // * Cabeçalho */}
@@ -388,16 +301,7 @@ export default function Analises() {
               >
                 <SelectGroup>
                   {fazendas.map((fazenda) => (
-                    <SelectItem
-                      key={fazenda.value}
-                      label={fazenda.label}
-                      value={fazenda.value}
-                      className={
-                        Number(fazenda.id) % 2 !== 0
-                          ? "bg-[#E1E1E1]"
-                          : "bg-transparent"
-                      }
-                    >
+                    <SelectItem key={fazenda.value} label={fazenda.label} value={fazenda.value} className={Number(fazenda.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {fazenda.label}
                     </SelectItem>
                   ))}
@@ -415,34 +319,39 @@ export default function Analises() {
         </Pressable>
       </View>
 
-      {/* // * Alertas */}
-      <View className="flex-row w-full justify-between items-center">
+      {/* // * Alertas (Integrado com Banco) */}
+      <View className="flex-row w-full justify-between items-center flex-wrap gap-y-3">
         <Text className="font-outfit-bold">Alertas</Text>
         <View className="flex-row gap-2 items-center">
-          <Select onOpenChange={setAlertasOpen}>
+          <Button
+            className="rounded-md bg-secundaria-azul h-[40px] px-3"
+            onPress={() => router.push("/(tabs)/menu/tabelaAlertas")}
+          >
+            <Text className="text-white text-xs font-outfit-bold">Ver Tabela Completa</Text>
+          </Button>
+
+          <Select 
+            onOpenChange={setAlertasOpen}
+            onValueChange={(option) => { if (option) setFiltroAlerta(option.value); }}
+            defaultValue={{ value: "todos", label: "Todos os Pivôs" }}
+          >
             <SelectTrigger
               ref={ref}
-              className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+              className={`border-[1px] border-[#b8b8b8] bg-white h-[40px] w-[130px] cursor-pointer hover:opacity-90 ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
             >
               <SelectValue placeholder="Pivô" />
             </SelectTrigger>
             <SelectContent
               insets={contentInsets}
-              className={`border-[#b8b8b8] bg-white w-[100px] ${alertasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+              className={`border-[#b8b8b8] bg-white w-[130px] ${alertasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
             >
               <SelectGroup>
-                {pivos.map((pivo) => (
-                  <SelectItem
-                    key={pivo.value}
-                    label={pivo.label}
-                    value={pivo.value}
-                    className={
-                      Number(pivo.id) % 2 !== 0
-                        ? "bg-[#E1E1E1]"
-                        : "bg-transparent"
-                    }
-                  >
-                    {pivo.label}
+                <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
+                  Todos os Pivôs
+                </SelectItem>
+                {pivosDropdownOptions.map((pivo, index) => (
+                  <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
+                    {pivo.nome_pivo}
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -451,7 +360,7 @@ export default function Analises() {
         </View>
       </View>
 
-      <Table data={alertasMock} columns={colunasAlertas} alerta/>
+      <Table data={alertasPreview} columns={colunasAlertas} alerta/>
 
       {/* // * Visão Geral */}
       <View className="self-stretch gap-5">
@@ -470,18 +379,9 @@ export default function Analises() {
                 className={`border-[#b8b8b8] bg-white w-[100px] ${geralOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
-                  {pivos.map((pivo) => (
-                    <SelectItem
-                      key={pivo.value}
-                      label={pivo.label}
-                      value={pivo.value}
-                      className={
-                        Number(pivo.id) % 2 !== 0
-                          ? "bg-[#E1E1E1]"
-                          : "bg-transparent"
-                      }
-                    >
-                      {pivo.label}
+                  {pivosDropdownOptions.map((pivo, index) => (
+                    <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
+                      {pivo.nome_pivo}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -606,9 +506,9 @@ export default function Analises() {
                 className={`border-[#b8b8b8] bg-white w-[100px] ${falhasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
-                  {pivos.map((pivo) => (
-                    <SelectItem key={pivo.value} label={pivo.label} value={pivo.value} className={Number(pivo.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
-                      {pivo.label}
+                  {pivosDropdownOptions.map((pivo, index) => (
+                    <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
+                      {pivo.nome_pivo}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -713,7 +613,6 @@ export default function Analises() {
                 const yPos = topPadding + chartInnerHeight - (currentStep / tempoMax) * chartInnerHeight;
                 return (
                   <G key={`grid-h-${currentStep}`}>
-                    {/* Linha que vai até o final (drawingWidth) */}
                     <Line x1={leftAxisWidth} y1={yPos} x2={leftAxisWidth + drawingWidth} y2={yPos} stroke="#CACACA" strokeWidth="1" />
                     <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
                       {currentStep}
@@ -779,9 +678,9 @@ export default function Analises() {
                 className={`border-[#b8b8b8] bg-white w-[100px] ${aguaOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
-                  {pivos.map((pivo) => (
-                    <SelectItem key={pivo.value} label={pivo.label} value={pivo.value} className={Number(pivo.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
-                      {pivo.label}
+                  {pivosDropdownOptions.map((pivo, index) => (
+                    <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
+                      {pivo.nome_pivo}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -825,7 +724,6 @@ export default function Analises() {
                     <Rect x={xPos} y={yPos} width={barWidth} height={barH} rx={4} fill="#00A0A6" />
                     <Rect x={xPos} y={yPos + 4} width={barWidth} height={Math.max(0, barH - 4)} fill="#00A0A6" />
 
-                    {/* [FIX] Texto alinhado corretamente (yPos - 6) no topo da barra! */}
                     <SvgText x={xCenter} y={yPos - 6} fill="#666666" fontSize="12" fontFamily="Outfit_700Bold" textAnchor="middle">
                       {item.value}
                     </SvgText>
@@ -865,9 +763,9 @@ export default function Analises() {
                 className={`border-[#b8b8b8] bg-white w-[100px] ${energiaOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
-                  {pivos.map((pivo) => (
-                    <SelectItem key={pivo.value} label={pivo.label} value={pivo.value} className={Number(pivo.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
-                      {pivo.label}
+                  {pivosDropdownOptions.map((pivo, index) => (
+                    <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
+                      {pivo.nome_pivo}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -951,18 +849,15 @@ export default function Analises() {
 
                 return (
                   <G key={`points-ene-${item.label}`}>
-                    {/* Linha base do X (Label dos dias) */}
                     <SvgText x={xPos} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
                       {item.label}
                     </SvgText>
 
-                    {/* Pontos Real (AZUL) */}
                     <Circle cx={xPos} cy={yReal} r={4} fill="#FFFFFF" stroke="#00A0A6" strokeWidth={2} />
                     <SvgText x={xPos} y={txtYReal} fill="#00A0A6" fontSize="10" fontFamily="Outfit_700Bold" textAnchor="middle">
                       {item.real}
                     </SvgText>
 
-                    {/* Pontos Estimado (VERDE) */}
                     <Circle cx={xPos} cy={yEstimado} r={4} fill="#FFFFFF" stroke="#0AA146" strokeWidth={2} />
                     <SvgText x={xPos} y={txtYEstimado} fill="#0AA146" fontSize="10" fontFamily="Outfit_700Bold" textAnchor="middle">
                       {item.estimado}
@@ -971,7 +866,6 @@ export default function Analises() {
                 );
               })}
 
-              {/* LINHA BASE DO EIXO X */}
               <Line x1={leftAxisWidth} y1={topPadding + chartInnerHeight} x2={leftAxisWidth + drawingWidth} y2={topPadding + chartInnerHeight} stroke="#0D0D0D" strokeWidth="1" />
             </Svg>
           )}
@@ -980,35 +874,33 @@ export default function Analises() {
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* // * Log */}
+      {/* // * Log (Integrado com Banco) */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold text-wrap">Log</Text>
           <View className="flex-row gap-2 items-center">
-            <Select onOpenChange={setLogOpen}>
+            <Select 
+              onOpenChange={setLogOpen}
+              onValueChange={(option) => { if (option) setFiltroLog(option.value); }}
+              defaultValue={{ value: "todos", label: "Todos os Pivôs" }}
+            >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${logOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white h-[40px] w-[130px] cursor-pointer hover:opacity-90 ${logOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
-                <SelectValue placeholder="Pivô" />
+                <SelectValue placeholder="Todos os Pivôs" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[100px] ${logOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[130px] ${logOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
-                  {pivos.map((pivo) => (
-                    <SelectItem
-                      key={pivo.value}
-                      label={pivo.label}
-                      value={pivo.value}
-                      className={
-                        Number(pivo.id) % 2 !== 0
-                          ? "bg-[#E1E1E1]"
-                          : "bg-transparent"
-                      }
-                    >
-                      {pivo.label}
+                  <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
+                    Todos os Pivôs
+                  </SelectItem>
+                  {pivosDropdownOptions.map((pivo, index) => (
+                    <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
+                      {pivo.nome_pivo}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -1020,7 +912,7 @@ export default function Analises() {
           </View>
         </View>
 
-        <Table data={logMock} columns={colunasLog} />
+        <Table data={logsPreview} columns={colunasLog} />
       </View>
     </View>
   );

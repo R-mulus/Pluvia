@@ -28,5 +28,13 @@ export const logsService = {
   buscarHistoricoConexao: async (pivoId: string, limit: number = 24): Promise<ConectLog[]> => {
     const { data } = await api.get(`/logs/conexao/${pivoId}?limit=${limit}`);
     return data.dados ? data.dados : data;
+  },
+
+  buscarAlertas: async (limit: number = 50, pivoId?: string): Promise<EventLog[]> => {
+    // Usamos params para enviar pivoId caso ele exista e não seja 'todos'
+    const { data } = await api.get(`/logs/alertas`, { 
+      params: { limit, pivoId: pivoId === 'todos' ? undefined : pivoId } 
+    });
+    return data.dados ? data.dados : data;
   }
 };
