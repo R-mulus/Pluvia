@@ -35,74 +35,15 @@ import PresetCard from "@/components/custom/PresetCard";
 import { usePivo } from "@/hooks/api/usePivos";
 import { useDashboardTelemetria } from "@/hooks/api/useTelemetria";
 import { useCronogramasPivo, useControleCronograma } from "@/hooks/api/useCronogramas";
+// Import do Hook de Logs (ADICIONADO)
+import { useLogsEventos } from "@/hooks/api/useLogs";
 
-// * MOCK DA TABELA
-export const historicoPivoMock = [
-  {
-    id: "01",
-    data: "19/03/2026",
-    hora: "00:24",
-    duracao: "13 h 30 min",
-    voltas: "4 Voltas",
-    irrigacao: "Sim",
-    direcao: "Reverso",
-    inicial: "0°",
-    final: "80°",
-    percentimetro: "43%",
-    operador: "Bernardo Cunha",
-  },
-  {
-    id: "02",
-    data: "19/03/2026",
-    hora: "13:15",
-    duracao: "13 h 30 min",
-    voltas: "3 Voltas",
-    irrigacao: "Não",
-    direcao: "Horário",
-    inicial: "95°",
-    final: "112°",
-    percentimetro: "100%",
-    operador: "Mateus Felisberto Xavier Rosa",
-  },
-  {
-    id: "03",
-    data: "19/03/2026",
-    hora: "14:30",
-    duracao: "13 h 30 min",
-    voltas: "1 Volta",
-    irrigacao: "Sim",
-    direcao: "Horário",
-    inicial: "120°",
-    final: "180°",
-    percentimetro: "50%",
-    operador: "João Ninguém",
-  },
-  {
-    id: "04",
-    data: "20/03/2026",
-    hora: "03:00",
-    duracao: "13 h 30 min",
-    voltas: "Meia Volta",
-    irrigacao: "Sim",
-    direcao: "Reverso",
-    inicial: "10°",
-    final: "100°",
-    percentimetro: "25%",
-    operador: "Zé",
-  },
-];
-
-const colunasHistorico: TableColumn<(typeof historicoPivoMock)[0]>[] = [
-  { key: "id", title: "ID", width: 60 },
+// * Mapeamento das colunas ajustadas para Auditoria de Software (Logs)
+const colunasHistorico: TableColumn<any>[] = [
+  { key: "id", title: "ID", width: 80 },
   { key: "data", title: "Data", width: 110 },
   { key: "hora", title: "Hora", width: 80 },
-  { key: "duracao", title: "Duração", width: 110 },
-  { key: "voltas", title: "Voltas", width: 100 },
-  { key: "irrigacao", title: "Irrigação", width: 90 },
-  { key: "direcao", title: "Direção", width: 100 },
-  { key: "inicial", title: "Inicial", width: 80 },
-  { key: "final", title: "Final", width: 80 },
-  { key: "percentimetro", title: "Percentímetro", width: 120 },
+  { key: "evento", title: "Evento", width: 250 },
   { key: "operador", title: "Operador", width: 200 },
 ];
 
@@ -131,7 +72,7 @@ const calcularTempoRestante = (pivo: any, passoAtual: any, anguloAtual: number) 
 };
 
 // 1. COMPONENTE DO CABEÇALHO DA LISTA (Tudo acima da tabela)
-function TopoDaTela({ pivo, status, cronogramas, onRefresh }: { pivo: any; status: any; cronogramas: any[]; onRefresh: () => Promise<void>; }) {
+function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any; status: any; cronogramas: any[]; logs: any[]; onRefresh: () => Promise<void>; }) {
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [ultimaAtualizacaoApp, setUltimaAtualizacaoApp] = useState<Date>(new Date());
@@ -151,6 +92,41 @@ function TopoDaTela({ pivo, status, cronogramas, onRefresh }: { pivo: any; statu
   const passoEmExecucao = useMemo(() => cronogramaAtivo?.passos.find((p: any) => p.status_passo === 'executando'), [cronogramaAtivo]);
 
   const tempoRestanteFormatado = calcularTempoRestante(pivo, passoEmExecucao, anguloAtual);
+
+  // * Formatação dos Logs do Banco para a Tabela Visual (ATUALIZADO PARA OS CÓDIGOS DO ARDUINO)
+  const logsFormatados = useMemo(() => {
+    if (!logs) return [];
+    return logs.map((log: any) => {
+      const dateObj = new Date(log.timestamp);
+      
+      // Tradução visual baseada nos novos tipos
+      let eventoTexto = log.tipo_evento;
+      if (log.tipo_evento === 'comando') eventoTexto = 'Comando Manual';
+      else if (log.tipo_evento === 'pausa_manual') eventoTexto = 'Pausa Manual';
+      else if (log.tipo_evento === 'pausa_automatica') eventoTexto = 'Parada Automática';
+      else if (log.tipo_evento === 'erro' || log.tipo_evento === 'alerta') eventoTexto = 'Anomalia no Sistema';
+      else if (log.tipo_evento === 'conclusao') eventoTexto = 'Operação Concluída';
+      else if (log.tipo_evento === 'sensor') eventoTexto = 'Leitura de Sensor';
+
+      // Aproveitamos o "codigo" (ex: CRONOGRAMA_AGENDADO) para dar mais contexto
+      if (log.codigo) {
+        // Remove os underscores e capitaliza
+        const codigoAmigavel = log.codigo.replace(/_/g, ' '); 
+        eventoTexto = `${eventoTexto} (${codigoAmigavel})`;
+      }
+
+      // Lida com o relacionamento do Supabase
+      const nomeOperador = Array.isArray(log.usuarios) ? log.usuarios[0]?.nome : log.usuarios?.nome;
+
+      return {
+        id: log.id.substring(0, 5).toUpperCase(),
+        data: dateObj.toLocaleDateString("pt-BR"),
+        hora: dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+        evento: eventoTexto,
+        operador: nomeOperador || "Sistema Autônomo", // Se não tiver operador, foi o Arduino!
+      };
+    });
+  }, [logs]);
 
   return (
     <Screen>
@@ -359,10 +335,10 @@ function TopoDaTela({ pivo, status, cronogramas, onRefresh }: { pivo: any; statu
 
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
-      {/* // * Tabela */}
+      {/* // * Tabela - Injeção dos dados reais */}
       <View className="gap-y-5">
         <Text className="font-outfit-bold">Histórico</Text>
-        <Table data={historicoPivoMock} columns={colunasHistorico} />
+        <Table data={logsFormatados} columns={colunasHistorico} />
       </View>
     </Screen>
   );
@@ -376,13 +352,19 @@ export default function VisualizacaoPivo() {
   const { data: telemetriaLista, refetch: refetchTelemetria } = useDashboardTelemetria();
   const { data: cronogramasLista, refetch: refetchCronogramas } = useCronogramasPivo(id as string);
   
+  // Hook de Logs (ADICIONADO)
+  const { data: logsLista, refetch: refetchLogs } = useLogsEventos(id as string);
+
+  console.log("🎯 LOGS RECEBIDOS DO BANCO:", JSON.stringify(logsLista, null, 2));
+  
   const { mutateAsync: controlarCronograma, isPending: isControlando } = useControleCronograma();
 
   const statusPivo = useMemo(() => telemetriaLista?.find((p) => p.id === id), [telemetriaLista, id]);
   const cronogramaAtivo = useMemo(() => cronogramasLista?.find(c => c.is_ativo === true), [cronogramasLista]);
 
   const handleRefresh = async () => {
-    await Promise.all([refetchPivo(), refetchTelemetria(), refetchCronogramas()]);
+    // Adicionado refetchLogs ao Promise.all
+    await Promise.all([refetchPivo(), refetchTelemetria(), refetchCronogramas(), refetchLogs()]);
   };
 
   const statusGeral = cronogramaAtivo?.status_final || 'aguardando';
@@ -415,7 +397,7 @@ export default function VisualizacaoPivo() {
   return (
     <View className="flex-1 bg-bg">
       <FlashList
-        ListHeaderComponent={<TopoDaTela pivo={pivoData?.dados} status={statusPivo} cronogramas={cronogramasLista ?? []} onRefresh={handleRefresh} />}
+        ListHeaderComponent={<TopoDaTela pivo={pivoData?.dados} status={statusPivo} cronogramas={cronogramasLista ?? []} logs={logsLista ?? []} onRefresh={handleRefresh} />}
         data={[]}
         renderItem={() => null}
         contentContainerStyle={{ paddingBottom: 20 }}

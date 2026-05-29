@@ -5,7 +5,7 @@ export interface EventLog {
   cronograma_id: string | null;
   pivo_id: string;
   operador_id: string;
-  tipo_evento: string; // Ex: 'ACIONAMENTO_MANUAL', 'FALHA_ENERGIA'
+  tipo_evento: string; 
   codigo: string | null;
   timestamp: string;
 }
@@ -21,11 +21,12 @@ export interface ConectLog {
 export const logsService = {
   buscarLogsDeEventos: async (pivoId: string, limit: number = 50): Promise<EventLog[]> => {
     const { data } = await api.get(`/logs/eventos/${pivoId}?limit=${limit}`);
-    return data;
+    // BLINDAGEM: Se o backend enviar { dados: [...] }, pegamos os dados. Se enviar o Array direto, usamos ele.
+    return data.dados ? data.dados : data;
   },
 
   buscarHistoricoConexao: async (pivoId: string, limit: number = 24): Promise<ConectLog[]> => {
     const { data } = await api.get(`/logs/conexao/${pivoId}?limit=${limit}`);
-    return data;
+    return data.dados ? data.dados : data;
   }
 };

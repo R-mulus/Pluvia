@@ -35,18 +35,3 @@ export const telemetriaService = {
     return data.dados;
   }
 };
-
-// export const telemetriaService = {
-//   // Busca o status atual de todos os pivôs de uma fazenda
-//   buscarStatusFazenda: async (fazendaId: string): Promise<PivoStatus[]> => {
-//     // Assumindo que criaremos esta rota no backend futuramente
-//     const { data } = await api.get(`/telemetria/fazenda/${fazendaId}`);
-//     return data;
-//   },
-
-//   // Busca o snapshot do status de um pivô específico
-//   buscarStatusPivo: async (pivoId: string): Promise<PivoStatus> => {
-//     const { data } = await api.get(`/telemetria/pivo/${pivoId}`);
-//     return data;
-//   }
-// };
