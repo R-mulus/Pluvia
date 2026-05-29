@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, Pressable, ActivityIndicator, Alert } from "react-native";
+import { View, Pressable, ActivityIndicator, Alert, Platform } from "react-native";
 import { Text } from "@/components/ui/text";
 import { FlashList } from "@shopify/flash-list";
 import { Button } from "@/components/ui/button";
@@ -172,10 +172,24 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
       </View>
 
       {/* --- LINHA DE STATUS (Em Funcionamento / Horário / Irrigando) --- */}
-      <View className="flex-row items-center justify-between px-2">
+      <View
+        className={`flex-row items-center px-2 ${
+          Platform.OS === "web"
+            ? "justify-center gap-x-8"
+            : "justify-between"
+        }`}
+      >
         {/* Status */}
         <View className="flex-row items-center gap-2">
-          <View className={`w-4 h-4 rounded-full ${isRodando ? "bg-[#0AA146]" : isFalha ? "bg-[#D32F2F]" : "bg-[#666666]"}`} />
+          <View
+            className={`w-4 h-4 rounded-full ${
+              isRodando
+                ? "bg-[#0AA146]"
+                : isFalha
+                  ? "bg-[#D32F2F]"
+                  : "bg-[#666666]"
+            }`}
+          />
           <Text className="font-outfit-medium text-texto text-sm">
             {status?.status_operacional || "Parado"}
           </Text>
@@ -189,11 +203,20 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
           <View className="flex-row items-center gap-1.5">
             <RefreshCw size={18} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit-medium text-texto text-sm">
-              {passoEmExecucao?.direcao === "HORARIO" ? "Horário" : passoEmExecucao?.direcao === "ANTI_HORARIO" ? "Anti-Hor." : "---"}
+              {passoEmExecucao?.direcao === "HORARIO"
+                ? "Horário"
+                : passoEmExecucao?.direcao === "ANTI_HORARIO"
+                  ? "Anti-Hor."
+                  : "---"}
             </Text>
           </View>
+
           <View className="flex-row items-center gap-1.5">
-            <Droplet size={18} color={passoEmExecucao?.irrigacao ? "#00A0A6" : "#0D0D0D"} strokeWidth={2.5} />
+            <Droplet
+              size={18}
+              color={passoEmExecucao?.irrigacao ? "#00A0A6" : "#0D0D0D"}
+              strokeWidth={2.5}
+            />
             <Text className="font-outfit-medium text-texto text-sm">
               {passoEmExecucao?.irrigacao ? "Irrigando" : "Seco"}
             </Text>
@@ -204,29 +227,72 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- GRID DE MÉTRICAS --- */}
-      <View className="flex-row flex-wrap self-stretch justify-between gap-y-4">
-        <View className="w-[48%] flex-row items-center gap-2">
+      <View
+        className={`
+          flex-row flex-wrap gap-y-4
+          justify-between
+          md:self-center md:w-full md:max-w-[520px]
+        `}
+      >
+        <View
+          className={`
+            w-[48%]
+            md:w-[45%]
+            flex-row items-center gap-2
+          `}
+        >
           <Gauge size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
-            Lâmina: <Text className="font-outfit-bold">{passoEmExecucao?.lamina || 0} mm</Text>
+            Lâmina:{" "}
+            <Text className="font-outfit-bold">
+              {passoEmExecucao?.lamina || 0} mm
+            </Text>
           </Text>
         </View>
-        <View className="w-[48%] flex-row items-center gap-2">
+
+        <View
+          className={`
+            w-[48%]
+            md:w-[45%]
+            flex-row items-center gap-2
+          `}
+        >
           <RefreshCcwDot size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
-            Posição Atual: <Text className="font-outfit-bold">{anguloAtual}°</Text>
+            Posição Atual:{" "}
+            <Text className="font-outfit-bold">{anguloAtual}°</Text>
           </Text>
         </View>
-        <View className="w-[48%] flex-row items-center gap-2">
+
+        <View
+          className={`
+            w-[48%]
+            md:w-[45%]
+            flex-row items-center gap-2
+          `}
+        >
           <Zap size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
-            Tensão: <Text className="font-outfit-bold">{status?.tensao || 0} V</Text>
+            Tensão:{" "}
+            <Text className="font-outfit-bold">
+              {status?.tensao || 0} V
+            </Text>
           </Text>
         </View>
-        <View className="w-[48%] flex-row items-center gap-2">
+
+        <View
+          className={`
+            w-[48%]
+            md:w-[45%]
+            flex-row items-center gap-2
+          `}
+        >
           <UndoDot size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
-            PSI: <Text className="font-outfit-bold">{status?.pressao || 0}</Text>
+            PSI:{" "}
+            <Text className="font-outfit-bold">
+              {status?.pressao || 0}
+            </Text>
           </Text>
         </View>
       </View>
@@ -234,23 +300,47 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- RESUMO DE VOLTAS E DURAÇÃO --- */}
-      <View className="gap-y-3 px-2">
-        <View className="flex-row justify-between items-center">
+      <View
+        className={`
+          px-2 gap-3
+          md:self-center md:w-full md:max-w-[520px]
+          md:flex-row md:justify-between
+        `}
+      >
+        <View
+          className={`
+            flex-row items-center
+            justify-between
+            md:justify-start md:gap-4
+            md:w-[48%]
+          `}
+        >
           <View className="flex-row items-center gap-2">
             <RotateCw size={20} color="#0D0D0D" strokeWidth={2.5} />
-            <Text className="font-outfit text-texto text-sm">Voltas:</Text>
+            <Text className="font-outfit text-texto text-sm">
+              Voltas:
+            </Text>
           </View>
-          <Text className="font-outfit-bold text-texto text-sm">
+
+          <Text className="font-outfit-bold text-texto text-sm whitespace-nowrap">
             -
           </Text>
         </View>
 
-        <View className="flex-row justify-between items-center">
+        <View
+          className={`
+            flex-row justify-between items-center
+            md:w-[48%]
+          `}
+        >
           <View className="flex-row items-center gap-2">
             <Clock size={20} color="#0D0D0D" strokeWidth={2.5} />
-            <Text className="font-outfit text-texto text-sm">Tempo Restante Estimado:</Text>
+            <Text className="font-outfit text-texto text-sm">
+              Tempo Restante Estimado:
+            </Text>
           </View>
-          <Text className="font-outfit-bold text-texto text-sm">
+
+          <Text className="font-outfit-bold text-texto text-sm whitespace-nowrap">
             {tempoRestanteFormatado}
           </Text>
         </View>
@@ -259,31 +349,66 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- GRID DE MÉTRICAS DE SINAL --- */}
-      <View className="flex-row flex-wrap justify-between px-2 gap-y-4">
-        <View className="w-[48%] flex-row items-center gap-2">
+      <View
+        className={`
+          flex-row flex-wrap px-2 gap-y-4
+          justify-between
+          md:self-center md:w-full md:max-w-[520px]
+        `}
+      >
+        <View
+          className={`
+            w-[48%]
+            md:w-[45%]
+            flex-row items-center gap-2
+          `}
+        >
           <Router size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
             Latência{"\n"} de Sinal:
           </Text>
           <Text className="font-outfit-bold">-</Text>
         </View>
-        <View className="w-[48%] flex-row items-center gap-2">
+
+        <View
+          className={`
+            w-[48%]
+            md:w-[45%]
+            flex-row items-center gap-2
+          `}
+        >
           <CloudSync size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
-            Uptime{"\n"} do Sistema:{" "}
+            Uptime{"\n"} do Sistema:
           </Text>
           <Text className="font-outfit-bold">-</Text>
         </View>
-        <View className="w-[48%] flex-row items-center gap-2">
+
+        <View
+          className={`
+            w-[48%]
+            md:w-[45%]
+            flex-row items-center gap-2
+          `}
+        >
           <Signal size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
-            Ping: <Text className="font-outfit-bold">500 ms</Text>
+            Ping:{" "}
+            <Text className="font-outfit-bold">500 ms</Text>
           </Text>
         </View>
-        <View className="w-[48%] flex-row items-center gap-2">
+
+        <View
+          className={`
+            w-[48%]
+            md:w-[45%]
+            flex-row items-center gap-2
+          `}
+        >
           <Files size={20} color="#0D0D0D" strokeWidth={2.5} />
           <Text className="font-outfit text-texto text-sm">
-            Versão: <Text className="font-outfit-bold">v1.4.2</Text>
+            Versão:{" "}
+            <Text className="font-outfit-bold">v1.4.2</Text>
           </Text>
         </View>
       </View>

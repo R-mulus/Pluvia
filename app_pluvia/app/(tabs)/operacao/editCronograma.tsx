@@ -35,6 +35,7 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import PresetCard from "@/components/custom/PresetCard";
+import { Separator } from "@/components/ui/separator";
 
 import {
   useCronogramasPivo,
@@ -265,6 +266,8 @@ export default function EditarCronograma() {
               </View>
             </View>
 
+            <Separator className="my-2 bg-[#B5B5B5]" decorative />
+
             <View className="gap-3 mt-2">
               <Text className="font-outfit-bold text-lg text-primaria-azul">
                 Passos do Cronograma
@@ -288,6 +291,8 @@ export default function EditarCronograma() {
                 />
               ))}
             </View>
+
+            <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
             <View className="gap-3 mt-4">
               <View className="flex-row justify-between items-center">

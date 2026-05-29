@@ -325,7 +325,7 @@ export default function Analises() {
         <View className="flex-row gap-2 items-center">
           <Button
             className="rounded-md bg-secundaria-azul h-[40px] px-3"
-            onPress={() => router.push("/(tabs)/menu/tabelaAlertas")}
+            onPress={() => router.push({ pathname: "/menu/tabelaAlertas" } as any)}
           >
             <Text className="text-white text-xs font-outfit-bold">Ver Tabela Completa</Text>
           </Button>
@@ -410,14 +410,23 @@ export default function Analises() {
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
       {/* // * Grid de Métricas */}
-      <View className="flex-row flex-wrap justify-center gap-x-12 gap-y-4 w-full">
-        <View className="gap-4">
+      <View
+        className={`flex-row flex-wrap gap-y-4 ${
+          Platform.OS === "web"
+            ? "justify-center gap-x-12 w-full"
+            : "justify-between"
+        }`}
+      >
+        <View
+          className={`gap-4 ${Platform.OS === "web" ? "" : "w-[50%]"}`}
+        >
           <View className="flex-row items-center gap-2">
             <GaugeCircle size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
               Pivôs Ativos: <Text className="font-outfit-bold">4</Text>
             </Text>
           </View>
+
           <View className="flex-row items-center gap-2">
             <CircleX size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
@@ -425,13 +434,17 @@ export default function Analises() {
             </Text>
           </View>
         </View>
-        <View className="gap-4">
+
+        <View
+          className={`gap-4 ${Platform.OS === "web" ? "" : "w-[50%]"}`}
+        >
           <View className="flex-row items-center gap-2">
             <ArrowUpNarrowWide size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
               Eficiência Média: <Text className="font-outfit-bold">89%</Text>
             </Text>
           </View>
+
           <View className="flex-row items-center gap-2">
             <Droplet size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
@@ -444,7 +457,13 @@ export default function Analises() {
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
       {/* // * Lista de Métricas */}
-      <View className="self-center w-full max-w-[400px] justify-between gap-y-3">
+      <View
+        className={`justify-between gap-y-3 ${
+          Platform.OS === "web"
+            ? "self-center w-full max-w-[400px]"
+            : "self-stretch"
+        }`}
+      >
         <View className="flex-row items-center justify-between gap-2">
           <View className="flex-row items-center gap-2">
             <Droplets size={20} color="#0D0D0D" strokeWidth={2.5} />
@@ -452,8 +471,10 @@ export default function Analises() {
               Área Total Irrigada:
             </Text>
           </View>
+
           <Text className="font-outfit-bold">342 Ha</Text>
         </View>
+
         <View className="flex-row justify-between items-center gap-2">
           <View className="flex-row items-center gap-2">
             <Droplet size={20} color="#0D0D0D" strokeWidth={2.5} />
@@ -461,8 +482,10 @@ export default function Analises() {
               Consumo Total de Água:
             </Text>
           </View>
+
           <Text className="font-outfit-bold">120.582 L</Text>
         </View>
+
         <View className="flex-row justify-between items-center gap-2">
           <View className="flex-row items-center gap-2">
             <Zap size={20} color="#0D0D0D" strokeWidth={2.5} />
@@ -470,8 +493,10 @@ export default function Analises() {
               Consumo Total de Energia:
             </Text>
           </View>
+
           <Text className="font-outfit-bold">584 KWh</Text>
         </View>
+
         <View className="flex-row justify-between items-center gap-2">
           <View className="flex-row items-center gap-2">
             <Clock size={20} color="#0D0D0D" strokeWidth={2.5} />
@@ -479,6 +504,7 @@ export default function Analises() {
               Tempo Médio de Operação:
             </Text>
           </View>
+
           <Text className="font-outfit-bold">18 h 25 min</Text>
         </View>
       </View>

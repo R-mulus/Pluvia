@@ -180,21 +180,21 @@ export default function Cronogramas() {
                           <Pressable 
                             onPress={() => handleExcluir(cronograma.id)}
                             disabled={excluindoId === cronograma.id}
-                            className="bg-[#FFEAEA] border-[1px] border-incorreto px-2 py-1.5 rounded-[8px] flex-row items-center gap-1 active:opacity-50"
+                            className="bg-incorreto border-[1px] border-incorreto px-2 py-1.5 rounded-pluvia flex-row items-center gap-1 active:opacity-50"
                           >
                             {excluindoId === cronograma.id ? (
                               <ActivityIndicator size="small" color="#D32F2F" />
                             ) : (
                               <>
-                                <Trash2 size={14} color="#D32F2F" />
-                                <Text className="text-incorreto text-xs font-outfit-bold">Excluir</Text>
+                                <Trash2 size={14} color="white" />
+                                <Text className="text-white text-xs font-outfit-bold">Excluir</Text>
                               </>
                             )}
                           </Pressable>
 
                           <Pressable 
                             onPress={() => router.push({ pathname: '/(tabs)/operacao/editCronograma', params: { id: cronograma.id, pivo_id: id } })}
-                            className="bg-secundaria-azul border-[1px] border-secundaria-azul px-2 py-1.5 rounded-[8px] flex-row items-center gap-1 active:opacity-50"
+                            className="bg-secundaria-azul border-[1px] border-secundaria-azul px-2 py-1.5 rounded-pluvia flex-row items-center gap-1 active:opacity-50"
                           >
                             <SquarePen size={14} color="white" />
                             <Text className="text-white text-xs font-outfit-bold">Editar</Text>

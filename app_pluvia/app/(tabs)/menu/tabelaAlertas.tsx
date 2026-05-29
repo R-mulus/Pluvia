@@ -5,7 +5,7 @@ import Header from "@/components/custom/Header";
 import { Table } from "@/components/custom/Table";
 
 import { useAlertas } from "@/hooks/api/useLogs";
-import { colunasAlertas } from "../menu";
+import { colunasAlertas } from ".";
 
 export default function TodosAlertas() {
   // Pega os dados direto do cache instantaneamente

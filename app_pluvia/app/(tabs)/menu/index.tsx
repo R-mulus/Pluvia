@@ -576,7 +576,7 @@ export default function Menu() {
 
         <Button
               className="rounded-md bg-secundaria-azul h-[40px] px-3"
-              onPress={() => router.push("/(tabs)/menu/tabelaAlertas")}
+              onPress={() => router.push({ pathname: "/menu/tabelaAlertas" } as any)}
             >
               <Text className="font-outfit-medium">Ver Tabela Completa</Text>
             </Button>

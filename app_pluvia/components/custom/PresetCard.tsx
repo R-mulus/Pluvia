@@ -83,7 +83,7 @@ export default function PresetCard({
   const headerBgClass = isExecutando && variant === "readonly" ? "bg-primaria-azul" : "bg-secundaria-azul";
 
   return (
-    <View className={`flex-row bg-white rounded-[12px] border-[2px] ${isExecutando && variant === "readonly" ? 'border-primaria-azul' : 'border-[#cacaca]'} overflow-hidden ${variant === 'readonly' ? 'pr-4' : ''}`}>
+    <View className={`flex-row bg-white rounded-[12px] border-[2px] ${isExecutando && variant === "readonly" ? 'border-primaria-azul' : 'border-[#cacaca]'} overflow-hidden`}>
       <View className="flex-1">
         
         {/* --- CABEÇALHO --- */}
@@ -179,7 +179,7 @@ export default function PresetCard({
         <View className="w-12 bg-secundaria-azul">
           <View className="bg-bg rounded-tl-[8px] items-center justify-between flex-1 py-2 border-l-[1px] border-[#cacaca]">
             <Pressable onPress={onMoveUp} className={`p-2 rounded-full ${isFirst ? 'opacity-30' : 'active:opacity-50 bg-[#e0e0e0]'}`}><ArrowUp size={20} color="#0D0D0D" strokeWidth={3} /></Pressable>
-            <Pressable onPress={onRemove} className="p-2 active:opacity-50"><Trash2 size={24} color="#D32F2F" strokeWidth={2.5} /></Pressable>
+            <Pressable onPress={onRemove} className="p-2 active:opacity-50"><X size={22} color="#FF6B6B" strokeWidth={2.5} /></Pressable>
             <Pressable onPress={onMoveDown} className={`p-2 rounded-full ${isLast ? 'opacity-30' : 'active:opacity-50 bg-[#e0e0e0]'}`}><ArrowDown size={20} color="#0D0D0D" strokeWidth={3} /></Pressable>
           </View>
         </View>
@@ -189,7 +189,7 @@ export default function PresetCard({
             <Pressable onPress={onAdd} className="bg-primaria-verde flex-[1.5] items-center justify-center active:opacity-70"><Plus size={26} color="white" strokeWidth={3} /></Pressable>
             <Pressable onPress={irParaEdicao} className="flex-1 items-center justify-center active:opacity-70 border-t-[1px] border-white/20"><SquarePen size={20} color="white" /></Pressable>
             <Pressable onPress={handleExcluir} disabled={isExcluindo} className="flex-1 items-center justify-center active:opacity-70 bg-incorreto/20 border-t-[1px] border-white/20">
-              {isExcluindo ? <ActivityIndicator size="small" color="#FF6B6B" /> : <X size={22} color="#FF6B6B" strokeWidth={2.5} />}
+              {isExcluindo ? <ActivityIndicator size="small" color="#FF6B6B" /> : <Trash2 size={20} color="white" />}
             </Pressable>
           </View>
         </View>
