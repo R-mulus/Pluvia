@@ -3,7 +3,7 @@ import { View, Pressable, KeyboardAvoidingView, ScrollView, Platform, Alert, Act
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { useRouter, useGlobalSearchParams } from "expo-router"; // <- MUDANÇA AQUI
+import { useRouter, useLocalSearchParams } from "expo-router"; // <- CORREÇÃO: useLocalSearchParams
 import { Screen } from "@/components/custom/Screen";
 import Header from "@/components/custom/Header";
 import { LayersPlus, RotateCcw, RotateCw } from "lucide-react-native";
@@ -17,7 +17,7 @@ import { useCriarPreset } from "@/hooks/api/usePresets";
 
 const formSchema = z.object({
   nome: z.string().min(3, "Nome do preset obrigatório"),
-  lamina: z.string().min(1, "Lâmina obrigatória"),
+  lamina: z.string().min(1, "Valor obrigatório"), // Pode ser mm ou %
   angulo_inicial: z.string().min(1, "Obrigatório"),
   angulo_final: z.string().min(1, "Obrigatório"),
   irrigacao: z.boolean(),
@@ -28,7 +28,10 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function AdicionarPresetBiblioteca() {
   const router = useRouter();
-  const { pivo_id } = useGlobalSearchParams(); // <- MUDANÇA AQUI
+  
+  // 👉 CORREÇÃO: Pega o parâmetro local da rota atual de forma confiável
+  const params = useLocalSearchParams(); 
+  const pivo_id = params.pivo_id as string;
 
   const { mutateAsync: criarPreset, isPending } = useCriarPreset();
 
@@ -36,7 +39,7 @@ export default function AdicionarPresetBiblioteca() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: "",
-      lamina: "",
+      lamina: "", 
       angulo_inicial: "",
       angulo_final: "",
       irrigacao: false,
@@ -49,15 +52,15 @@ export default function AdicionarPresetBiblioteca() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // Trava de segurança para não explodir o Zod
       if (!pivo_id) {
         Alert.alert("Erro de Rota", "ID do pivô não foi encontrado.");
         return;
       }
 
       const payload = {
-        pivo_id: pivo_id as string,
+        pivo_id: pivo_id,
         nome: data.nome,
+        // Converte pra float independente de ser % ou mm
         lamina: parseFloat(data.lamina.replace(",", ".")) || 0,
         angulo_inicial: parseInt(data.angulo_inicial, 10) || 0,
         angulo_final: parseInt(data.angulo_final, 10) || 0,
@@ -103,7 +106,10 @@ export default function AdicionarPresetBiblioteca() {
 
             <View className="flex-row justify-between gap-4">
               <View className="items-start gap-1 flex-[1.5]">
-                <Text className="text-xs text-subtexto font-outfit">Lâmina (mm)</Text>
+                {/* 👉 CORREÇÃO: Troca o texto dinamicamente baseado no Switch */}
+                <Text className="text-xs text-subtexto font-outfit">
+                  {isIrrigating ? "Lâmina (mm)" : "Percentímetro (%)"}
+                </Text>
                 <Controller
                   control={control}
                   name="lamina"

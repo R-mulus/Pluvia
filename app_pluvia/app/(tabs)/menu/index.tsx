@@ -334,7 +334,7 @@ export default function Menu() {
   const { data: alertasReais } = useAlertas(filtroAlerta);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Formate os dados do banco para a tabela (cole este useMemo logo abaixo)
+  // Formate os dados do banco para a tabela
   const alertasFormatados = useMemo(() => {
     if (!alertasReais) return [];
     return alertasReais.map((log: any) => {
@@ -347,7 +347,8 @@ export default function Menu() {
         : log.pivos?.nome_pivo;
 
       return {
-        id: log.id.substring(0, 5).toUpperCase(),
+        // Blindagem: log.id sempre existe, mas por garantia usamos o ?.
+        id: log.id?.substring(0, 5).toUpperCase() || "-",
         tipo:
           log.tipo_evento === "erro" || log.tipo_evento === "falha"
             ? "perigo"
@@ -361,7 +362,8 @@ export default function Menu() {
           hour: "2-digit",
           minute: "2-digit",
         }),
-        pivo: nomePivo || log.pivo_id.substring(0, 5),
+        // 👉 AQUI ESTAVA O ERRO: log.pivo_id pode ser null, então precisamos do ?.
+        pivo: nomePivo || log.pivo_id?.substring(0, 5) || "Sistema Global",
         operador: nomeOperador || "Sistema Autônomo",
       };
     });
@@ -528,14 +530,11 @@ export default function Menu() {
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
       {/* // * Alertas */}
-      <View className="w-full gap-4">
-        <View className="flex-row w-full justify-between items-center flex-wrap gap-y-3">
-          <Text className="font-outfit-bold">Alertas</Text>
+      <View className="gap-y-5 mt-2 w-full">
+        <View className="flex-row justify-between items-center">
+          <Text className="font-outfit-bold text-lg">Alertas</Text>
           
           <View className="flex-row gap-2 items-center">
-            
-            
-
             <Select
               onOpenChange={setAlertasOpen}
               onValueChange={(option) => {
@@ -545,13 +544,13 @@ export default function Menu() {
             >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white h-[40px] w-[130px] ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white h-[40px] w-[150px] ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Todos os Pivôs" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[130px] ${alertasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[150px] ${alertasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
                   <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
@@ -574,14 +573,15 @@ export default function Menu() {
           </View>
         </View>
 
+        {/* 👉 BOTÃO NA LARGURA TOTAL E ACIMA DA TABELA */}
         <Button
-              className="rounded-md bg-secundaria-azul h-[40px] px-3"
-              onPress={() => router.push({ pathname: "/menu/tabelaAlertas" } as any)}
-            >
-              <Text className="font-outfit-medium">Ver Tabela Completa</Text>
-            </Button>
+          className="rounded-md w-full bg-secundaria-azul h-[40px] px-3 active:opacity-70"
+          onPress={() => router.push({ pathname: "/(tabs)/menu/tabelaAlertas" } as any)}
+        >
+          <Text className="text-white font-outfit-medium">Ver Tabela Completa</Text>
+        </Button>
 
-        {/* 👉 TABELA ATUALIZADA: Usando a variável alertasPreview com limite de 15 */}
+        {/* 👉 TABELA */}
         <Table data={alertasPreview} columns={colunasAlertas} alerta />
       </View>
     </View>

@@ -29,13 +29,11 @@ import Header from "@/components/custom/Header";
 import { Screen } from "@/components/custom/Screen";
 import { Table, TableColumn } from "@/components/custom/Table";
 import RadarComplexo from "@/components/custom/RadarComplexo";
-
 import PresetCard from "@/components/custom/PresetCard";
 
 import { usePivo } from "@/hooks/api/usePivos";
 import { useDashboardTelemetria } from "@/hooks/api/useTelemetria";
 import { useCronogramasPivo, useControleCronograma } from "@/hooks/api/useCronogramas";
-// Import do Hook de Logs (ADICIONADO)
 import { useLogsEventos } from "@/hooks/api/useLogs";
 
 // * Mapeamento das colunas ajustadas para Auditoria de Software (Logs)
@@ -93,13 +91,11 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
 
   const tempoRestanteFormatado = calcularTempoRestante(pivo, passoEmExecucao, anguloAtual);
 
-  // * Formatação dos Logs do Banco para a Tabela Visual (ATUALIZADO PARA OS CÓDIGOS DO ARDUINO)
   const logsFormatados = useMemo(() => {
     if (!logs) return [];
     return logs.map((log: any) => {
       const dateObj = new Date(log.timestamp);
       
-      // Tradução visual baseada nos novos tipos
       let eventoTexto = log.tipo_evento;
       if (log.tipo_evento === 'comando') eventoTexto = 'Comando Manual';
       else if (log.tipo_evento === 'pausa_manual') eventoTexto = 'Pausa Manual';
@@ -108,14 +104,11 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
       else if (log.tipo_evento === 'conclusao') eventoTexto = 'Operação Concluída';
       else if (log.tipo_evento === 'sensor') eventoTexto = 'Leitura de Sensor';
 
-      // Aproveitamos o "codigo" (ex: CRONOGRAMA_AGENDADO) para dar mais contexto
       if (log.codigo) {
-        // Remove os underscores e capitaliza
         const codigoAmigavel = log.codigo.replace(/_/g, ' '); 
         eventoTexto = `${eventoTexto} (${codigoAmigavel})`;
       }
 
-      // Lida com o relacionamento do Supabase
       const nomeOperador = Array.isArray(log.usuarios) ? log.usuarios[0]?.nome : log.usuarios?.nome;
 
       return {
@@ -123,10 +116,13 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
         data: dateObj.toLocaleDateString("pt-BR"),
         hora: dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
         evento: eventoTexto,
-        operador: nomeOperador || "Sistema Autônomo", // Se não tiver operador, foi o Arduino!
+        operador: nomeOperador || "Sistema Autônomo",
       };
     });
   }, [logs]);
+
+  // 👉 NOVIDADE: Limita a tabela para apenas 10 itens na visualização do painel principal
+  const logsPreview = useMemo(() => logsFormatados.slice(0, 10), [logsFormatados]);
 
   return (
     <Screen>
@@ -171,55 +167,23 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
         <RadarComplexo size={260} currentAngle={anguloAtual} />
       </View>
 
-      {/* --- LINHA DE STATUS (Em Funcionamento / Horário / Irrigando) --- */}
-      <View
-        className={`flex-row items-center px-2 ${
-          Platform.OS === "web"
-            ? "justify-center gap-x-8"
-            : "justify-between"
-        }`}
-      >
-        {/* Status */}
+      {/* --- LINHA DE STATUS --- */}
+      <View className={`flex-row items-center px-2 ${Platform.OS === "web" ? "justify-center gap-x-8" : "justify-between"}`}>
         <View className="flex-row items-center gap-2">
-          <View
-            className={`w-4 h-4 rounded-full ${
-              isRodando
-                ? "bg-[#0AA146]"
-                : isFalha
-                  ? "bg-[#D32F2F]"
-                  : "bg-[#666666]"
-            }`}
-          />
-          <Text className="font-outfit-medium text-texto text-sm">
-            {status?.status_operacional || "Parado"}
-          </Text>
+          <View className={`w-4 h-4 rounded-full ${isRodando ? "bg-[#0AA146]" : isFalha ? "bg-[#D32F2F]" : "bg-[#666666]"}`} />
+          <Text className="font-outfit-medium text-texto text-sm">{status?.status_operacional || "Parado"}</Text>
         </View>
-
-        {/* Divisor Vertical */}
         <View className="w-px h-6 bg-borda" />
-
-        {/* Informações da direita */}
         <View className="flex-row items-center gap-4">
           <View className="flex-row items-center gap-1.5">
             <RefreshCw size={18} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit-medium text-texto text-sm">
-              {passoEmExecucao?.direcao === "HORARIO"
-                ? "Horário"
-                : passoEmExecucao?.direcao === "ANTI_HORARIO"
-                  ? "Anti-Hor."
-                  : "---"}
+              {passoEmExecucao?.direcao === "HORARIO" ? "Horário" : passoEmExecucao?.direcao === "ANTI_HORARIO" ? "Anti-Hor." : "---"}
             </Text>
           </View>
-
           <View className="flex-row items-center gap-1.5">
-            <Droplet
-              size={18}
-              color={passoEmExecucao?.irrigacao ? "#00A0A6" : "#0D0D0D"}
-              strokeWidth={2.5}
-            />
-            <Text className="font-outfit-medium text-texto text-sm">
-              {passoEmExecucao?.irrigacao ? "Irrigando" : "Seco"}
-            </Text>
+            <Droplet size={18} color={passoEmExecucao?.irrigacao ? "#00A0A6" : "#0D0D0D"} strokeWidth={2.5} />
+            <Text className="font-outfit-medium text-texto text-sm">{passoEmExecucao?.irrigacao ? "Irrigando" : "Seco"}</Text>
           </View>
         </View>
       </View>
@@ -227,189 +191,66 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- GRID DE MÉTRICAS --- */}
-      <View
-        className={`
-          flex-row flex-wrap gap-y-4
-          justify-between
-          md:self-center md:w-full md:max-w-[520px]
-        `}
-      >
-        <View
-          className={`
-            w-[48%]
-            md:w-[45%]
-            flex-row items-center gap-2
-          `}
-        >
+      <View className={`flex-row flex-wrap gap-y-4 justify-between md:self-center md:w-full md:max-w-[520px]`}>
+        <View className={`w-[48%] md:w-[45%] flex-row items-center gap-2`}>
           <Gauge size={20} color="#0D0D0D" strokeWidth={2.5} />
-          <Text className="font-outfit text-texto text-sm">
-            Lâmina:{" "}
-            <Text className="font-outfit-bold">
-              {passoEmExecucao?.lamina || 0} mm
-            </Text>
-          </Text>
+          <Text className="font-outfit text-texto text-sm">Lâmina: <Text className="font-outfit-bold">{passoEmExecucao?.lamina || 0} mm</Text></Text>
         </View>
-
-        <View
-          className={`
-            w-[48%]
-            md:w-[45%]
-            flex-row items-center gap-2
-          `}
-        >
+        <View className={`w-[48%] md:w-[45%] flex-row items-center gap-2`}>
           <RefreshCcwDot size={20} color="#0D0D0D" strokeWidth={2.5} />
-          <Text className="font-outfit text-texto text-sm">
-            Posição Atual:{" "}
-            <Text className="font-outfit-bold">{anguloAtual}°</Text>
-          </Text>
+          <Text className="font-outfit text-texto text-sm">Posição Atual: <Text className="font-outfit-bold">{anguloAtual}°</Text></Text>
         </View>
-
-        <View
-          className={`
-            w-[48%]
-            md:w-[45%]
-            flex-row items-center gap-2
-          `}
-        >
+        <View className={`w-[48%] md:w-[45%] flex-row items-center gap-2`}>
           <Zap size={20} color="#0D0D0D" strokeWidth={2.5} />
-          <Text className="font-outfit text-texto text-sm">
-            Tensão:{" "}
-            <Text className="font-outfit-bold">
-              {status?.tensao || 0} V
-            </Text>
-          </Text>
+          <Text className="font-outfit text-texto text-sm">Tensão: <Text className="font-outfit-bold">{status?.tensao || 0} V</Text></Text>
         </View>
-
-        <View
-          className={`
-            w-[48%]
-            md:w-[45%]
-            flex-row items-center gap-2
-          `}
-        >
+        <View className={`w-[48%] md:w-[45%] flex-row items-center gap-2`}>
           <UndoDot size={20} color="#0D0D0D" strokeWidth={2.5} />
-          <Text className="font-outfit text-texto text-sm">
-            PSI:{" "}
-            <Text className="font-outfit-bold">
-              {status?.pressao || 0}
-            </Text>
-          </Text>
+          <Text className="font-outfit text-texto text-sm">PSI: <Text className="font-outfit-bold">{status?.pressao || 0}</Text></Text>
         </View>
       </View>
 
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- RESUMO DE VOLTAS E DURAÇÃO --- */}
-      <View
-        className={`
-          px-2 gap-3
-          md:self-center md:w-full md:max-w-[520px]
-          md:flex-row md:justify-between
-        `}
-      >
-        <View
-          className={`
-            flex-row items-center
-            justify-between
-            md:justify-start md:gap-4
-            md:w-[48%]
-          `}
-        >
+      <View className={`px-2 gap-3 md:self-center md:w-full md:max-w-[520px] md:flex-row md:justify-between`}>
+        <View className={`flex-row items-center justify-between md:justify-start md:gap-4 md:w-[48%]`}>
           <View className="flex-row items-center gap-2">
             <RotateCw size={20} color="#0D0D0D" strokeWidth={2.5} />
-            <Text className="font-outfit text-texto text-sm">
-              Voltas:
-            </Text>
+            <Text className="font-outfit text-texto text-sm">Voltas:</Text>
           </View>
-
-          <Text className="font-outfit-bold text-texto text-sm whitespace-nowrap">
-            -
-          </Text>
+          <Text className="font-outfit-bold text-texto text-sm whitespace-nowrap">-</Text>
         </View>
-
-        <View
-          className={`
-            flex-row justify-between items-center
-            md:w-[48%]
-          `}
-        >
+        <View className={`flex-row justify-between items-center md:w-[48%]`}>
           <View className="flex-row items-center gap-2">
             <Clock size={20} color="#0D0D0D" strokeWidth={2.5} />
-            <Text className="font-outfit text-texto text-sm">
-              Tempo Restante Estimado:
-            </Text>
+            <Text className="font-outfit text-texto text-sm">Tempo Restante Estimado:</Text>
           </View>
-
-          <Text className="font-outfit-bold text-texto text-sm whitespace-nowrap">
-            {tempoRestanteFormatado}
-          </Text>
+          <Text className="font-outfit-bold text-texto text-sm whitespace-nowrap">{tempoRestanteFormatado}</Text>
         </View>
       </View>
 
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
       {/* --- GRID DE MÉTRICAS DE SINAL --- */}
-      <View
-        className={`
-          flex-row flex-wrap px-2 gap-y-4
-          justify-between
-          md:self-center md:w-full md:max-w-[520px]
-        `}
-      >
-        <View
-          className={`
-            w-[48%]
-            md:w-[45%]
-            flex-row items-center gap-2
-          `}
-        >
+      <View className={`flex-row flex-wrap px-2 gap-y-4 justify-between md:self-center md:w-full md:max-w-[520px]`}>
+        <View className={`w-[48%] md:w-[45%] flex-row items-center gap-2`}>
           <Router size={20} color="#0D0D0D" strokeWidth={2.5} />
-          <Text className="font-outfit text-texto text-sm">
-            Latência{"\n"} de Sinal:
-          </Text>
+          <Text className="font-outfit text-texto text-sm">Latência{"\n"} de Sinal:</Text>
           <Text className="font-outfit-bold">-</Text>
         </View>
-
-        <View
-          className={`
-            w-[48%]
-            md:w-[45%]
-            flex-row items-center gap-2
-          `}
-        >
+        <View className={`w-[48%] md:w-[45%] flex-row items-center gap-2`}>
           <CloudSync size={20} color="#0D0D0D" strokeWidth={2.5} />
-          <Text className="font-outfit text-texto text-sm">
-            Uptime{"\n"} do Sistema:
-          </Text>
+          <Text className="font-outfit text-texto text-sm">Uptime{"\n"} do Sistema:</Text>
           <Text className="font-outfit-bold">-</Text>
         </View>
-
-        <View
-          className={`
-            w-[48%]
-            md:w-[45%]
-            flex-row items-center gap-2
-          `}
-        >
+        <View className={`w-[48%] md:w-[45%] flex-row items-center gap-2`}>
           <Signal size={20} color="#0D0D0D" strokeWidth={2.5} />
-          <Text className="font-outfit text-texto text-sm">
-            Ping:{" "}
-            <Text className="font-outfit-bold">500 ms</Text>
-          </Text>
+          <Text className="font-outfit text-texto text-sm">Ping: <Text className="font-outfit-bold">500 ms</Text></Text>
         </View>
-
-        <View
-          className={`
-            w-[48%]
-            md:w-[45%]
-            flex-row items-center gap-2
-          `}
-        >
+        <View className={`w-[48%] md:w-[45%] flex-row items-center gap-2`}>
           <Files size={20} color="#0D0D0D" strokeWidth={2.5} />
-          <Text className="font-outfit text-texto text-sm">
-            Versão:{" "}
-            <Text className="font-outfit-bold">v1.4.2</Text>
-          </Text>
+          <Text className="font-outfit text-texto text-sm">Versão: <Text className="font-outfit-bold">v1.4.2</Text></Text>
         </View>
       </View>
 
@@ -460,10 +301,22 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
 
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
-      {/* // * Tabela - Injeção dos dados reais */}
+      {/* // * Tabela - Injeção dos dados reais com Limite de 10 */}
       <View className="gap-y-5">
-        <Text className="font-outfit-bold">Histórico</Text>
-        <Table data={logsFormatados} columns={colunasHistorico} />
+        <View className="flex flex-1 justify-between items-center">
+          <Text className="font-outfit-bold self-start mb-3 text-lg">Histórico</Text>
+          {/* 👉 BOTÃO ADICIONADO PARA A TELA CHEIA */}
+          <Button
+            className="rounded-md w-full bg-secundaria-azul h-[40px] px-3 active:opacity-70"
+            onPress={() => router.push({ 
+              pathname: "/(tabs)/pivos/logsPivo", // Ajuste o caminho se a sua pasta for diferente!
+              params: { pivo_id: pivo?.id } 
+            })}
+          >
+            <Text className="text-white font-outfit-medium">Ver Tabela Completa</Text>
+          </Button>
+        </View>
+        <Table data={logsPreview} columns={colunasHistorico} />
       </View>
     </Screen>
   );
@@ -476,19 +329,14 @@ export default function VisualizacaoPivo() {
   const { data: pivoData, isPending: loadingPivo, refetch: refetchPivo } = usePivo(id as string);
   const { data: telemetriaLista, refetch: refetchTelemetria } = useDashboardTelemetria();
   const { data: cronogramasLista, refetch: refetchCronogramas } = useCronogramasPivo(id as string);
-  
-  // Hook de Logs (ADICIONADO)
   const { data: logsLista, refetch: refetchLogs } = useLogsEventos(id as string);
 
-  console.log("🎯 LOGS RECEBIDOS DO BANCO:", JSON.stringify(logsLista, null, 2));
-  
   const { mutateAsync: controlarCronograma, isPending: isControlando } = useControleCronograma();
 
   const statusPivo = useMemo(() => telemetriaLista?.find((p) => p.id === id), [telemetriaLista, id]);
   const cronogramaAtivo = useMemo(() => cronogramasLista?.find(c => c.is_ativo === true), [cronogramasLista]);
 
   const handleRefresh = async () => {
-    // Adicionado refetchLogs ao Promise.all
     await Promise.all([refetchPivo(), refetchTelemetria(), refetchCronogramas(), refetchLogs()]);
   };
 

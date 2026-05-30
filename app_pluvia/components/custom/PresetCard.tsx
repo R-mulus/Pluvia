@@ -122,9 +122,12 @@ export default function PresetCard({
           <View className="flex-row justify-between">
             <View className="gap-3 flex-1 pr-2">
               <View className="flex-row items-center">
-                <Droplet size={20} color="#0D0D0D" strokeWidth={2.5} />
+                {/* Ícone de Gota se estiver irrigando, Ícone de Gauge se não estiver (Percentímetro) */}
+                {isIrrigando ? <Droplet size={20} color="#0D0D0D" strokeWidth={2.5} /> : <DropletOff size={20} color="#0D0D0D" strokeWidth={2.5} />}
                 <Text className="text-sm ml-2 text-texto font-outfit flex-1">
-                  Lâmina: <Text className="font-outfit-bold">{data.lamina ?? 0} mm</Text>
+                  {/* 👉 CORREÇÃO AQUI: Lâmina vs Percentímetro dinâmico */}
+                  {isIrrigando ? "Lâmina:" : "Percent.:"}{" "}
+                  <Text className="font-outfit-bold">{data.lamina ?? 0} {isIrrigando ? "mm" : "%"}</Text>
                 </Text>
               </View>
               

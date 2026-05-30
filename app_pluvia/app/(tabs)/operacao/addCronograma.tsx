@@ -241,13 +241,15 @@ export default function AdicionarCronograma() {
                 <View className="flex-row gap-2">
                   <Pressable
                     className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end"
-                    onPress={() => router.push("/(tabs)/operacao/presets")}
+                    // 👉 CORREÇÃO AQUI: Passando o pivo_id para a lista
+                    onPress={() => router.push({ pathname: "/(tabs)/operacao/presets", params: { pivo_id } })}
                   >
                     <Layers size={24} color="white" strokeWidth={2.5} />
                   </Pressable>
                   <Pressable
                     className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end"
-                    onPress={() => router.push("/(tabs)/operacao/addPreset")}
+                    // 👉 CORREÇÃO AQUI: Passando o pivo_id para o form
+                    onPress={() => router.push({ pathname: "/(tabs)/operacao/addPreset", params: { pivo_id } })}
                   >
                     <Plus size={24} color="white" strokeWidth={2.5} />
                   </Pressable>

@@ -28,7 +28,7 @@ export default function Cronogramas() {
         <Button
           className="bg-primaria-azul w-10 h-10 p-0 rounded-[12px] items-center justify-center active:opacity-70"
           onPress={() => router.push({
-            pathname: '/(tabs)/presets/addCronograma',
+            pathname: "./(tabs)/presets/addCronograma",
             params: { pivo_id: id } // Passamos o ID do pivô de forma segura para a tela de criar
           })}
         >

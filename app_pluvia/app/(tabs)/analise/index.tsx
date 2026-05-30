@@ -18,7 +18,7 @@ import { View, Platform, Pressable, LayoutChangeEvent } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Separator } from "@/components/ui/separator";
-import { useRouter, type Href } from "expo-router";
+import { useRouter } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { TriggerRef } from "@rn-primitives/select";
@@ -54,8 +54,6 @@ import { usePivos } from "@/hooks/api/usePivos";
 import { useAlertas, useLogsEventos } from "@/hooks/api/useLogs";
 
 // * Dados Mockados para Gráficos e Selects
-
-// * SELECTS (Mantido apenas os que não vem do banco)
 const tempo_operacao = [
   { id: 1, label: "Dia", value: "dia" },
   { id: 2, label: "Semana", value: "semana" },
@@ -70,72 +68,38 @@ const fazendas = [
 ];
 
 // * GRÁFICOS
-// Tempo de Operação (Gráfico de Barras Vertical)
 export const tempoOperacaoMock = [
-  { label: "01", value: 4 },
-  { label: "02", value: 25 },
-  { label: "03", value: 21 },
-  { label: "04", value: 9 },
-  { label: "05", value: 13 },
-  { label: "06", value: 10 },
-  { label: "07", value: 6 },
-  { label: "08", value: 22 },
-  { label: "09", value: 19 },
-  { label: "10", value: 8 },
+  { label: "01", value: 4 }, { label: "02", value: 25 }, { label: "03", value: 21 }, { label: "04", value: 9 }, { label: "05", value: 13 }, { label: "06", value: 10 }, { label: "07", value: 6 }, { label: "08", value: 22 }, { label: "09", value: 19 }, { label: "10", value: 8 },
 ];
 
-// Quantidade de Falhas por Período (Gráfico de Barras Horizontal)
 export const falhasPeriodoMock = [
-  { label: "Jul", value: 4 },
-  { label: "Jun", value: 2 },
-  { label: "Mai", value: 8 },
-  { label: "Abr", value: 5 },
-  { label: "Mar", value: 4 },
-  { label: "Feb", value: 15 },
-  { label: "Jan", value: 1 },
+  { label: "Jul", value: 4 }, { label: "Jun", value: 2 }, { label: "Mai", value: 8 }, { label: "Abr", value: 5 }, { label: "Mar", value: 4 }, { label: "Feb", value: 15 }, { label: "Jan", value: 1 },
 ];
 
-// Consumo de Água por Hora (Gráfico de Barras Vertical)
 export const consumoAguaMock = [
-  { label: "Seg", value: 110 },
-  { label: "Ter", value: 200 },
-  { label: "Qua", value: 150 },
-  { label: "Qui", value: 80 },
-  { label: "Sex", value: 130 },
-  { label: "Sab", value: 110 },
-  { label: "Dom", value: 130 },
+  { label: "Seg", value: 110 }, { label: "Ter", value: 200 }, { label: "Qua", value: 150 }, { label: "Qui", value: 80 }, { label: "Sex", value: 130 }, { label: "Sab", value: 110 }, { label: "Dom", value: 130 },
 ];
 
-// Consumo de Energia (Gráfico de Linhas com 2 Séries)
 export const consumoEnergiaMock = [
-  { label: "Seg", real: 190, estimado: 0 },
-  { label: "Ter", real: 300, estimado: 230 },
-  { label: "Qua", real: 240, estimado: 300 },
-  { label: "Qui", real: 80, estimado: 260 },
-  { label: "Sex", real: 210, estimado: 370 },
-  { label: "Sab", real: 215, estimado: 300 },
-  { label: "Dom", real: 180, estimado: 240 },
+  { label: "Seg", real: 190, estimado: 0 }, { label: "Ter", real: 300, estimado: 230 }, { label: "Qua", real: 240, estimado: 300 }, { label: "Qui", real: 80, estimado: 260 }, { label: "Sex", real: 210, estimado: 370 }, { label: "Sab", real: 215, estimado: 300 }, { label: "Dom", real: 180, estimado: 240 },
 ];
 
 export default function Analises() {
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // --- LÓGICA DE ESCALA E COORDENADAS PARA TODOS OS GRÁFICOS SVG ---
   const handleLayout = (event: LayoutChangeEvent) => {
     setContainerWidth(event.nativeEvent.layout.width);
   };
 
-  // Constantes de Layout Global para as caixas
   const chartHeight = 240;
-  const leftAxisWidth = 48; // Eixo Y
-  const rightPadding = 20;  // Espaço extra na direita para respirar
-  const topPadding = 30;    // Espaço extra em cima pros valores
+  const leftAxisWidth = 48; 
+  const rightPadding = 20;  
+  const topPadding = 30;    
   const bottomPadding = 30;
   
   const chartInnerHeight = chartHeight - topPadding - bottomPadding;
   const drawingWidth = Math.max(0, containerWidth - leftAxisWidth - rightPadding);
 
-  // 1. Cálculos de Falhas (Horizontal)
   const maxFalhasData = Math.max(...falhasPeriodoMock.map((item) => item.value));
   const maxFalhasValue = Math.max(8, Math.ceil(maxFalhasData / 4) * 4);
   const stepFalhas = maxFalhasValue / 4;
@@ -143,32 +107,34 @@ export default function Analises() {
   const falhasRowHeight = chartInnerHeight / falhasPeriodoMock.length;
   const barHeight = 16;
 
-  // 2. Cálculos de Tempo (Barras Verticais)
   const tempoMax = 25;
   const tempoSteps = [0, 5, 10, 15, 20, 25];
 
-  // 3. Cálculos de Água (Barras Verticais)
   const aguaMax = 200;
   const aguaSteps = [0, 50, 100, 150, 200];
 
-  // 4. Cálculos de Energia (Linhas)
   const energiaMax = 400;
   const energiaSteps = [0, 100, 200, 300, 400];
 
   const ref = React.useRef<TriggerRef>(null);
 
-  // * HOOKS DE BANCO DE DADOS (Pivôs, Alertas e Logs)
   const { data: pivos } = usePivos();
   const pivosDropdownOptions = useMemo(() => pivos || [], [pivos]);
+
+  const [filtroFazenda, setFiltroFazenda] = useState<string>("todos");
+  const [filtroVisaoGeral, setFiltroVisaoGeral] = useState<string>("todos");
+  const [filtroFalhas, setFiltroFalhas] = useState<string>("todos");
+  const [filtroTempo, setFiltroTempo] = useState<string>("dia");
+  const [filtroAgua, setFiltroAgua] = useState<string>("todos");
+  const [filtroEnergia, setFiltroEnergia] = useState<string>("todos");
 
   const [filtroAlerta, setFiltroAlerta] = useState<string>("todos");
   const [filtroLog, setFiltroLog] = useState<string>("todos");
   
   const { data: alertasReais } = useAlertas(filtroAlerta);
-  // O endpoint de logs foi desenhado para receber o id especifico, ou usamos 'todos'
   const { data: logsReais } = useLogsEventos(filtroLog);
 
-  // * FORMATAÇÕES
+  // * FORMATAÇÕES BLINDADAS COM CORREÇÃO DE CORES
   const alertasFormatados = useMemo(() => {
     if (!alertasReais) return [];
     return alertasReais.map((log: any) => {
@@ -176,10 +142,22 @@ export default function Analises() {
       const nomeOperador = Array.isArray(log.usuarios) ? log.usuarios[0]?.nome : log.usuarios?.nome;
       const nomePivo = Array.isArray(log.pivos) ? log.pivos[0]?.nome_pivo : log.pivos?.nome_pivo;
 
+      let corTipo = "info"; 
+      let iconeTipo = "alerta";
+
+      if (log.tipo_evento === "erro" || log.tipo_evento === "falha") {
+        corTipo = "perigo"; 
+      } else if (log.tipo_evento === "conclusao") {
+        corTipo = "sucesso"; 
+      }
+      if (log.tipo_evento === "comando" || log.tipo_evento === "sensor") {
+        iconeTipo = "gota";
+      }
+
       return {
-        id: log.id.substring(0, 5).toUpperCase(),
-        tipo: log.tipo_evento === "erro" || log.tipo_evento === "falha" ? "perigo" : "info",
-        icone: "alerta",
+        id: log.id?.substring(0, 5).toUpperCase() || "-",
+        tipo: corTipo,
+        icone: iconeTipo,
         evento: log.codigo ? log.codigo.replace(/_/g, " ") : "Alerta do Sistema",
         data: dateObj.toLocaleDateString("pt-BR"),
         hora: dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
@@ -196,25 +174,35 @@ export default function Analises() {
       const nomeOperador = Array.isArray(log.usuarios) ? log.usuarios[0]?.nome : log.usuarios?.nome;
       const nomePivo = Array.isArray(log.pivos) ? log.pivos[0]?.nome_pivo : log.pivos?.nome_pivo;
 
+      let eventoTexto = log.tipo_evento;
+      if (log.tipo_evento === 'comando') eventoTexto = 'Comando Manual';
+      else if (log.tipo_evento === 'pausa_manual') eventoTexto = 'Pausa Manual';
+      else if (log.tipo_evento === 'pausa_automatica') eventoTexto = 'Parada Automática';
+      else if (['erro', 'alerta', 'falha'].includes(log.tipo_evento)) eventoTexto = 'Anomalia no Sistema';
+      else if (log.tipo_evento === 'conclusao') eventoTexto = 'Operação Concluída';
+      else if (log.tipo_evento === 'sensor') eventoTexto = 'Leitura de Sensor';
+
+      if (log.codigo) {
+        const codigoAmigavel = log.codigo.replace(/_/g, ' '); 
+        eventoTexto = `${eventoTexto} (${codigoAmigavel})`;
+      }
+
       return {
-        id: log.id.substring(0, 5).toUpperCase(),
+        id: log.id?.substring(0, 5).toUpperCase() || "-",
         data: `${dateObj.toLocaleDateString("pt-BR")} ${dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
         pivo: nomePivo || log.pivo_id?.substring(0, 5) || "-",
         status: log.tipo_evento,
-        evento: log.codigo ? log.codigo.replace(/_/g, " ") : "-",
+        evento: eventoTexto,
         origem: "Sistema",
         operador: nomeOperador || "Autônomo",
-        // Campos que não temos nos event_logs ficam com "-" para não quebrar a sua tabela gigante
         voltas: "-", irrigacao: "-", milimetros: "-", pressao: "-", tensao: "-", direcao: "-", anguloAtual: "-", percentimetro: "-",
       };
     });
   }, [logsReais]);
 
-  const alertasPreview = useMemo(() => alertasFormatados.slice(0, 15), [alertasFormatados]);
-  const logsPreview = useMemo(() => logsFormatados.slice(0, 15), [logsFormatados]);
+  const alertasPreview = useMemo(() => alertasFormatados.slice(0, 10), [alertasFormatados]);
+  const logsPreview = useMemo(() => logsFormatados.slice(0, 10), [logsFormatados]);
 
-
-  // * useStates que controlam os componentes de Select
   const [analiseOpen, setAnaliseOpen] = useState(false);
   const [alertasOpen, setAlertasOpen] = useState(false);
   const [geralOpen, setGeralOpen] = useState(false);
@@ -237,13 +225,12 @@ export default function Analises() {
 
   const router = useRouter();
 
-  // Colunas atualizadas para any (removendo typeof mock)
   const colunasLog: TableColumn<any>[] = [
     { key: "id", title: "ID", width: 60 },
     { key: "data", title: "Data", width: 180 },
-    { key: "pivo", title: "Pivô", width: 70 },
+    { key: "pivo", title: "Pivô", width: 100 },
     { key: "status", title: "Status", width: 90 },
-    { key: "evento", title: "Evento", width: 160 },
+    { key: "evento", title: "Evento", width: 220 },
     { key: "origem", title: "Origem", width: 100 },
     { key: "operador", title: "Operador", width: 120 },
     { key: "voltas", title: "Voltas", width: 80 },
@@ -277,7 +264,7 @@ export default function Analises() {
     { key: "evento", title: "Evento", width: 260 },
     { key: "data", title: "Data", width: 110 },
     { key: "hora", title: "Hora", width: 80 },
-    { key: "pivo", title: "Pivô", width: 70 },
+    { key: "pivo", title: "Pivô", width: 100 },
     { key: "operador", title: "Operador", width: 140 },
   ];
 
@@ -288,19 +275,26 @@ export default function Analises() {
         <View className="flex-row w-full justify-between items-center">
           <Header title="Análise" subtitle="AHCX21214BMM" />
           <View className="flex-row gap-2 items-center">
-            <Select onOpenChange={setAnaliseOpen}>
+            <Select 
+              onOpenChange={setAnaliseOpen}
+              onValueChange={(option) => { if (option) setFiltroFazenda(option.value); }}
+              defaultValue={{ value: "todos", label: "Todas as Fazendas" }}
+            >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[120px] cursor-pointer hover:opacity-90 ${analiseOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[160px] cursor-pointer hover:opacity-90 ${analiseOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Fazendas" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[120px] ${analiseOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[160px] ${analiseOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
-                  {fazendas.map((fazenda) => (
+                  <SelectItem key="todos" label="Todas as Fazendas" value="todos" className="bg-transparent">
+                    Todas as Fazendas
+                  </SelectItem>
+                  {fazendas?.map((fazenda) => (
                     <SelectItem key={fazenda.value} label={fazenda.label} value={fazenda.value} className={Number(fazenda.id) % 2 !== 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {fazenda.label}
                     </SelectItem>
@@ -313,72 +307,78 @@ export default function Analises() {
             </Pressable>
           </View>
         </View>
-
-        <Pressable className="active:opacity-50 hover:opacity-80 cursor-pointer transition-opacity bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end">
-          <Funnel size={24} color="white" strokeWidth={2.5} />
-        </Pressable>
       </View>
 
       {/* // * Alertas (Integrado com Banco) */}
-      <View className="flex-row w-full justify-between items-center flex-wrap gap-y-3">
-        <Text className="font-outfit-bold">Alertas</Text>
-        <View className="flex-row gap-2 items-center">
-          <Button
-            className="rounded-md bg-secundaria-azul h-[40px] px-3"
-            onPress={() => router.push({ pathname: "/menu/tabelaAlertas" } as any)}
-          >
-            <Text className="text-white text-xs font-outfit-bold">Ver Tabela Completa</Text>
-          </Button>
-
-          <Select 
-            onOpenChange={setAlertasOpen}
-            onValueChange={(option) => { if (option) setFiltroAlerta(option.value); }}
-            defaultValue={{ value: "todos", label: "Todos os Pivôs" }}
-          >
-            <SelectTrigger
-              ref={ref}
-              className={`border-[1px] border-[#b8b8b8] bg-white h-[40px] w-[130px] cursor-pointer hover:opacity-90 ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
-            >
-              <SelectValue placeholder="Pivô" />
-            </SelectTrigger>
-            <SelectContent
-              insets={contentInsets}
-              className={`border-[#b8b8b8] bg-white w-[130px] ${alertasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
-            >
-              <SelectGroup>
-                <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
-                  Todos os Pivôs
-                </SelectItem>
-                {pivosDropdownOptions.map((pivo, index) => (
-                  <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
-                    {pivo.nome_pivo}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </View>
-      </View>
-
-      <Table data={alertasPreview} columns={colunasAlertas} alerta/>
-
-      {/* // * Visão Geral */}
-      <View className="self-stretch gap-5">
+      <View className="gap-y-5">
         <View className="flex-row w-full justify-between items-center">
-          <Text className="font-outfit-bold">Visão Geral</Text>
+          <Text className="font-outfit-bold text-lg">Alertas Recentes</Text>
           <View className="flex-row gap-2 items-center">
-            <Select onOpenChange={setGeralOpen}>
+            <Select 
+              onOpenChange={setAlertasOpen}
+              onValueChange={(option) => { if (option) setFiltroAlerta(option.value); }}
+              defaultValue={{ value: "todos", label: "Todos os Pivôs" }}
+            >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${geralOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white h-[40px] w-[140px] cursor-pointer hover:opacity-90 ${alertasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Pivô" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[100px] ${geralOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[140px] ${alertasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
+                  <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
+                    Todos os Pivôs
+                  </SelectItem>
+                  {pivosDropdownOptions.map((pivo, index) => (
+                    <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
+                      {pivo.nome_pivo}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </View>
+        </View>
+
+        {/* 👉 BOTÃO ADICIONADO PARA A TELA CHEIA (Alertas) */}
+        <Button
+          className="rounded-md w-full bg-secundaria-azul h-[40px] px-3 active:opacity-70"
+          onPress={() => router.push({ pathname: "/(tabs)/analise/analiseAlertas" } as any)}
+        >
+          <Text className="text-white font-outfit-medium">Ver Tabela Completa</Text>
+        </Button>
+
+        <Table data={alertasPreview} columns={colunasAlertas} alerta/>
+      </View>
+
+      {/* // * Visão Geral */}
+      <View className="self-stretch gap-5 mt-4">
+        <View className="flex-row w-full justify-between items-center">
+          <Text className="font-outfit-bold text-lg">Visão Geral</Text>
+          <View className="flex-row gap-2 items-center">
+            <Select 
+              onOpenChange={setGeralOpen}
+              onValueChange={(option) => { if (option) setFiltroVisaoGeral(option.value); }}
+              defaultValue={{ value: "todos", label: "Todos os Pivôs" }}
+            >
+              <SelectTrigger
+                ref={ref}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[140px] cursor-pointer hover:opacity-90 ${geralOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+              >
+                <SelectValue placeholder="Pivô" />
+              </SelectTrigger>
+              <SelectContent
+                insets={contentInsets}
+                className={`border-[#b8b8b8] bg-white w-[140px] ${geralOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+              >
+                <SelectGroup>
+                  <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
+                    Todos os Pivôs
+                  </SelectItem>
                   {pivosDropdownOptions.map((pivo, index) => (
                     <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {pivo.nome_pivo}
@@ -410,23 +410,14 @@ export default function Analises() {
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
       {/* // * Grid de Métricas */}
-      <View
-        className={`flex-row flex-wrap gap-y-4 ${
-          Platform.OS === "web"
-            ? "justify-center gap-x-12 w-full"
-            : "justify-between"
-        }`}
-      >
-        <View
-          className={`gap-4 ${Platform.OS === "web" ? "" : "w-[50%]"}`}
-        >
+      <View className="flex-row flex-wrap justify-center gap-x-12 gap-y-4 w-full">
+        <View className="gap-4">
           <View className="flex-row items-center gap-2">
             <GaugeCircle size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
               Pivôs Ativos: <Text className="font-outfit-bold">4</Text>
             </Text>
           </View>
-
           <View className="flex-row items-center gap-2">
             <CircleX size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
@@ -434,17 +425,13 @@ export default function Analises() {
             </Text>
           </View>
         </View>
-
-        <View
-          className={`gap-4 ${Platform.OS === "web" ? "" : "w-[50%]"}`}
-        >
+        <View className="gap-4">
           <View className="flex-row items-center gap-2">
             <ArrowUpNarrowWide size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
               Eficiência Média: <Text className="font-outfit-bold">89%</Text>
             </Text>
           </View>
-
           <View className="flex-row items-center gap-2">
             <Droplet size={20} color="#0D0D0D" strokeWidth={2.5} />
             <Text className="font-outfit text-texto text-sm">
@@ -457,81 +444,63 @@ export default function Analises() {
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
       {/* // * Lista de Métricas */}
-      <View
-        className={`justify-between gap-y-3 ${
-          Platform.OS === "web"
-            ? "self-center w-full max-w-[400px]"
-            : "self-stretch"
-        }`}
-      >
+      <View className="self-center w-full max-w-[400px] justify-between gap-y-3">
         <View className="flex-row items-center justify-between gap-2">
           <View className="flex-row items-center gap-2">
             <Droplets size={20} color="#0D0D0D" strokeWidth={2.5} />
-            <Text className="font-outfit text-texto text-sm">
-              Área Total Irrigada:
-            </Text>
+            <Text className="font-outfit text-texto text-sm">Área Total Irrigada:</Text>
           </View>
-
           <Text className="font-outfit-bold">342 Ha</Text>
         </View>
-
         <View className="flex-row justify-between items-center gap-2">
           <View className="flex-row items-center gap-2">
             <Droplet size={20} color="#0D0D0D" strokeWidth={2.5} />
-            <Text className="font-outfit text-texto text-sm">
-              Consumo Total de Água:
-            </Text>
+            <Text className="font-outfit text-texto text-sm">Consumo Total de Água:</Text>
           </View>
-
           <Text className="font-outfit-bold">120.582 L</Text>
         </View>
-
         <View className="flex-row justify-between items-center gap-2">
           <View className="flex-row items-center gap-2">
             <Zap size={20} color="#0D0D0D" strokeWidth={2.5} />
-            <Text className="font-outfit text-texto text-sm">
-              Consumo Total de Energia:
-            </Text>
+            <Text className="font-outfit text-texto text-sm">Consumo Total de Energia:</Text>
           </View>
-
           <Text className="font-outfit-bold">584 KWh</Text>
         </View>
-
         <View className="flex-row justify-between items-center gap-2">
           <View className="flex-row items-center gap-2">
             <Clock size={20} color="#0D0D0D" strokeWidth={2.5} />
-            <Text className="font-outfit text-texto text-sm">
-              Tempo Médio de Operação:
-            </Text>
+            <Text className="font-outfit text-texto text-sm">Tempo Médio de Operação:</Text>
           </View>
-
           <Text className="font-outfit-bold">18 h 25 min</Text>
         </View>
       </View>
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* ========================================================================= */}
-      {/* // * Gráfico 1: Quantidade de Falhas por Período (Barras Horizontais SVG) */}
-      {/* ========================================================================= */}
+      {/* GRÁFICO 1 */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
-          <Text className="font-outfit-bold text-wrap w-[140px]">
-            Quantidade de Falhas por Período
-          </Text>
+          <Text className="font-outfit-bold text-wrap w-[140px]">Quantidade de Falhas por Período</Text>
           <View className="flex-row gap-2 items-center">
-            <Select onOpenChange={setFalhasOpen}>
+            <Select 
+              onOpenChange={setFalhasOpen}
+              onValueChange={(option) => { if (option) setFiltroFalhas(option.value); }}
+              defaultValue={{ value: "todos", label: "Todos os Pivôs" }}
+            >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${falhasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[140px] cursor-pointer hover:opacity-90 ${falhasOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Pivô" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[100px] ${falhasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[140px] ${falhasOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
+                  <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
+                    Todos os Pivôs
+                  </SelectItem>
                   {pivosDropdownOptions.map((pivo, index) => (
                     <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {pivo.nome_pivo}
@@ -546,26 +515,18 @@ export default function Analises() {
           </View>
         </View>
 
-        <View
-          onLayout={handleLayout}
-          className="bg-white border-[2px] border-[#cacaca] rounded-[12px] w-full overflow-hidden"
-        >
+        <View onLayout={handleLayout} className="bg-white border-[2px] border-[#cacaca] rounded-[12px] w-full overflow-hidden">
           {(containerWidth > 0 || Platform.OS === 'web') && (
             <Svg width={containerWidth || "100%"} height={chartHeight}>
-              {/* LINHAS DE GRADE E TEXTOS DO EIXO X */}
               {falhasGridSteps.map((currentStep) => {
                 const xPos = leftAxisWidth + (currentStep / maxFalhasValue) * drawingWidth;
                 return (
                   <G key={`grid-${currentStep}`}>
                     <Line x1={xPos} y1={topPadding} x2={xPos} y2={chartHeight - bottomPadding} stroke="#DBDEE4" strokeWidth="1" />
-                    <SvgText x={xPos} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
-                      {currentStep}
-                    </SvgText>
+                    <SvgText x={xPos} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">{currentStep}</SvgText>
                   </G>
                 );
               })}
-
-              {/* BARRAS, MESES E VALORES */}
               {falhasPeriodoMock.map((item, index) => {
                 const barWidth = (item.value / maxFalhasValue) * drawingWidth;
                 const rowCenterY = topPadding + index * falhasRowHeight + falhasRowHeight / 2;
@@ -573,21 +534,13 @@ export default function Analises() {
 
                 return (
                   <G key={`bar-${item.label}`}>
-                    <SvgText x={leftAxisWidth - 10} y={rowCenterY + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
-                      {item.label}
-                    </SvgText>
-
+                    <SvgText x={leftAxisWidth - 10} y={rowCenterY + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">{item.label}</SvgText>
                     <Rect x={leftAxisWidth} y={barY} width={barWidth} height={barHeight} rx={4} fill="#00A0A6" />
                     <Rect x={leftAxisWidth} y={barY} width={Math.min(4, barWidth)} height={barHeight} fill="#00A0A6" />
-
-                    <SvgText x={leftAxisWidth + barWidth + 4} y={rowCenterY + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_700Bold" color="#666666" textAnchor="start">
-                      {item.value}
-                    </SvgText>
+                    <SvgText x={leftAxisWidth + barWidth + 4} y={rowCenterY + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_700Bold" color="#666666" textAnchor="start">{item.value}</SvgText>
                   </G>
                 );
               })}
-
-              {/* LINHA BASE DO EIXO Y */}
               <Line x1={leftAxisWidth} y1={topPadding} x2={leftAxisWidth} y2={chartHeight - bottomPadding + 4} stroke="#0D0D0D" strokeWidth="0.5" />
             </Svg>
           )}
@@ -596,14 +549,16 @@ export default function Analises() {
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* ========================================================================= */}
-      {/* // * Gráfico 2: Tempo de Operação (Barras Verticais SVG) */}
-      {/* ========================================================================= */}
+      {/* GRÁFICO 2 */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold">Tempo de Operação</Text>
           <View className="flex-row gap-2 items-center">
-            <Select onOpenChange={setTempoOpen}>
+            <Select 
+              onOpenChange={setTempoOpen}
+              onValueChange={(option) => { if (option) setFiltroTempo(option.value); }}
+              defaultValue={{ value: "dia", label: "Dia" }}
+            >
               <SelectTrigger
                 ref={ref}
                 className={`border-[1px] border-[#b8b8b8] bg-white w-[120px] cursor-pointer hover:opacity-90 ${tempoOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
@@ -634,20 +589,15 @@ export default function Analises() {
 
           {(containerWidth > 0 || Platform.OS === 'web') && (
             <Svg width={containerWidth || "100%"} height={chartHeight}>
-              {/* LINHAS HORIZONTAIS DE GRADE */}
               {tempoSteps.map((currentStep) => {
                 const yPos = topPadding + chartInnerHeight - (currentStep / tempoMax) * chartInnerHeight;
                 return (
                   <G key={`grid-h-${currentStep}`}>
                     <Line x1={leftAxisWidth} y1={yPos} x2={leftAxisWidth + drawingWidth} y2={yPos} stroke="#CACACA" strokeWidth="1" />
-                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
-                      {currentStep}
-                    </SvgText>
+                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">{currentStep}</SvgText>
                   </G>
                 );
               })}
-
-              {/* BARRAS VERTICAIS DINÂMICAS */}
               {tempoOperacaoMock.map((item, index) => {
                 const stepX = drawingWidth / tempoOperacaoMock.length;
                 const barWidth = Math.min(24, stepX * 0.8);
@@ -660,50 +610,44 @@ export default function Analises() {
                   <G key={`bar-v-${item.label}`}>
                     <Rect x={xPos} y={yPos} width={barWidth} height={barH} rx={4} fill="#00A0A6" />
                     <Rect x={xPos} y={yPos + 4} width={barWidth} height={Math.max(0, barH - 4)} fill="#00A0A6" />
-
-                    <SvgText x={xCenter} y={yPos - 6} fill="#666666" fontSize="12" fontFamily="Outfit_700Bold" textAnchor="middle">
-                      {item.value}
-                    </SvgText>
-
-                    <SvgText x={xCenter} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
-                      {item.label}
-                    </SvgText>
+                    <SvgText x={xCenter} y={yPos - 6} fill="#666666" fontSize="12" fontFamily="Outfit_700Bold" textAnchor="middle">{item.value}</SvgText>
+                    <SvgText x={xCenter} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">{item.label}</SvgText>
                   </G>
                 );
               })}
-
-              {/* LINHA BASE DO EIXO X */}
               <Line x1={leftAxisWidth} y1={topPadding + chartInnerHeight} x2={leftAxisWidth + drawingWidth} y2={topPadding + chartInnerHeight} stroke="#0D0D0D" strokeWidth="1" />
             </Svg>
           )}
-
           <Text className="text-xs font-outfit-bold text-center mt-2">Pivôs</Text>
         </View>
       </View>
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* ========================================================================= */}
-      {/* // * Gráfico 3: Consumo de Água por Hora (Barras Verticais SVG) */}
-      {/* ========================================================================= */}
+      {/* GRÁFICO 3 */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
-          <Text className="font-outfit-bold text-wrap w-[140px]">
-            Consumo de Água por Hora
-          </Text>
+          <Text className="font-outfit-bold text-wrap w-[140px]">Consumo de Água por Hora</Text>
           <View className="flex-row gap-2 items-center">
-            <Select onOpenChange={setAguaOpen}>
+            <Select 
+              onOpenChange={setAguaOpen}
+              onValueChange={(option) => { if (option) setFiltroAgua(option.value); }}
+              defaultValue={{ value: "todos", label: "Todos os Pivôs" }}
+            >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${aguaOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[140px] cursor-pointer hover:opacity-90 ${aguaOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Pivô" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[100px] ${aguaOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[140px] ${aguaOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
+                  <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
+                    Todos os Pivôs
+                  </SelectItem>
                   {pivosDropdownOptions.map((pivo, index) => (
                     <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {pivo.nome_pivo}
@@ -723,20 +667,15 @@ export default function Analises() {
 
           {(containerWidth > 0 || Platform.OS === 'web') && (
             <Svg width={containerWidth || "100%"} height={chartHeight}>
-              {/* LINHAS HORIZONTAIS DE GRADE */}
               {aguaSteps.map((currentStep) => {
                 const yPos = topPadding + chartInnerHeight - (currentStep / aguaMax) * chartInnerHeight;
                 return (
                   <G key={`grid-h-agua-${currentStep}`}>
                     <Line x1={leftAxisWidth} y1={yPos} x2={leftAxisWidth + drawingWidth} y2={yPos} stroke="#CACACA" strokeWidth="1" />
-                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
-                      {currentStep}
-                    </SvgText>
+                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">{currentStep}</SvgText>
                   </G>
                 );
               })}
-
-              {/* BARRAS VERTICAIS DINÂMICAS */}
               {consumoAguaMock.map((item, index) => {
                 const stepX = drawingWidth / consumoAguaMock.length;
                 const barWidth = Math.min(28, stepX * 0.8);
@@ -749,19 +688,11 @@ export default function Analises() {
                   <G key={`bar-v-agua-${item.label}`}>
                     <Rect x={xPos} y={yPos} width={barWidth} height={barH} rx={4} fill="#00A0A6" />
                     <Rect x={xPos} y={yPos + 4} width={barWidth} height={Math.max(0, barH - 4)} fill="#00A0A6" />
-
-                    <SvgText x={xCenter} y={yPos - 6} fill="#666666" fontSize="12" fontFamily="Outfit_700Bold" textAnchor="middle">
-                      {item.value}
-                    </SvgText>
-
-                    <SvgText x={xCenter} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
-                      {item.label}
-                    </SvgText>
+                    <SvgText x={xCenter} y={yPos - 6} fill="#666666" fontSize="12" fontFamily="Outfit_700Bold" textAnchor="middle">{item.value}</SvgText>
+                    <SvgText x={xCenter} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">{item.label}</SvgText>
                   </G>
                 );
               })}
-
-              {/* LINHA BASE DO EIXO X */}
               <Line x1={leftAxisWidth} y1={topPadding + chartInnerHeight} x2={leftAxisWidth + drawingWidth} y2={topPadding + chartInnerHeight} stroke="#0D0D0D" strokeWidth="1" />
             </Svg>
           )}
@@ -770,25 +701,30 @@ export default function Analises() {
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* ========================================================================= */}
-      {/* // * Gráfico 4: Consumo de Energia (Linhas SVG) */}
-      {/* ========================================================================= */}
+      {/* GRÁFICO 4 */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold text-wrap">Consumo de Energia</Text>
           <View className="flex-row gap-2 items-center">
-            <Select onOpenChange={setEnergiaOpen}>
+            <Select 
+              onOpenChange={setEnergiaOpen}
+              onValueChange={(option) => { if (option) setFiltroEnergia(option.value); }}
+              defaultValue={{ value: "todos", label: "Todos os Pivôs" }}
+            >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[100px] cursor-pointer hover:opacity-90 ${energiaOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white w-[140px] cursor-pointer hover:opacity-90 ${energiaOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Pivô" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[100px] ${energiaOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[140px] ${energiaOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
+                  <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
+                    Todos os Pivôs
+                  </SelectItem>
                   {pivosDropdownOptions.map((pivo, index) => (
                     <SelectItem key={pivo.id} label={pivo.nome_pivo} value={pivo.id} className={index % 2 === 0 ? "bg-[#E1E1E1]" : "bg-transparent"}>
                       {pivo.nome_pivo}
@@ -804,38 +740,25 @@ export default function Analises() {
         </View>
 
         <View className="bg-white border-[2px] border-[#cacaca] rounded-[12px] pt-4 pl-2 pb-3 w-full overflow-hidden">
-          {/* HEADER: Título do Eixo e Legenda Customizada */}
           <View className="flex-row justify-between items-center mb-6 pl-1">
             <Text className="text-xs font-outfit-bold text-texto">KWh</Text>
             <View className="flex-row items-center gap-4 pr-2">
-              <View className="flex-row items-center gap-1.5">
-                <View className="w-6 h-4 rounded-full bg-primaria-azul" />
-                <Text className="text-xs">Real</Text>
-              </View>
-              <View className="flex-row items-center gap-1.5">
-                <View className="w-6 h-4 rounded-full bg-primaria-verde" />
-                <Text className="text-xs">Estimado</Text>
-              </View>
+              <View className="flex-row items-center gap-1.5"><View className="w-6 h-4 rounded-full bg-primaria-azul" /><Text className="text-xs">Real</Text></View>
+              <View className="flex-row items-center gap-1.5"><View className="w-6 h-4 rounded-full bg-primaria-verde" /><Text className="text-xs">Estimado</Text></View>
             </View>
           </View>
 
-          {/* GRÁFICO DE LINHAS EM SVG DINÂMICO */}
           {(containerWidth > 0 || Platform.OS === 'web') && (
             <Svg width={containerWidth || "100%"} height={chartHeight}>
-              {/* LINHAS HORIZONTAIS DE GRADE */}
               {energiaSteps.map((currentStep) => {
                 const yPos = topPadding + chartInnerHeight - (currentStep / energiaMax) * chartInnerHeight;
                 return (
                   <G key={`grid-h-ene-${currentStep}`}>
                     <Line x1={leftAxisWidth} y1={yPos} x2={leftAxisWidth + drawingWidth} y2={yPos} stroke="#CACACA" strokeWidth="1" />
-                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">
-                      {currentStep}
-                    </SvgText>
+                    <SvgText x={leftAxisWidth - 10} y={yPos + 4} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="end">{currentStep}</SvgText>
                   </G>
                 );
               })}
-
-              {/* PATHS (LINHAS DOS GRÁFICOS) */}
               <Path
                 d={`M ${consumoEnergiaMock.map((item, i) => {
                   const stepX = drawingWidth / consumoEnergiaMock.length;
@@ -843,11 +766,8 @@ export default function Analises() {
                   const y = topPadding + chartInnerHeight - (item.real / energiaMax) * chartInnerHeight;
                   return `${x} ${y}`;
                 }).join(" L ")}`}
-                fill="none"
-                stroke="#00A0A6"
-                strokeWidth="2"
+                fill="none" stroke="#00A0A6" strokeWidth="2"
               />
-
               <Path
                 d={`M ${consumoEnergiaMock.map((item, i) => {
                   const stepX = drawingWidth / consumoEnergiaMock.length;
@@ -855,43 +775,27 @@ export default function Analises() {
                   const y = topPadding + chartInnerHeight - (item.estimado / energiaMax) * chartInnerHeight;
                   return `${x} ${y}`;
                 }).join(" L ")}`}
-                fill="none"
-                stroke="#0AA146"
-                strokeWidth="2"
+                fill="none" stroke="#0AA146" strokeWidth="2"
               />
-
-              {/* PONTOS (BOLINHAS) E TEXTOS */}
               {consumoEnergiaMock.map((item, index) => {
                 const stepX = drawingWidth / consumoEnergiaMock.length;
                 const xPos = leftAxisWidth + index * stepX + stepX / 2;
-                
                 const yReal = topPadding + chartInnerHeight - (item.real / energiaMax) * chartInnerHeight;
                 const yEstimado = topPadding + chartInnerHeight - (item.estimado / energiaMax) * chartInnerHeight;
-                
-                // Lógica de posição (cima ou baixo) para os números não se encavalarem
                 const isRealMaior = item.real >= item.estimado;
                 const txtYReal = isRealMaior || item.real === 0 ? yReal - 10 : yReal + 16;
                 const txtYEstimado = !isRealMaior || item.estimado === 0 ? yEstimado - 10 : yEstimado + 16;
 
                 return (
                   <G key={`points-ene-${item.label}`}>
-                    <SvgText x={xPos} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">
-                      {item.label}
-                    </SvgText>
-
+                    <SvgText x={xPos} y={chartHeight - bottomPadding + 20} fill="#0D0D0D" fontSize="12" fontFamily="Outfit_400Regular" textAnchor="middle">{item.label}</SvgText>
                     <Circle cx={xPos} cy={yReal} r={4} fill="#FFFFFF" stroke="#00A0A6" strokeWidth={2} />
-                    <SvgText x={xPos} y={txtYReal} fill="#00A0A6" fontSize="10" fontFamily="Outfit_700Bold" textAnchor="middle">
-                      {item.real}
-                    </SvgText>
-
+                    <SvgText x={xPos} y={txtYReal} fill="#00A0A6" fontSize="10" fontFamily="Outfit_700Bold" textAnchor="middle">{item.real}</SvgText>
                     <Circle cx={xPos} cy={yEstimado} r={4} fill="#FFFFFF" stroke="#0AA146" strokeWidth={2} />
-                    <SvgText x={xPos} y={txtYEstimado} fill="#0AA146" fontSize="10" fontFamily="Outfit_700Bold" textAnchor="middle">
-                      {item.estimado}
-                    </SvgText>
+                    <SvgText x={xPos} y={txtYEstimado} fill="#0AA146" fontSize="10" fontFamily="Outfit_700Bold" textAnchor="middle">{item.estimado}</SvgText>
                   </G>
                 );
               })}
-
               <Line x1={leftAxisWidth} y1={topPadding + chartInnerHeight} x2={leftAxisWidth + drawingWidth} y2={topPadding + chartInnerHeight} stroke="#0D0D0D" strokeWidth="1" />
             </Svg>
           )}
@@ -901,9 +805,9 @@ export default function Analises() {
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
       {/* // * Log (Integrado com Banco) */}
-      <View className="self-stretch gap-5">
+      <View className="gap-y-5 mt-2 w-full">
         <View className="flex-row w-full justify-between items-center">
-          <Text className="font-outfit-bold text-wrap">Log</Text>
+          <Text className="font-outfit-bold text-lg">Histórico (Logs)</Text>
           <View className="flex-row gap-2 items-center">
             <Select 
               onOpenChange={setLogOpen}
@@ -912,13 +816,13 @@ export default function Analises() {
             >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white h-[40px] w-[130px] cursor-pointer hover:opacity-90 ${logOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`border-[1px] border-[#b8b8b8] bg-white h-[40px] w-[140px] cursor-pointer hover:opacity-90 ${logOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Todos os Pivôs" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[130px] ${logOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[140px] ${logOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
                   <SelectItem key="todos" label="Todos os Pivôs" value="todos" className="bg-transparent">
@@ -932,11 +836,16 @@ export default function Analises() {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Pressable className="active:opacity-50 hover:opacity-80 cursor-pointer transition-opacity bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
-              <Download size={24} color="white" strokeWidth={2.5} />
-            </Pressable>
           </View>
         </View>
+
+        {/* 👉 BOTÃO ADICIONADO PARA A TELA CHEIA (Logs) */}
+        <Button
+          className="rounded-md w-full bg-secundaria-azul h-[40px] px-3 active:opacity-70"
+          onPress={() => router.push({ pathname: "/(tabs)/analise/analiseLogs" } as any)}
+        >
+          <Text className="text-white font-outfit-medium">Ver Tabela Completa</Text>
+        </Button>
 
         <Table data={logsPreview} columns={colunasLog} />
       </View>
