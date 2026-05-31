@@ -78,46 +78,46 @@ const fazendas = [
 
 // * GRÁFICOS
 export const tempoOperacaoMock = [
-  { label: "01", value: 4 },
-  { label: "02", value: 25 },
-  { label: "03", value: 21 },
-  { label: "04", value: 9 },
-  { label: "05", value: 13 },
-  { label: "06", value: 10 },
-  { label: "07", value: 6 },
-  { label: "08", value: 22 },
-  { label: "09", value: 19 },
-  { label: "10", value: 8 },
+  { pivo: "01", value: 4 },
+  { pivo: "02", value: 25 },
+  { pivo: "03", value: 21 },
+  { pivo: "04", value: 9 },
+  { pivo: "05", value: 13 },
+  { pivo: "06", value: 10 },
+  { pivo: "07", value: 6 },
+  { pivo: "08", value: 22 },
+  { pivo: "09", value: 19 },
+  { pivo: "10", value: 8 },
 ];
 
 export const falhasPeriodoMock = [
-  { label: "Jul", value: 4 },
-  { label: "Jun", value: 2 },
-  { label: "Mai", value: 8 },
-  { label: "Abr", value: 5 },
-  { label: "Mar", value: 4 },
-  { label: "Feb", value: 15 },
-  { label: "Jan", value: 1 },
+  { mes: "Jul", value: 4 },
+  { mes: "Jun", value: 2 },
+  { mes: "Mai", value: 8 },
+  { mes: "Abr", value: 5 },
+  { mes: "Mar", value: 4 },
+  { mes: "Feb", value: 15 },
+  { mes: "Jan", value: 1 },
 ];
 
 export const consumoAguaMock = [
-  { label: "Seg", value: 110 },
-  { label: "Ter", value: 200 },
-  { label: "Qua", value: 150 },
-  { label: "Qui", value: 80 },
-  { label: "Sex", value: 130 },
-  { label: "Sab", value: 110 },
-  { label: "Dom", value: 130 },
+  { dia: "Seg", value: 110 },
+  { dia: "Ter", value: 200 },
+  { dia: "Qua", value: 150 },
+  { dia: "Qui", value: 80 },
+  { dia: "Sex", value: 130 },
+  { dia: "Sab", value: 110 },
+  { dia: "Dom", value: 130 },
 ];
 
 export const consumoEnergiaMock = [
-  { label: "Seg", real: 190, estimado: 0 },
-  { label: "Ter", real: 300, estimado: 230 },
-  { label: "Qua", real: 240, estimado: 300 },
-  { label: "Qui", real: 80, estimado: 260 },
-  { label: "Sex", real: 210, estimado: 370 },
-  { label: "Sab", real: 215, estimado: 300 },
-  { label: "Dom", real: 180, estimado: 240 },
+  { dia: "Seg", real: 190, estimado: 0 },
+  { dia: "Ter", real: 300, estimado: 230 },
+  { dia: "Qua", real: 240, estimado: 300 },
+  { dia: "Qui", real: 80, estimado: 260 },
+  { dia: "Sex", real: 210, estimado: 370 },
+  { dia: "Sab", real: 215, estimado: 300 },
+  { dia: "Dom", real: 180, estimado: 240 },
 ];
 
 export default function Analises() {
@@ -759,7 +759,7 @@ export default function Analises() {
                 const barY = rowCenterY - barHeight / 2;
 
                 return (
-                  <G key={`bar-${item.label}`}>
+                  <G key={`bar-${item.mes}`}>
                     <SvgText
                       x={leftAxisWidth - 10}
                       y={rowCenterY + 4}
@@ -768,7 +768,7 @@ export default function Analises() {
                       fontFamily="Outfit_400Regular"
                       textAnchor="end"
                     >
-                      {item.label}
+                      {item.mes}
                     </SvgText>
                     <Rect
                       x={leftAxisWidth}
@@ -917,7 +917,7 @@ export default function Analises() {
                 const yPos = topPadding + chartInnerHeight - barH;
 
                 return (
-                  <G key={`bar-v-${item.label}`}>
+                  <G key={`bar-v-${item.pivo}`}>
                     <Rect
                       x={xPos}
                       y={yPos}
@@ -951,7 +951,7 @@ export default function Analises() {
                       fontFamily="Outfit_400Regular"
                       textAnchor="middle"
                     >
-                      {item.label}
+                      {item.pivo}
                     </SvgText>
                   </G>
                 );
@@ -1085,7 +1085,7 @@ export default function Analises() {
                 const yPos = topPadding + chartInnerHeight - barH;
 
                 return (
-                  <G key={`bar-v-agua-${item.label}`}>
+                  <G key={`bar-v-agua-${item.dia}`}>
                     <Rect
                       x={xPos}
                       y={yPos}
@@ -1119,7 +1119,7 @@ export default function Analises() {
                       fontFamily="Outfit_400Regular"
                       textAnchor="middle"
                     >
-                      {item.label}
+                      {item.dia}
                     </SvgText>
                   </G>
                 );
@@ -1301,7 +1301,7 @@ export default function Analises() {
                     : yEstimado + 16;
 
                 return (
-                  <G key={`points-ene-${item.label}`}>
+                  <G key={`points-ene-${item.dia}`}>
                     <SvgText
                       x={xPos}
                       y={chartHeight - bottomPadding + 20}
@@ -1310,7 +1310,7 @@ export default function Analises() {
                       fontFamily="Outfit_400Regular"
                       textAnchor="middle"
                     >
-                      {item.label}
+                      {item.dia}
                     </SvgText>
                     <Circle
                       cx={xPos}
