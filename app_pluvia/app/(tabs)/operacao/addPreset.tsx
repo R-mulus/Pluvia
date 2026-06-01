@@ -1,3 +1,15 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA]
+ *
+ * MODIFICAÇÕES REALIZADAS PARA CORREÇÃO DO LAYOUT WEB:
+ * 1. KEYBOARDAVOIDINGVIEW: Adicionado width: "100%" para ocupar corretamente a largura na Web.
+ * 2. SCROLLVIEW: Adicionado keyboardShouldPersistTaps="handled" e gap no contentContainerStyle.
+ * 3. HEADER: Mantido full-width fora do container centralizado, seguindo o padrão das telas de cadastro.
+ * 4. FORMULÁRIO CENTRALIZADO: Adicionado container responsivo:
+ *    - Mobile: largura total (comportamento original).
+ *    - Web: max-w-2xl + mx-auto para limitar largura e centralizar conteúdo.
+ */
+
 import * as React from "react";
 import { View, Pressable, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator } from "react-native";
 import { Button } from "@/components/ui/button";
