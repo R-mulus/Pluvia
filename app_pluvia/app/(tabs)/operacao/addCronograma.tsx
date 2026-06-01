@@ -12,30 +12,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { useRouter, useGlobalSearchParams } from "expo-router"; // <-- Alterado para Global
+import { useRouter, useGlobalSearchParams } from "expo-router";
 import { Screen } from "@/components/custom/Screen";
 import Header from "@/components/custom/Header";
 import {
   CalendarClock,
-  Plus,
-  X,
-  Droplet,
-  DropletOff,
-  RotateCw,
-  RotateCcw,
-  Layers,
-  RefreshCw,
-  Save,
-  ArrowUp,
-  ArrowDown,
-  Tag,
   Clock,
+  Save,
+  Plus,
+  Layers,
 } from "lucide-react-native";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import PresetCard from "@/components/custom/PresetCard";
-
 import { useCriarCronograma } from "@/hooks/api/useCronogramas";
 import { usePresetsPivo } from "@/hooks/api/usePresets";
 
@@ -44,7 +34,7 @@ interface PassoSelecionado {
   preset: any;
 }
 
-// O Matador de Bugs de Fuso Horário
+// Neutraliza fuso horário (mantido)
 const neutralizarFusoHorario = (date: Date) => {
   const tzOffset = date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() - tzOffset).toISOString();
@@ -52,20 +42,37 @@ const neutralizarFusoHorario = (date: Date) => {
 
 export default function AdicionarCronograma() {
   const router = useRouter();
-  const { pivo_id } = useGlobalSearchParams(); // <- Evita undefined (ZodError)
-
-  const { data: bibliotecaPresets, isPending: isLoadingPresets } =
-    usePresetsPivo(pivo_id as string);
-  const { mutateAsync: criarCronograma, isPending: isCriando } =
-    useCriarCronograma();
+  const { pivo_id } = useGlobalSearchParams();
+  const { data: bibliotecaPresets, isPending: isLoadingPresets } = usePresetsPivo(pivo_id as string);
+  const { mutateAsync: criarCronograma, isPending: isCriando } = useCriarCronograma();
 
   const [nomeCronograma, setNomeCronograma] = useState("");
   const [passos, setPassos] = useState<PassoSelecionado[]>([]);
-
   const [horarioInicio, setHorarioInicio] = useState<Date>(new Date());
-  const [pickerConfig, setPickerConfig] = useState<"date" | "time" | null>(
-    null,
-  );
+  const [pickerConfig, setPickerConfig] = useState<"date" | "time" | null>(null);
+
+  // ==================== HANDLERS ====================
+
+  const handlePickerChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    if (Platform.OS === "android") setPickerConfig(null);
+    if (selectedDate) setHorarioInicio(selectedDate);
+  };
+
+  // Para Web - Atualiza data
+  const handleDateChangeWeb = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [year, month, day] = e.target.value.split("-").map(Number);
+    const newDate = new Date(horarioInicio);
+    newDate.setFullYear(year, month - 1, day);
+    setHorarioInicio(newDate);
+  };
+
+  // Para Web - Atualiza hora
+  const handleTimeChangeWeb = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const [hours, minutes] = e.target.value.split(":").map(Number);
+    const newDate = new Date(horarioInicio);
+    newDate.setHours(hours, minutes, 0, 0);
+    setHorarioInicio(newDate);
+  };
 
   const adicionarPasso = (preset: any) => {
     setPassos([...passos, { id_temporario: Math.random().toString(), preset }]);
@@ -78,55 +85,35 @@ export default function AdicionarCronograma() {
   const moverPasso = (index: number, direcao: "cima" | "baixo") => {
     if (direcao === "cima" && index === 0) return;
     if (direcao === "baixo" && index === passos.length - 1) return;
+
     const novosPassos = [...passos];
     const swapIndex = direcao === "cima" ? index - 1 : index + 1;
-    const temp = novosPassos[index];
-    novosPassos[index] = novosPassos[swapIndex];
-    novosPassos[swapIndex] = temp;
+    [novosPassos[index], novosPassos[swapIndex]] = [novosPassos[swapIndex], novosPassos[index]];
     setPassos(novosPassos);
-  };
-
-  const handlePickerChange = (
-    event: DateTimePickerEvent,
-    selectedDate?: Date,
-  ) => {
-    if (Platform.OS === "android") setPickerConfig(null);
-    if (selectedDate) setHorarioInicio(selectedDate);
   };
 
   const handleSalvar = async () => {
     try {
-      if (!pivo_id)
-        return Alert.alert(
-          "Erro",
-          "ID do pivô não encontrado. Volte e tente novamente.",
-        );
-      if (!nomeCronograma)
-        return Alert.alert("Aviso", "Dê um nome para o cronograma.");
-      if (passos.length === 0)
-        return Alert.alert("Aviso", "Adicione pelo menos um passo.");
+      if (!pivo_id) return Alert.alert("Erro", "ID do pivô não encontrado.");
+      if (!nomeCronograma) return Alert.alert("Aviso", "Dê um nome para o cronograma.");
+      if (passos.length === 0) return Alert.alert("Aviso", "Adicione pelo menos um passo.");
 
-      const isUUID = (str: string) =>
-        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i.test(
-          str,
-        );
-
-      const passosFormatados = passos.map((p, index) => ({
-        preset_origem_id: isUUID(p.preset.id) ? p.preset.id : undefined,
-        nome: p.preset.nome,
-        lamina: p.preset.lamina,
-        angulo_inicial: p.preset.angulo_inicial,
-        angulo_final: p.preset.angulo_final,
-        irrigacao: p.preset.irrigacao,
-        direcao: p.preset.direcao,
-        ordem: index + 1,
-      }));
+      const isUUID = (str: string) => /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i.test(str);
 
       const payload = {
         pivo_id: pivo_id as string,
         nome: nomeCronograma,
-        horario_inicio: neutralizarFusoHorario(horarioInicio), // Aplicando a blindagem de fuso
-        passos: passosFormatados,
+        horario_inicio: neutralizarFusoHorario(horarioInicio),
+        passos: passos.map((p, index) => ({
+          preset_origem_id: isUUID(p.preset.id) ? p.preset.id : undefined,
+          nome: p.preset.nome,
+          lamina: p.preset.lamina,
+          angulo_inicial: p.preset.angulo_inicial,
+          angulo_final: p.preset.angulo_final,
+          irrigacao: p.preset.irrigacao,
+          direcao: p.preset.direcao,
+          ordem: index + 1,
+        })),
       };
 
       await criarCronograma(payload);
@@ -137,35 +124,23 @@ export default function AdicionarCronograma() {
     }
   };
 
+  // ==================== RENDER ====================
+
+  const isWeb = Platform.OS === "web";
+
   return (
     <Screen>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}
-        >
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}>
           <View className="flex-row justify-between mb-6">
-            <Header
-              title="Novo Cronograma"
-              subtitle="Planejamento de Execução"
-            />
-            <Pressable
-              onPress={handleSalvar}
-              disabled={isCriando}
-              className="bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center active:opacity-50"
-            >
-              {isCriando ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Save size={20} color="white" strokeWidth={2.5} />
-              )}
+            <Header title="Novo Cronograma" subtitle="Planejamento de Execução" />
+            <Pressable onPress={handleSalvar} disabled={isCriando} className="bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center active:opacity-50">
+              {isCriando ? <ActivityIndicator size="small" color="white" /> : <Save size={20} color="white" strokeWidth={2.5} />}
             </Pressable>
           </View>
 
           <View className="gap-6 flex-1">
+            {/* === Dados Básicos === */}
             <View className="gap-4 bg-white p-4 rounded-[12px] border-[2px] border-secundaria-azul/30">
               <View className="gap-1">
                 <Text className="text-xs text-subtexto">Nome da Execução</Text>
@@ -176,37 +151,77 @@ export default function AdicionarCronograma() {
                   placeholder="Ex: Manejo Fim de Semana"
                 />
               </View>
+
+              {/* === Data e Hora - Web vs Mobile === */}
+              {/* === Data e Hora - Web vs Mobile === */}
               <View className="flex-row gap-4">
+                
+                {/* === DATA === */}
                 <View className="flex-1">
-                  <Text className="text-xs text-subtexto mb-1">
-                    Data de Início
-                  </Text>
-                  <Pressable
-                    onPress={() => setPickerConfig("date")}
-                    className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center gap-2"
-                  >
-                    <CalendarClock size={18} color="#00A0A6" />
-                    <Text className="font-outfit-medium text-texto">
-                      {horarioInicio.toLocaleDateString("pt-BR")}
-                    </Text>
-                  </Pressable>
+                  <Text className="text-xs text-subtexto mb-1">Data de Início</Text>
+                  
+                  {isWeb ? (
+                    <View className="relative">
+                      <View className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+                        <CalendarClock size={18} color="#00A0A6" />
+                      </View>
+                      <input
+                        type="date"
+                        value={horarioInicio.toISOString().split("T")[0]}
+                        onChange={handleDateChangeWeb}
+                        className="w-full h-12 pl-11 pr-4 rounded-[12px] border border-[#cacaca] bg-white text-base 
+                                  focus:outline-none focus:border-primaria-azul focus:ring-2 focus:ring-primaria-azul/20
+                                  transition-all duration-200 cursor-pointer"
+                      />
+                    </View>
+                  ) : (
+                    <Pressable
+                      onPress={() => setPickerConfig("date")}
+                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center gap-2 active:opacity-70"
+                    >
+                      <CalendarClock size={18} color="#00A0A6" />
+                      <Text className="font-outfit-medium text-texto">
+                        {horarioInicio.toLocaleDateString("pt-BR")}
+                      </Text>
+                    </Pressable>
+                  )}
                 </View>
+
+                {/* === HORA === */}
                 <View className="flex-1">
-                  <Text className="text-xs text-subtexto mb-1">
-                    Hora de Início
-                  </Text>
-                  <Pressable
-                    onPress={() => setPickerConfig("time")}
-                    className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center gap-2"
-                  >
-                    <Clock size={18} color="#00A0A6" />
-                    <Text className="font-outfit-medium text-texto">
-                      {horarioInicio.toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Text>
-                  </Pressable>
+                  <Text className="text-xs text-subtexto mb-1">Hora de Início</Text>
+                  
+                  {isWeb ? (
+                    <View className="relative">
+                      <View className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+                        <Clock size={18} color="#00A0A6" />
+                      </View>
+                      <input
+                        type="time"
+                        value={horarioInicio.toLocaleTimeString("pt-BR", { 
+                          hour: "2-digit", 
+                          minute: "2-digit" 
+                        })}
+                        onChange={handleTimeChangeWeb}
+                        className="w-full h-12 pl-11 pr-4 rounded-[12px] border border-[#cacaca] bg-white text-base 
+                                  focus:outline-none focus:border-primaria-azul focus:ring-2 focus:ring-primaria-azul/20
+                                  transition-all duration-200 cursor-pointer"
+                      />
+                    </View>
+                  ) : (
+                    <Pressable
+                      onPress={() => setPickerConfig("time")}
+                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center gap-2 active:opacity-70"
+                    >
+                      <Clock size={18} color="#00A0A6" />
+                      <Text className="font-outfit-medium text-texto">
+                        {horarioInicio.toLocaleTimeString("pt-BR", { 
+                          hour: "2-digit", 
+                          minute: "2-digit" 
+                        })}
+                      </Text>
+                    </Pressable>
+                  )}
                 </View>
               </View>
             </View>
@@ -276,7 +291,8 @@ export default function AdicionarCronograma() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {pickerConfig && (
+      {/* DateTimePicker Nativo (somente mobile) */}
+      {!isWeb && pickerConfig && (
         <DateTimePicker
           value={horarioInicio}
           mode={pickerConfig}
@@ -285,12 +301,11 @@ export default function AdicionarCronograma() {
           onChange={handlePickerChange}
         />
       )}
+
+      {/* Botão confirmar no iOS */}
       {Platform.OS === "ios" && pickerConfig && (
         <View className="absolute bottom-0 w-full bg-white p-4 border-t-[1px] border-[#cacaca] z-50">
-          <Button
-            onPress={() => setPickerConfig(null)}
-            className="bg-primaria-azul"
-          >
+          <Button onPress={() => setPickerConfig(null)} className="bg-primaria-azul">
             <Text className="text-white">Confirmar Seleção</Text>
           </Button>
         </View>
@@ -298,3 +313,7 @@ export default function AdicionarCronograma() {
     </Screen>
   );
 }
+
+
+
+

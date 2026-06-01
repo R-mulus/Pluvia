@@ -1,6 +1,18 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA]
+ *
+ * MODIFICAÇÕES REALIZADAS PARA CORREÇÃO DO LAYOUT WEB:
+ * 1. KEYBOARDAVOIDINGVIEW: Adicionado width: "100%" para ocupar corretamente a largura na Web.
+ * 2. SCROLLVIEW: Adicionado keyboardShouldPersistTaps="handled" e gap no contentContainerStyle.
+ * 3. HEADER: Mantido full-width fora do container centralizado, seguindo o padrão das telas de cadastro.
+ * 4. FORMULÁRIO CENTRALIZADO: Adicionado container responsivo:
+ *    - Mobile: largura total (comportamento original).
+ *    - Web: max-w-2xl + mx-auto para limitar largura e centralizar conteúdo.
+ */
+
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { View, Pressable, ActivityIndicator, Alert, ScrollView } from "react-native";
+import { View, Pressable, ActivityIndicator, Alert, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -118,61 +130,212 @@ export default function EditarPresetBiblioteca() {
         }} 
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="flex-row justify-between mb-8">
-          <Header title={nome || "Preset"} subtitle="Editar Predefinição" />
-          <Pressable onPress={handleSalvar} disabled={isSalvando} className="bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center">
-            {isSalvando ? <ActivityIndicator size="small" color="white" /> : <Save size={20} color="white" />}
-          </Pressable>
-        </View>
+      <KeyboardAvoidingView
+        style={{ flex: 1, width: "100%" }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingBottom: 40,
+            gap: 24,
+          }}
+        >
+          <View className="flex-row justify-between items-start">
+            <Header
+              title={nome || "Preset"}
+              subtitle="Editar Predefinição"
+            />
 
-        <View className="gap-6">
-          <View className="gap-1">
-            <Text className="text-xs text-subtexto">Nome do Molde</Text>
-            <Input value={nome} onChangeText={setNome} className="rounded-[12px] border-[2px] bg-white border-secundaria-azul" />
+            <Pressable
+              onPress={handleSalvar}
+              disabled={isSalvando}
+              className="bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center"
+            >
+              {isSalvando ? (
+                <ActivityIndicator size="small" color="white" />
+              ) : (
+                <Save size={20} color="white" />
+              )}
+            </Pressable>
           </View>
 
-          <View className="flex-row gap-4">
-             <View className="flex-1 gap-1">
-               <Text className="text-xs text-subtexto">Lâmina (mm)</Text>
-               <Input value={lamina} onChangeText={setLamina} keyboardType="numeric" className="rounded-[12px] border-l-[16px] border-l-secundaria-azul bg-white" />
-             </View>
-             <View className="flex-1 gap-1">
-               <Text className="text-xs text-subtexto">Início (°)</Text>
-               <Input value={anguloInicial} onChangeText={setAnguloInicial} keyboardType="numeric" className="rounded-[12px] border-l-[16px] border-l-secundaria-azul bg-white" />
-             </View>
-             <View className="flex-1 gap-1">
-               <Text className="text-xs text-subtexto">Final (°)</Text>
-               <Input value={anguloFinal} onChangeText={setAnguloFinal} keyboardType="numeric" className="rounded-[12px] border-l-[16px] border-l-secundaria-azul bg-white" />
-             </View>
-          </View>
+          <View className="w-full web:max-w-2xl web:mx-auto self-center gap-6">
+            <View className="gap-6">
+              <View className="gap-1">
+                <Text className="text-xs text-subtexto">
+                  Nome do Molde
+                </Text>
 
-          <View className="gap-2">
-            <Text className="text-sm font-outfit">Irrigação</Text>
-            <View className="flex-row items-center gap-3">
-              <Text className={!isIrrigating ? "font-outfit-bold" : "text-subtexto"}>Não</Text>
-              <Switch checked={isIrrigating} onCheckedChange={setIsIrrigating} />
-              <Text className={isIrrigating ? "font-outfit-bold" : "text-subtexto"}>Sim</Text>
+                <Input
+                  value={nome}
+                  onChangeText={setNome}
+                  className="rounded-[12px] border-[2px] bg-white border-secundaria-azul"
+                />
+              </View>
+
+              <View className="flex-row gap-4">
+                <View className="flex-1 gap-1">
+                  <Text className="text-xs text-subtexto">
+                    Lâmina (mm)
+                  </Text>
+
+                  <Input
+                    value={lamina}
+                    onChangeText={setLamina}
+                    keyboardType="numeric"
+                    className="rounded-[12px] border-l-[16px] border-l-secundaria-azul bg-white"
+                  />
+                </View>
+
+                <View className="flex-1 gap-1">
+                  <Text className="text-xs text-subtexto">
+                    Início (°)
+                  </Text>
+
+                  <Input
+                    value={anguloInicial}
+                    onChangeText={setAnguloInicial}
+                    keyboardType="numeric"
+                    className="rounded-[12px] border-l-[16px] border-l-secundaria-azul bg-white"
+                  />
+                </View>
+
+                <View className="flex-1 gap-1">
+                  <Text className="text-xs text-subtexto">
+                    Final (°)
+                  </Text>
+
+                  <Input
+                    value={anguloFinal}
+                    onChangeText={setAnguloFinal}
+                    keyboardType="numeric"
+                    className="rounded-[12px] border-l-[16px] border-l-secundaria-azul bg-white"
+                  />
+                </View>
+              </View>
+
+              <View className="gap-2">
+                <Text className="text-sm font-outfit">
+                  Irrigação
+                </Text>
+
+                <View className="flex-row items-center gap-3">
+                  <Text
+                    className={
+                      !isIrrigating
+                        ? "font-outfit-bold"
+                        : "text-subtexto"
+                    }
+                  >
+                    Não
+                  </Text>
+
+                  <Switch
+                    checked={isIrrigating}
+                    onCheckedChange={setIsIrrigating}
+                  />
+
+                  <Text
+                    className={
+                      isIrrigating
+                        ? "font-outfit-bold"
+                        : "text-subtexto"
+                    }
+                  >
+                    Sim
+                  </Text>
+                </View>
+              </View>
+
+              <ToggleGroup
+                value={direcao}
+                onValueChange={(v) => v && setDirecao(v)}
+                type="single"
+                className="flex-row w-full gap-3"
+              >
+                <ToggleGroupItem
+                  value="reverso"
+                  className={`flex-1 flex-row gap-2 border-[2px] rounded-l-2xl border-primaria-azul h-12 ${
+                    direcao === "reverso"
+                      ? "bg-primaria-azul"
+                      : ""
+                  }`}
+                >
+                  <RotateCcw
+                    size={20}
+                    color={
+                      direcao === "reverso"
+                        ? "white"
+                        : "#00A0A6"
+                    }
+                  />
+
+                  <Text
+                    className={
+                      direcao === "reverso"
+                        ? "text-white"
+                        : "text-primaria-azul"
+                    }
+                  >
+                    Reverso
+                  </Text>
+                </ToggleGroupItem>
+
+                <ToggleGroupItem
+                  value="horario"
+                  className={`flex-1 flex-row gap-2 border-[2px] rounded-r-2xl border-primaria-azul h-12 ${
+                    direcao === "horario"
+                      ? "bg-primaria-azul"
+                      : ""
+                  }`}
+                >
+                  <Text
+                    className={
+                      direcao === "horario"
+                        ? "text-white"
+                        : "text-primaria-azul"
+                    }
+                  >
+                    Horário
+                  </Text>
+
+                  <RotateCw
+                    size={20}
+                    color={
+                      direcao === "horario"
+                        ? "white"
+                        : "#00A0A6"
+                    }
+                  />
+                </ToggleGroupItem>
+              </ToggleGroup>
+
+              <View className="flex-row gap-4 mt-10">
+                <Button
+                  onPress={handleVoltar}
+                  className="bg-incorreto flex-1 h-[45px] rounded-pluvia"
+                >
+                  <Text className="text-white">
+                    Cancelar
+                  </Text>
+                </Button>
+
+                <Button
+                  onPress={handleSalvar}
+                  className="bg-primaria-verde flex-1 h-[45px] rounded-pluvia"
+                >
+                  <Text className="text-white">
+                    Salvar Alterações
+                  </Text>
+                </Button>
+              </View>
             </View>
           </View>
-
-          <ToggleGroup value={direcao} onValueChange={(v) => v && setDirecao(v)} type="single" className="flex-row gap-3">
-             <ToggleGroupItem value="reverso" className={`flex-1 flex-row gap-2 border-[2px] rounded-l-2xl border-primaria-azul h-12 ${direcao === 'reverso' ? 'bg-primaria-azul' : ''}`}>
-                <RotateCcw size={20} color={direcao === 'reverso' ? 'white' : '#00A0A6'} />
-                <Text className={direcao === 'reverso' ? 'text-white' : 'text-primaria-azul'}>Reverso</Text>
-             </ToggleGroupItem>
-             <ToggleGroupItem value="horario" className={`flex-1 flex-row gap-2 border-[2px] rounded-r-2xl border-primaria-azul h-12 ${direcao === 'horario' ? 'bg-primaria-azul' : ''}`}>
-                <Text className={direcao === 'horario' ? 'text-white' : 'text-primaria-azul'}>Horário</Text>
-                <RotateCw size={20} color={direcao === 'horario' ? 'white' : '#00A0A6'} />
-             </ToggleGroupItem>
-          </ToggleGroup>
-
-          <View className="flex-row gap-4 mt-10">
-            <Button onPress={handleVoltar} className="bg-incorreto flex-1 h-[45px] rounded-pluvia"><Text className="text-white">Cancelar</Text></Button>
-            <Button onPress={handleSalvar} className="bg-primaria-verde flex-1 h-[45px] rounded-pluvia"><Text className="text-white">Salvar Alterações</Text></Button>
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
