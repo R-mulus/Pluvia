@@ -2,6 +2,7 @@
  * ✅ [PORTABILIDADE WEB CONCLUÍDA - TELA PIVÔ (COM FIX DO BOTÃO DE HISTÓRICO)]
  * * MODIFICAÇÕES REALIZADAS:
  * 1. FIX DE SOBREPOSIÇÃO (Botão Histórico): Removida a classe 'flex-1' do container que envolvia o título "Histórico" e o botão "Ver Tabela Completa". Na Web, o 'flex-1' em um container sem altura fixa faz o elemento colapsar, fazendo a tabela renderizar por cima do botão.
+ * 2. FIX DE FUSO HORÁRIO: Função `formatarDataSemFuso` adicionada para blindar o Javascript e impedir que a engine aplique fusos horários duplos ao ler timestamps puros do Supabase.
  */
 
 import React, { useMemo, useState } from "react";
@@ -12,7 +13,7 @@ import {
   Alert,
   Platform,
   useWindowDimensions,
-  DimensionValue, // [WEB FIX] Importado para a responsividade
+  DimensionValue,
 } from "react-native";
 import { Text } from "@/components/ui/text";
 import { FlashList } from "@shopify/flash-list";
@@ -90,6 +91,26 @@ const calcularTempoRestante = (
   return `${horas} h ${minutos} min`;
 };
 
+// 👉 Função blindada para ler timestamp sem fuso horário da base de dados
+const formatarDataSemFuso = (dataString: string) => {
+  if (!dataString) return { data: "--/--/----", hora: "--:--", completa: "" };
+  
+  // Remove o Z ou o offset para evitar que a engine web/mobile trate como UTC e aplique o fuso local
+  const dataLimpa = dataString.split('+')[0].replace('Z', '');
+  const [dataPart, horaPart] = dataLimpa.split('T');
+  
+  if (!dataPart || !horaPart) return { data: dataString, hora: "", completa: dataString };
+  
+  const [ano, mes, dia] = dataPart.split('-');
+  const [hora, minuto] = horaPart.split(':');
+  
+  return {
+    data: `${dia}/${mes}/${ano}`,
+    hora: `${hora}:${minuto}`,
+    completa: `${dia}/${mes}/${ano} às ${hora}:${minuto}`
+  };
+};
+
 // 1. COMPONENTE DO CABEÇALHO DA LISTA (Tudo acima da tabela)
 function TopoDaTela({
   pivo,
@@ -154,7 +175,8 @@ function TopoDaTela({
   const logsFormatados = useMemo(() => {
     if (!logs) return [];
     return logs.map((log: any) => {
-      const dateObj = new Date(log.timestamp);
+      // Usa nossa função utilitária para garantir que os logs não sofram saltos de fuso
+      const { data, hora } = formatarDataSemFuso(log.timestamp);
 
       let eventoTexto = log.tipo_evento;
       if (log.tipo_evento === "comando") eventoTexto = "Comando Manual";
@@ -178,18 +200,15 @@ function TopoDaTela({
 
       return {
         id: log.id.substring(0, 5).toUpperCase(),
-        data: dateObj.toLocaleDateString("pt-BR"),
-        hora: dateObj.toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        data: data,
+        hora: hora,
         evento: eventoTexto,
         operador: nomeOperador || "Sistema Autônomo",
       };
     });
   }, [logs]);
 
-  // 👉 NOVIDADE: Limita a tabela para apenas 10 itens na visualização do painel principal
+  // Limita a tabela para apenas 10 itens na visualização do painel principal
   const logsPreview = useMemo(
     () => logsFormatados.slice(0, 10),
     [logsFormatados],
@@ -448,10 +467,7 @@ function TopoDaTela({
                     <Clock size={16} color="#666666" />
                     <Text className="text-sm font-outfit-medium">
                       Início agendado:{" "}
-                      {new Date(cronogramaAtivo.horario_inicio).toLocaleString(
-                        "pt-BR",
-                        { dateStyle: "short", timeStyle: "short" },
-                      )}
+                      {formatarDataSemFuso(cronogramaAtivo.horario_inicio).completa}
                     </Text>
                   </View>
                 )}
@@ -481,13 +497,13 @@ function TopoDaTela({
                             stepNumber={index + 1}
                           />
                           
-                          {/* Linha Horizontal Conectora da Direita (Aparece se for Grid e não for o último elemento) */}
+                          {/* Linha Horizontal Conectora */}
                           {isGridAtivo && !isLast && (
                             <View className="absolute top-1/2 -right-4 -translate-y-1/2 w-4 h-[6px] bg-secundaria-azul z-0 rounded-r-md" />
                           )}
                         </View>
 
-                        {/* Linha Vertical Conectora de Baixo (Aparece se for Mobile e não for o último elemento) */}
+                        {/* Linha Vertical Conectora */}
                         {!isGridAtivo && !isLast && (
                           <Separator
                             orientation="vertical"
@@ -514,7 +530,6 @@ function TopoDaTela({
 
       {/* // * Tabela - Limite de 10 */}
       <View className="gap-y-5">
-        {/* [WEB FIX] Removido o flex-1 desta View para impedir o colapso do botão na Web */}
         <View className="w-full flex-col mb-2">
           <Text className="font-outfit-bold self-start mb-3 text-lg">
             Histórico
@@ -643,12 +658,11 @@ export default function VisualizacaoPivo() {
           )}
         </Pressable>
 
-        <Pressable
+        {/* <Pressable
           disabled={!cronogramaAtivo || isControlando}
           onPress={async () => {
             if (cronogramaAtivo)
               try {
-                // Reutiliza a mesma rota e a ação "iniciar" que o seu colega já programou
                 await controlarCronograma({
                   id: cronogramaAtivo.id,
                   acao: "iniciar",
@@ -670,7 +684,7 @@ export default function VisualizacaoPivo() {
               Rodar Agora (se Deus permitir)
             </Text>
           )}
-        </Pressable>
+        </Pressable> */}
       </View>
     </View>
   );

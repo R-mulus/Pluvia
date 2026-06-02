@@ -25,14 +25,16 @@ export default function Perfil({ navigation }: PerfilProps) {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('usuarios')
-        .select('*')
+        .select('nome, email, cargo')
         .eq('id', user.id)
         .single();
         
       if (error) throw new Error(error.message);
       return data;
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true 
   });
 
   const handleNavegacao = (rota: string) => {
@@ -82,7 +84,6 @@ export default function Perfil({ navigation }: PerfilProps) {
 
         <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-        {/* ... Restante do seu Menu continua idêntico (Editar Perfil, Notificações, etc) ... */}
         <View className="py-2">
           <MenuItem icon={<CircleUser size={24} color="#000" />} title="Editar Perfil" onPress={() => handleNavegacao("EditarPerfil")} />
           <MenuItem icon={<Bell size={24} color="#000" />} title="Notificações" onPress={() => { if (navigation) navigation.closeDrawer(); }} />

@@ -117,10 +117,7 @@ export default function EditarCronograma() {
         setEraAtivo(cronogramaEditado.is_ativo);
 
         if (cronogramaEditado.horario_inicio) {
-          const dataBanco = new Date(cronogramaEditado.horario_inicio);
-          setHorarioInicio(
-            new Date(dataBanco.getTime() + dataBanco.getTimezoneOffset() * 60000)
-          );
+          setHorarioInicio(new Date(cronogramaEditado.horario_inicio));
         }
 
         const passosCarregados = cronogramaEditado.passos

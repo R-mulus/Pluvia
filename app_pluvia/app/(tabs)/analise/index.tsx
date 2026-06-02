@@ -251,20 +251,11 @@ export default function Analises() {
 
       return {
         id: log.id?.substring(0, 5).toUpperCase() || "-",
-        data: `${dateObj.toLocaleDateString("pt-BR")} ${dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+        data: dateObj.toLocaleDateString("pt-BR"),
+        hora: dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
         pivo: nomePivo || log.pivo_id?.substring(0, 5) || "-",
-        status: log.tipo_evento,
         evento: eventoTexto,
-        origem: "Sistema",
-        operador: nomeOperador || "Autônomo",
-        voltas: "-",
-        irrigacao: "-",
-        milimetros: "-",
-        pressao: "-",
-        tensao: "-",
-        direcao: "-",
-        anguloAtual: "-",
-        percentimetro: "-",
+        operador: nomeOperador || "Sistema Autônomo",
       };
     });
   }, [logsReais]);
