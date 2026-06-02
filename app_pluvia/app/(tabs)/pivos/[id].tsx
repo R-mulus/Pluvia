@@ -1,3 +1,12 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA - CRONOGRAMA ATIVO]
+ * * MODIFICAÇÕES REALIZADAS (Apenas na seção Cronograma Ativo):
+ * 1. GRID RESPONSIVO: O container dos passos ativos ganhou a mesma lógica flex-row/flex-wrap das outras telas, usando 'useWindowDimensions' para determinar o número de colunas.
+ * 2. LINHA DE CONEXÃO INTELIGENTE: 
+ * - Se for Mobile (1 coluna): Mantém o Separator vertical abaixo do card.
+ * - Se for PC/Tablet (> 1 coluna): Renderiza uma linha horizontal absoluta na direita ('-right-4 w-4') conectando visualmente um card ao outro. A lógica '!isLast' garante que o card da ponta aponte para a linha de baixo!
+ */
+
 import React, { useMemo, useState } from "react";
 import {
   View,
@@ -5,6 +14,8 @@ import {
   ActivityIndicator,
   Alert,
   Platform,
+  useWindowDimensions,
+  DimensionValue, // [WEB FIX] Importado para a responsividade
 } from "react-native";
 import { Text } from "@/components/ui/text";
 import { FlashList } from "@shopify/flash-list";
@@ -102,14 +113,23 @@ function TopoDaTela({
     new Date(),
   );
 
+  // [WEB FIX] Leitura de tela para o Grid dos Passos
+  const { width } = useWindowDimensions();
+  const getColunas = () => {
+    if (width >= 1650) return 4; 
+    if (width >= 1250) return 3; 
+    if (width >= 870) return 2; 
+    return 1;                   
+  };
+  const numColunas = getColunas();
+  const isGridAtivo = numColunas > 1;
+
   const handlePress = async () => {
     setIsRefreshing(true);
     await onRefresh();
     setUltimaAtualizacaoApp(new Date());
     setIsRefreshing(false);
   };
-
-  // const anguloAtual = status?.angulo_atual || 0;
 
   const isRodando =
     status?.status_operacional === "Irrigando" ||
@@ -212,7 +232,7 @@ function TopoDaTela({
             <Pressable
               onPress={handlePress}
               disabled={isRefreshing}
-              className={`active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center ${isRefreshing ? "opacity-50" : ""}`}
+              className={`active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center ${isRefreshing ? "opacity-50" : ""} cursor-pointer hover:opacity-80 transition-opacity`}
             >
               {isRefreshing ? (
                 <ActivityIndicator size="small" color="white" />
@@ -380,13 +400,15 @@ function TopoDaTela({
 
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
-      {/* --- CRONOGRAMA --- */}
+      {/* ======================================================= */}
+      {/* --- CRONOGRAMA ATIVO --- */}
+      {/* ======================================================= */}
       <View className="gap-y-5">
         <View className="flex-row justify-between items-center">
           <Text className="font-outfit-bold text-lg">Cronograma Ativo</Text>
           <View className="flex-row gap-2">
             <Pressable
-              className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end"
+              className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end cursor-pointer hover:opacity-80 transition-opacity"
               onPress={() =>
                 router.push({
                   pathname: "/(tabs)/operacao/cronogramas",
@@ -397,7 +419,7 @@ function TopoDaTela({
               <Layers size={24} color="white" strokeWidth={2.5} />
             </Pressable>
             <Button
-              className="rounded-pluvia rounded rounded-br-none rounded-tl-none bg-secundaria-azul h-[40] w-auto"
+              className="rounded-pluvia rounded rounded-br-none rounded-tl-none bg-secundaria-azul h-[40] w-auto cursor-pointer hover:opacity-80 transition-opacity"
               disabled={!cronogramaAtivo}
               onPress={() =>
                 cronogramaAtivo &&
@@ -438,24 +460,48 @@ function TopoDaTela({
                 )}
               </View>
 
-              {cronogramaAtivo.passos
-                .sort((a: any, b: any) => a.ordem - b.ordem)
-                .map((passo: any, index: number) => (
-                  <React.Fragment key={passo.id}>
-                    <PresetCard
-                      data={{ ...passo, pivo_id: pivo?.id }}
-                      variant="readonly"
-                      stepNumber={index + 1}
-                    />
-                    {index < cronogramaAtivo.passos.length - 1 && (
-                      <Separator
-                        orientation="vertical"
-                        decorative
-                        className="h-4 w-3 bg-secundaria-azul ml-8"
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
+              {/* [WEB FIX] Container da Grade de Passos Ativos */}
+              <View className={`w-full ${isGridAtivo ? 'flex-row flex-wrap -mx-2' : ''}`}>
+                {cronogramaAtivo.passos
+                  .sort((a: any, b: any) => a.ordem - b.ordem)
+                  .map((passo: any, index: number) => {
+                    const isLast = index === cronogramaAtivo.passos.length - 1;
+
+                    return (
+                      <View 
+                        key={passo.id}
+                        style={{
+                          width: (isGridAtivo
+                            ? `${100 / numColunas}%`
+                            : '100%') as DimensionValue,
+                        }}
+                        className={`${isGridAtivo ? 'px-2 mb-4' : ''}`}
+                      >
+                        <View className="relative w-full z-10">
+                          <PresetCard
+                            data={{ ...passo, pivo_id: pivo?.id }}
+                            variant="readonly"
+                            stepNumber={index + 1}
+                          />
+                          
+                          {/* [WEB FIX] Linha Horizontal Conectora da Direita (Aparece se for Grid e não for o último elemento) */}
+                          {isGridAtivo && !isLast && (
+                            <View className="absolute top-1/2 -right-4 -translate-y-1/2 w-4 h-[6px] bg-secundaria-azul z-0 rounded-r-md" />
+                          )}
+                        </View>
+
+                        {/* [WEB FIX] Linha Vertical Conectora de Baixo (Aparece se for Mobile e não for o último elemento) */}
+                        {!isGridAtivo && !isLast && (
+                          <Separator
+                            orientation="vertical"
+                            decorative
+                            className="h-4 w-3 bg-secundaria-azul ml-8"
+                          />
+                        )}
+                      </View>
+                    );
+                  })}
+              </View>
             </View>
           ) : (
             <View className="bg-white border-[1px] border-[#cacaca] border-dashed rounded-[12px] p-6 items-center justify-center">
@@ -476,10 +522,10 @@ function TopoDaTela({
             Histórico
           </Text>
           <Button
-            className="rounded-md w-full bg-secundaria-azul h-[40px] px-3 active:opacity-70"
+            className="rounded-md w-full bg-secundaria-azul h-[40px] px-3 active:opacity-70 cursor-pointer hover:opacity-80 transition-opacity"
             onPress={() =>
               router.push({
-                pathname: "/(tabs)/pivos/logsPivo", // Ajuste o caminho se a sua pasta for diferente!
+                pathname: "/(tabs)/pivos/logsPivo", 
                 params: { pivo_id: pivo?.id },
               })
             }
@@ -583,12 +629,12 @@ export default function VisualizacaoPivo() {
         contentContainerStyle={{ paddingBottom: 20 }}
       />
 
-      {/* // *  BOTÃO INICIAR */}
+      {/* // * BOTÃO INICIAR */}
       <View className="px-3 py-1">
         <Pressable
           disabled={!cronogramaAtivo || isControlando}
           onPress={handleControle}
-          className={`${!cronogramaAtivo ? "bg-[#cacaca]" : corBotao} rounded-pluvia py-2 items-center justify-center active:opacity-80 shadow-sm mb-6 mx-5`}
+          className={`${!cronogramaAtivo ? "bg-[#cacaca]" : corBotao} rounded-pluvia py-2 items-center justify-center active:opacity-80 shadow-sm mb-6 mx-5 cursor-pointer hover:opacity-90 transition-opacity`}
         >
           {isControlando ? (
             <ActivityIndicator color="white" />
@@ -617,7 +663,7 @@ export default function VisualizacaoPivo() {
                 Alert.alert("Erro", "Falha ao forçar a partida.");
               }
           }}
-          className={`${!cronogramaAtivo ? "bg-[#cacaca]" : "bg-[#F59E0B]"} rounded-pluvia py-2 items-center justify-center active:opacity-80 shadow-sm mb-4 mx-5`}
+          className={`${!cronogramaAtivo ? "bg-[#cacaca]" : "bg-[#F59E0B]"} rounded-pluvia py-2 items-center justify-center active:opacity-80 shadow-sm mb-4 mx-5 cursor-pointer hover:opacity-90 transition-opacity`}
         >
           {isControlando ? (
             <ActivityIndicator color="white" />
