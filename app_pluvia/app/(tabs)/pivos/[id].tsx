@@ -1,10 +1,7 @@
 /**
- * ✅ [PORTABILIDADE WEB CONCLUÍDA - CRONOGRAMA ATIVO]
- * * MODIFICAÇÕES REALIZADAS (Apenas na seção Cronograma Ativo):
- * 1. GRID RESPONSIVO: O container dos passos ativos ganhou a mesma lógica flex-row/flex-wrap das outras telas, usando 'useWindowDimensions' para determinar o número de colunas.
- * 2. LINHA DE CONEXÃO INTELIGENTE: 
- * - Se for Mobile (1 coluna): Mantém o Separator vertical abaixo do card.
- * - Se for PC/Tablet (> 1 coluna): Renderiza uma linha horizontal absoluta na direita ('-right-4 w-4') conectando visualmente um card ao outro. A lógica '!isLast' garante que o card da ponta aponte para a linha de baixo!
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA - TELA PIVÔ (COM FIX DO BOTÃO DE HISTÓRICO)]
+ * * MODIFICAÇÕES REALIZADAS:
+ * 1. FIX DE SOBREPOSIÇÃO (Botão Histórico): Removida a classe 'flex-1' do container que envolvia o título "Histórico" e o botão "Ver Tabela Completa". Na Web, o 'flex-1' em um container sem altura fixa faz o elemento colapsar, fazendo a tabela renderizar por cima do botão.
  */
 
 import React, { useMemo, useState } from "react";
@@ -419,7 +416,7 @@ function TopoDaTela({
               <Layers size={24} color="white" strokeWidth={2.5} />
             </Pressable>
             <Button
-              className="rounded-pluvia rounded rounded-br-none rounded-tl-none bg-secundaria-azul h-[40] w-auto cursor-pointer hover:opacity-80 transition-opacity"
+              className="rounded-pluvia rounded rounded-br-none rounded-tl-none bg-secundaria-azul h-[40px] w-auto cursor-pointer hover:opacity-80 transition-opacity"
               disabled={!cronogramaAtivo}
               onPress={() =>
                 cronogramaAtivo &&
@@ -460,7 +457,7 @@ function TopoDaTela({
                 )}
               </View>
 
-              {/* [WEB FIX] Container da Grade de Passos Ativos */}
+              {/* Container da Grade de Passos Ativos */}
               <View className={`w-full ${isGridAtivo ? 'flex-row flex-wrap -mx-2' : ''}`}>
                 {cronogramaAtivo.passos
                   .sort((a: any, b: any) => a.ordem - b.ordem)
@@ -484,13 +481,13 @@ function TopoDaTela({
                             stepNumber={index + 1}
                           />
                           
-                          {/* [WEB FIX] Linha Horizontal Conectora da Direita (Aparece se for Grid e não for o último elemento) */}
+                          {/* Linha Horizontal Conectora da Direita (Aparece se for Grid e não for o último elemento) */}
                           {isGridAtivo && !isLast && (
                             <View className="absolute top-1/2 -right-4 -translate-y-1/2 w-4 h-[6px] bg-secundaria-azul z-0 rounded-r-md" />
                           )}
                         </View>
 
-                        {/* [WEB FIX] Linha Vertical Conectora de Baixo (Aparece se for Mobile e não for o último elemento) */}
+                        {/* Linha Vertical Conectora de Baixo (Aparece se for Mobile e não for o último elemento) */}
                         {!isGridAtivo && !isLast && (
                           <Separator
                             orientation="vertical"
@@ -517,7 +514,8 @@ function TopoDaTela({
 
       {/* // * Tabela - Limite de 10 */}
       <View className="gap-y-5">
-        <View className="flex flex-1 justify-between items-center">
+        {/* [WEB FIX] Removido o flex-1 desta View para impedir o colapso do botão na Web */}
+        <View className="w-full flex-col mb-2">
           <Text className="font-outfit-bold self-start mb-3 text-lg">
             Histórico
           </Text>

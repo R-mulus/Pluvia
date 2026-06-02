@@ -1,9 +1,15 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA - TABELA RESPONSIVA]
+ * * MODIFICAÇÕES REALIZADAS:
+ * 1. SCROLL VISÍVEL: 'showsHorizontalScrollIndicator' agora é ativado na Web. Isso permite que usuários com mouse consigam ver a barra e arrastar para o lado.
+ * 2. TRAVA DE LARGURA: Adicionado 'max-w-full' no ScrollView. Isso impede que a tabela estique a página ao redimensionar a janela do navegador, forçando a ativação do scroll horizontal.
+ * 3. RESPIRO DO SCROLLBAR: Na web, scrollbars físicas (Windows/Linux) ocupam altura real. O 'paddingBottom: 8' impede que a barra sobreponha o conteúdo da última linha.
+ */
+
 import React from "react";
 import { View, ScrollView, Platform } from "react-native";
 import { Text } from "@/components/ui/text";
 
-// toda coluna precisa de uma chave, título e largura.
-// O "renderCell" permite injetar qualquer visual customizado numa célula (como a tag de aviso)
 export interface TableColumn<T> {
   key: string;
   title: string | React.ReactNode;
@@ -14,7 +20,7 @@ export interface TableColumn<T> {
 interface TabelaProps<T> {
   data: T[];
   columns: TableColumn<T>[];
-  alerta?: boolean // ! Tabelas de alerta devem conter este prop para evitar erros de estilização
+  alerta?: boolean 
 }
 
 export function Table<T>({ data, columns, alerta }: TabelaProps<T>) {
@@ -24,10 +30,14 @@ export function Table<T>({ data, columns, alerta }: TabelaProps<T>) {
   return (
     <ScrollView
       horizontal
-      showsHorizontalScrollIndicator={false}
-      className="w-full rounded-xl"
+      // [WEB FIX] Mostra a barra de rolagem na Web para usuários com mouse
+      showsHorizontalScrollIndicator={Platform.OS === "web"}
+      // [WEB FIX] 'max-w-full' força o ScrollView a não furar o limite do navegador
+      className="w-full max-w-full rounded-xl"
       contentContainerStyle={{
-        minWidth: "100%", // 👈 Cresce para preencher a tela
+        minWidth: "100%",
+        // [WEB FIX] Dá um pequeno respiro embaixo para a barra física de rolagem do PC não engolir o conteúdo
+        paddingBottom: Platform.OS === "web" ? 8 : 0, 
       }}
     >
       
@@ -37,10 +47,8 @@ export function Table<T>({ data, columns, alerta }: TabelaProps<T>) {
           {columns.map((col, index) => (
             <View
               key={col.key}
-              // style={{ width: col.width }}
               style={{ width: col.width, flexGrow: 1 }}
               className={`py-3 items-center justify-center ${
-                // Adiciona o divisor branco, exceto na última coluna
                 index < columns.length - 1 ? "border-r-[2px] border-white" : ""
               }`}
             >
@@ -64,13 +72,11 @@ export function Table<T>({ data, columns, alerta }: TabelaProps<T>) {
 
           return (
             <View key={rowIndex} className={`flex-row ${rowBg} ${
-                // Arredonda as pontas inferiores se for a última linha
                 isLastRow ? "rounded-b-xl overflow-hidden" : ""
               }`}>
               {columns.map((col, colIndex) => {
                 const isFirstCol = colIndex === 0;
 
-                // Zebra striping também na coluna ID
                 const firstColBg = isEven
                   ? "bg-primaria-azul"
                   : "bg-secundaria-azul";
@@ -84,16 +90,13 @@ export function Table<T>({ data, columns, alerta }: TabelaProps<T>) {
                 return (
                   <View
                     key={col.key}
-                    // style={{ width: col.width }}
                     style={{ width: col.width, flexGrow: 1 }}
                     className={`justify-center ${defaultCellBg} ${
-                      // Divisor cinza vertical: não aplica na primeira nem na última coluna
                       colIndex > 0 && colIndex < columns.length - 1
                         ? "border-r-[2px] border-[#CACACA]"
                         : ""
                     } ${!alerta ? "py-2" : ""}`}
                   >
-                    {/* Se a coluna mandou uma renderização customizada, usa ela. Se não, usa o texto padrão. */}
                     {col.renderCell ? (
                       col.renderCell(row, rowIndex)
                     ) : (

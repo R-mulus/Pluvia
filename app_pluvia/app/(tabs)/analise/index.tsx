@@ -361,13 +361,13 @@ export default function Analises() {
             >
               <SelectTrigger
                 ref={ref}
-                className={`border-[1px] border-[#b8b8b8] bg-white w-[160px] cursor-pointer hover:opacity-90 ${analiseOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
+                className={`w-[200px] border-[1px] border-[#b8b8b8] bg-white cursor-pointer hover:opacity-90 ${analiseOpen ? "rounded-t-[12px] rounded-b-none border-b-0" : "rounded-[12px] border-b-[1px]"}`}
               >
                 <SelectValue placeholder="Fazendas" />
               </SelectTrigger>
               <SelectContent
                 insets={contentInsets}
-                className={`border-[#b8b8b8] bg-white w-[160px] ${analiseOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
+                className={`border-[#b8b8b8] bg-white w-[200px] ${analiseOpen ? "rounded-b-[12px] rounded-t-none" : "rounded-xl"}`}
               >
                 <SelectGroup>
                   <SelectItem
