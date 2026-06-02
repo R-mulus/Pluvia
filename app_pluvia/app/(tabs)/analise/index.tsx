@@ -300,22 +300,31 @@ export default function Analises() {
 
   const router = useRouter();
 
+  // const colunasLog: TableColumn<any>[] = [
+  //   { key: "id", title: "ID", width: 60 },
+  //   { key: "data", title: "Data", width: 180 },
+  //   { key: "pivo", title: "Pivô", width: 100 },
+  //   { key: "status", title: "Status", width: 90 },
+  //   { key: "evento", title: "Evento", width: 220 },
+  //   { key: "origem", title: "Origem", width: 100 },
+  //   { key: "operador", title: "Operador", width: 120 },
+  //   { key: "voltas", title: "Voltas", width: 80 },
+  //   { key: "irrigacao", title: "Irrigação", width: 100 },
+  //   { key: "milimetros", title: "Milímetros", width: 110 },
+  //   { key: "pressao", title: "Pressão", width: 110 },
+  //   { key: "tensao", title: "Tensão", width: 90 },
+  //   { key: "direcao", title: "Direção", width: 100 },
+  //   { key: "anguloAtual", title: "Ângulo Atual", width: 120 },
+  //   { key: "percentimetro", title: "Percentímetro", width: 130 },
+  // ];
+
   const colunasLog: TableColumn<any>[] = [
-    { key: "id", title: "ID", width: 60 },
-    { key: "data", title: "Data", width: 180 },
-    { key: "pivo", title: "Pivô", width: 100 },
-    { key: "status", title: "Status", width: 90 },
-    { key: "evento", title: "Evento", width: 220 },
-    { key: "origem", title: "Origem", width: 100 },
-    { key: "operador", title: "Operador", width: 120 },
-    { key: "voltas", title: "Voltas", width: 80 },
-    { key: "irrigacao", title: "Irrigação", width: 100 },
-    { key: "milimetros", title: "Milímetros", width: 110 },
-    { key: "pressao", title: "Pressão", width: 110 },
-    { key: "tensao", title: "Tensão", width: 90 },
-    { key: "direcao", title: "Direção", width: 100 },
-    { key: "anguloAtual", title: "Ângulo Atual", width: 120 },
-    { key: "percentimetro", title: "Percentímetro", width: 130 },
+    { key: "id", title: "ID", width: 80 },
+    { key: "data", title: "Data", width: 110 },
+    { key: "hora", title: "Hora", width: 80 },
+    { key: "pivo", title: "Pivô", width: 120 },
+    { key: "evento", title: "Evento", width: 260 },
+    { key: "operador", title: "Operador", width: 160 },
   ];
 
   const colunasAlertas: TableColumn<any>[] = [
