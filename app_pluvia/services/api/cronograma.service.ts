@@ -10,7 +10,7 @@ export interface PassoDTO {
   lamina: number;
   irrigacao: boolean;
   direcao: 'HORARIO' | 'ANTI_HORARIO';
-  ordem: number; // <- ADICIONADO: Substitui o 'horario'
+  ordem: number;
 }
 
 export interface Passo extends PassoDTO {
@@ -24,7 +24,7 @@ export interface Passo extends PassoDTO {
 export interface CriarCronogramaDTO {
   pivo_id: string;
   nome: string;
-  horario_inicio: string; // <- ADICIONADO: O cronograma inteiro começa aqui
+  horario_inicio: string;
   passos: PassoDTO[];
 }
 
@@ -34,7 +34,7 @@ export interface Cronograma {
   nome: string;
   is_ativo: boolean;
   status_final: StatusExecucao;
-  horario_inicio?: string; // <- ADICIONADO
+  horario_inicio?: string;
   created_at: string;
   criado_por: string;
   nome_criador: string; 
@@ -67,7 +67,6 @@ export const cronogramaService = {
     return data;
   },
 
-  // Adicione isso no final do seu cronogramaService
   controlarCronograma: async (id: string, acao: 'iniciar' | 'pausar' | 'continuar'): Promise<DefaultResponse<Cronograma>> => {
     const { data } = await api.patch(`/cronograma/${id}/controle`, { acao });
     return data;

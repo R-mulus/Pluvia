@@ -8,7 +8,9 @@ import { TriangleAlert, Droplet } from "lucide-react-native";
 import { useAlertas } from "@/hooks/api/useLogs";
 
 export default function AnaliseAlertas() {
-  const { data: alertasReais, isPending } = useAlertas(); // Busca sem limite
+
+  // * Busca TODOS os alertas
+  const { data: alertasReais, isPending } = useAlertas();
 
   const colunasAlertas: TableColumn<any>[] = [
     { key: "id", title: "ID", width: 60 },

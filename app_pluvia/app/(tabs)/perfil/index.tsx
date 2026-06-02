@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, Image, ScrollView, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,8 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import MenuItem from "@/components/custom/ProfileItem";
 import { DrawerActions } from "@react-navigation/native";
 
-// 👉 Imports novos para a Autenticação e Banco
-import { useAuth } from "@/contexts/AuthContext"; // AJUSTE O CAMINHO SE NECESSÁRIO
+import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
@@ -18,10 +17,8 @@ export default function Perfil({ navigation }: PerfilProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   
-  // 👉 1. Pegamos o usuário logado do seu Contexto
   const { user, signOut } = useAuth();
 
-  // 👉 2. Buscamos os dados completos dele na tabela "usuarios"
   const { data: userData, isPending } = useQuery({
     queryKey: ['perfil_completo', user?.id],
     queryFn: async () => {
@@ -35,7 +32,7 @@ export default function Perfil({ navigation }: PerfilProps) {
       if (error) throw new Error(error.message);
       return data;
     },
-    enabled: !!user?.id // Só executa se tiver um usuário logado
+    enabled: !!user?.id
   });
 
   const handleNavegacao = (rota: string) => {

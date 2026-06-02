@@ -13,7 +13,7 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
 
-// Hook customizado para acessar o contexto em qualquer componente
+// * Hook do contexto
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const segments = useSegments();
 
   useEffect(() => {
-    // 1. Inicializa a sessão a partir do armazenamento local
+    // * Inicializa a sessão a partir do armazenamento local (token armazenado)
     const initializeAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     initializeAuth();
 
-    // 2. Escuta mudanças no estado de autenticação (Login, Logout, Refresh)
+    // * Escuta mudanças no estado de autenticação (Login, Logout, Refresh)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -46,18 +46,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // 3. Lógica de Redirecionamento (Route Guard)
+  // * Lógica de Redirecionamento
   useEffect(() => {
     if (!initialized) return;
 
-    // Verifica se o usuário está tentando acessar uma rota protegida (grupo (tabs))
+    // * Verifica se o usuário está tentando acessar uma rota protegida (grupo (tabs))
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!session && !inAuthGroup) {
-      // Usuário sem sessão tentando acessar área restrita -> redireciona para login
+      // * Usuário sem sessão tentando acessar área restrita redireciona para LOGIN
       router.replace('/(auth)');
     } else if (session && inAuthGroup) {
-      // Usuário logado tentando acessar login -> redireciona para dashboard
+      // * Usuário logado tentando acessar login redireciona para DASHBOARD
       router.replace('/(tabs)/pivos/');
     }
   }, [router, session, initialized, segments]);

@@ -1,20 +1,15 @@
+// ! FEITO PELO GEMINI MEMO QUE SE DANE 🤖
+
 import React from "react";
-import { View, Pressable, Linking, Image } from "react-native";
+import { View, Pressable } from "react-native";
 import { Text } from "@/components/ui/text";
 import { Screen } from "@/components/custom/Screen";
 import Header from "@/components/custom/Header";
-import { FontAwesome5 } from '@expo/vector-icons';
-import {
-  HelpCircle,
-  Phone,
-  MessageCircle,
-  Mail,
-  ChevronRight,
-} from "lucide-react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { Phone, Mail, ChevronRight } from "lucide-react-native";
 
 export default function FaleConosco() {
   const handleContact = (type: string) => {
-    // Aqui você implementaria as chamadas (Linking.openURL)
     console.log(`Contatando via ${type}`);
   };
 

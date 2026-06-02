@@ -8,7 +8,7 @@ import { useUsuarios } from "@/hooks/api/useUsuarios";
 import { colunasUsuarios } from "../menu";
 
 export default function TodosUsuarios() {
-  // Pega os dados direto do cache instantaneamente
+  // Pega TODOS os usuários 🥵
   const { data: pivos, isPending } = useUsuarios();
 
   return (

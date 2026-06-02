@@ -7,6 +7,7 @@ import { Table, TableColumn } from "@/components/custom/Table";
 import { useLogsEventos } from "@/hooks/api/useLogs";
 
 export default function AnaliseLogs() {
+  
   const { data: logsReais, isPending } = useLogsEventos("todos");
 
   const colunasLog: TableColumn<any>[] = [

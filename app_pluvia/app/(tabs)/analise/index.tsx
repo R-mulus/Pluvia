@@ -22,8 +22,7 @@ import { useRouter } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { TriggerRef } from "@rn-primitives/select";
-import { exportarParaCSV } from "@/utils/exportCSV"; // Ajuste o caminho se necessário
-// Importado Path e Circle para o Gráfico de Linhas
+import { exportarParaCSV } from "@/utils/exportCSV";
 import Svg, {
   Rect,
   Line,
@@ -652,7 +651,7 @@ export default function Analises() {
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* GRÁFICO 1 */}
+      {/* // * GRÁFICO 1 */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold text-wrap w-[140px]">
@@ -814,7 +813,7 @@ export default function Analises() {
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* GRÁFICO 2 */}
+      {/* // * GRÁFICO 2 */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold">Tempo de Operação</Text>
@@ -974,7 +973,7 @@ export default function Analises() {
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* GRÁFICO 3 */}
+      {/* // * GRÁFICO 3 */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold text-wrap w-[140px]">
@@ -1139,7 +1138,7 @@ export default function Analises() {
 
       <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-      {/* GRÁFICO 4 */}
+      {/* // * GRÁFICO 4 */}
       <View className="self-stretch gap-5">
         <View className="flex-row w-full justify-between items-center">
           <Text className="font-outfit-bold text-wrap">Consumo de Energia</Text>
@@ -1430,8 +1429,6 @@ export default function Analises() {
               <Send size={24} color="white" strokeWidth={2.5} />
             </Pressable>
         </View>
-
-        {/* 👉 BOTÃO ADICIONADO PARA A TELA CHEIA (Logs) */}
         <Button
           className="rounded-md w-full bg-secundaria-azul h-[40px] px-3 active:opacity-70"
           onPress={() =>

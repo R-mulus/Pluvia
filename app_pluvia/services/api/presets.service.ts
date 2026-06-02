@@ -10,7 +10,7 @@ export interface Preset {
   irrigacao: boolean;
   direcao: 'HORARIO' | 'ANTI_HORARIO';
   criado_por: string;
-  nome_criador: string; // Vindo do JOIN no backend
+  nome_criador: string;
   created_at: string;
 }
 

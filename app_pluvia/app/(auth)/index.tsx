@@ -52,10 +52,8 @@ export default function Login() {
     },
   });
 
-  // 3. TANSTACK QUERY: Mutação para fazer o login
   const loginMutation = useMutation({
     mutationFn: async (dados: LoginFormData) => {
-      // Chama o Supabase Auth
       const { data, error } = await supabase.auth.signInWithPassword({
         email: dados.email,
         password: dados.password,
@@ -66,7 +64,7 @@ export default function Login() {
     },
     onSuccess: (data) => {
       console.log("Token gerado com sucesso:", data.session?.access_token);
-      // Navega para a área logada após o sucesso
+      // * Navega para a área logada após o sucesso
       router.replace("/(tabs)/pivos/");
     },
     onError: (error) => {
@@ -75,7 +73,7 @@ export default function Login() {
     },
   });
 
-  // Função disparada ao clicar no botão
+  // * Função disparada ao clicar no botão
   const onSubmit = (dados: LoginFormData) => {
     loginMutation.mutate(dados);
   };
@@ -94,7 +92,6 @@ export default function Login() {
       {/* // * Container Principal */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        // Restaurado o alinhamento vertical original (mt-10 pt-10) sem o justify-center
         className="flex-1 w-full p-4 gap-6 mt-10 pt-10"
       >
         {/* // * Logo */}
@@ -114,14 +111,14 @@ export default function Login() {
               Faça seu Login
             </Text>
 
-            {/* CAMPO DE E-MAIL (Controlado pelo Hook Form) */}
+            {/* Campo de e-mail (Controlado pelo Hook Form) */}
             <Controller
               control={control}
               name="email"
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
                   <View className={`flex-row items-center border-[2px] ${errors.email ? 'border-red-500' : 'border-[#B8B8B8]'} bg-white rounded-xl overflow-hidden h-10`}>
-                    {/* Removido o rounded-br-lg conforme solicitado */}
+                    
                     <View className="bg-secundaria-azul w-12 h-full items-center justify-center">
                       <User size={24} color="white" strokeWidth={2.5} />
                     </View>
@@ -141,7 +138,7 @@ export default function Login() {
               )}
             />
 
-            {/* CAMPO DE SENHA (Controlado pelo Hook Form) */}
+            {/* Campo de senha (Controlado pelo Hook Form) */}
             <Controller
               control={control}
               name="password"
@@ -181,8 +178,7 @@ export default function Login() {
             </Button>
 
             <Pressable className="active:opacity-50 hover:opacity-70 transition-opacity cursor-pointer">
-              {/* Alterada a cor do texto para text-bg conforme solicitado */}
-              <Text className="text-bg text-center text-sm underline">
+              <Text className="text-white text-center text-sm underline">
                 Esqueci minha senha
               </Text>
             </Pressable>

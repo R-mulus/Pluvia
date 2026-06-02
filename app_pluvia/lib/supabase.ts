@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { createClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
 
-// Implementação condicional baseada na plataforma
+// * Armazenamento dinâmico do token com base na plataforma (web ou mobile)
 const ExpoSecureStoreAdapter = {
   getItem: (key: string) => {
     if (Platform.OS === 'web') {

@@ -16,7 +16,6 @@ export function useCriarCronograma() {
     mutationFn: (dados: CriarCronogramaDTO) => cronogramaService.agendarComando(dados),
     onSuccess: (_, variaveis) => {
       queryClient.invalidateQueries({ queryKey: ['cronograma', variaveis.pivo_id] });
-      // ATUALIZA A TABELA DE LOGS NA HORA
       queryClient.invalidateQueries({ queryKey: ['logs_eventos', variaveis.pivo_id] });
     },
   });
@@ -28,7 +27,6 @@ export function useExcluirCronograma() {
     mutationFn: (id: string) => cronogramaService.excluirComando(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cronograma'] });
-      // ATUALIZA A TABELA DE LOGS NA HORA
       queryClient.invalidateQueries({ queryKey: ['logs_eventos'] });
     },
   });
@@ -40,7 +38,6 @@ export function useAtivarCronograma() {
     mutationFn: ({ id, pivo_id }: { id: string; pivo_id: string }) => cronogramaService.ativarCronograma(id, pivo_id),
     onSuccess: (_, variaveis) => {
       queryClient.invalidateQueries({ queryKey: ['cronograma', variaveis.pivo_id] });
-      // ATUALIZA A TABELA DE LOGS NA HORA
       queryClient.invalidateQueries({ queryKey: ['logs_eventos', variaveis.pivo_id] });
     },
   });
@@ -53,7 +50,6 @@ export function useControleCronograma() {
       cronogramaService.controlarCronograma(id, acao),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cronograma'] });
-      // ATUALIZA A TABELA DE LOGS NA HORA
       queryClient.invalidateQueries({ queryKey: ['logs_eventos'] });
     },
   });

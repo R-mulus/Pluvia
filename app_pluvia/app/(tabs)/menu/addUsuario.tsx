@@ -45,11 +45,10 @@ const maskPhone = (value: string) => {
 };
 
 
-// 1. SCHEMA DA INTERFACE
+// * Schema Da Interface
 const formSchema = z.object({
   cargo: z.enum(['Administrador', 'Operador', 'Cliente']),
   nome: z.string().min(3, "Mínimo de 3 caracteres"),
-  // Usamos .refine para validar apenas a quantidade de números puros
   cpf_cnpj: z.string().refine((val) => val.replace(/\D/g, '').length >= 11, "CPF/CNPJ incompleto"),
   email: z.string().email("E-mail inválido"),
   senha_token: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
@@ -63,7 +62,7 @@ export default function CadastrarUsuario() {
   const router = useRouter();
   const { mutateAsync: criarUsuario, isPending } = useCriarUsuario();
 
-  // 2. CONFIGURAÇÃO DO FORMULÁRIO
+  // * Configuração Do Formulário
   const { control, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormUsuario>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,7 +79,6 @@ export default function CadastrarUsuario() {
   const telefoneRef = useRef<TextInput>(null);
   const wppRef = useRef<TextInput>(null);
 
-  // 3. FUNÇÃO DE SUBMISSÃO
   const onSubmit = async (data: FormUsuario) => {
     try {
       // Prioriza o WhatsApp, se não tiver, pega o Telefone
@@ -127,7 +125,6 @@ export default function CadastrarUsuario() {
           }}
         >
 
-          {/* ✅ MUDANÇA 1: Header permanece full-width, fora do container centralizado */}
           <Header title='Cadastrar Usuário' subtitle='AXCP2134HIM' />
 
           {/*
@@ -139,7 +136,7 @@ export default function CadastrarUsuario() {
            */}
           <View className="w-full web:max-w-2xl web:mx-auto self-center gap-6">
 
-            {/* === ABAS DE CARGO === */}
+            {/* // * ABAS DE CARGO */}
             <Tabs
               value={cargoAtual}
               onValueChange={(val) => setValue('cargo', val as Cargo)}
@@ -204,7 +201,7 @@ export default function CadastrarUsuario() {
               <TabsContent value="Operador" className="hidden"></TabsContent>
             </Tabs>
 
-            {/* === FORMULÁRIO === */}
+            {/* // * FORMULÁRIO */}
             <View className="gap-4 w-full">
 
               <View className="items-start gap-2">
@@ -342,7 +339,7 @@ export default function CadastrarUsuario() {
               </View>
             </View>
 
-            {/* === BOTÕES DE AÇÃO === */}
+            {/* // * BOTÕES DE AÇÃO */}
             {/*
              * ✅ Os botões ficam dentro do mesmo container centralizado,
              * então acompanham automaticamente a largura do formulário

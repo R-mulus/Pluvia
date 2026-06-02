@@ -8,7 +8,7 @@ import { usePivos } from "@/hooks/api/usePivos";
 import { colunasPivos } from "../menu";
 
 export default function TodosPivos() {
-  // Pega os dados direto do cache instantaneamente
+  // * Pega TODOS os pivôs
   const { data: pivos, isPending } = usePivos();
 
   return (

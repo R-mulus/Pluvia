@@ -23,7 +23,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "expo-router";
 
-// Importando os hooks da API
 import { useCriarPivo } from "@/hooks/api/usePivos";
 import { useFazendas } from "@/hooks/api/useFazendas";
 import { useUsuarios } from "@/hooks/api/useUsuarios";
@@ -35,18 +34,15 @@ import { Input } from "@/components/ui/input";
 import Header from "@/components/custom/Header";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { User, Check, Tractor, ChevronRight } from "lucide-react-native";
 
-// 1. SCHEMA DA INTERFACE (UI Schema)
+// * Schema Da Interface
 const formSchema = z.object({
   fazenda_id: z.string().uuid("Selecione uma fazenda obrigatória"),
   operador_id: z.string().uuid("Selecione um operador obrigatório").optional(),
@@ -65,7 +61,7 @@ type FormPivo = z.infer<typeof formSchema>;
 export default function CadastrarPivo() {
   const router = useRouter();
 
-  // Instanciando as mutações e queries (Busca de dados reais)
+  // * Instanciando as mutações e queries
   const { mutateAsync: criarPivo, isPending: isCreating } = useCriarPivo();
   const { data: fazendas, isPending: isLoadingFazendas } = useFazendas();
   const { data: usuarios, isPending: isLoadingUsuarios } = useUsuarios();
@@ -112,16 +108,15 @@ export default function CadastrarPivo() {
   const latRef = useRef<TextInput>(null);
   const longRef = useRef<TextInput>(null);
 
-  // 3. FUNÇÃO DE SUBMISSÃO (Adapter)
   const onSubmit = async (data: FormPivo) => {
     try {
-      // Concatena latitude e longitude
+      // * Concatena latitude e longitude
       let coordenadasFinal = undefined;
       if (data.lat && data.long) {
         coordenadasFinal = `${data.lat.trim()}, ${data.long.trim()}`;
       }
 
-      // Converte as strings numéricas do teclado para números reais
+      // * Converte as strings numéricas para números reais
       const vazaoNum = data.vazao
         ? parseFloat(data.vazao.replace(",", "."))
         : undefined;
@@ -173,7 +168,6 @@ export default function CadastrarPivo() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 40, gap: 24 }}
         >
-          {/* ✅ MUDANÇA 1: Header permanece full-width, fora do container centralizado */}
           <Header title="Cadastrar Pivô" subtitle="AXCP2134HIM" />
 
           {/*
@@ -185,7 +179,7 @@ export default function CadastrarPivo() {
           <View className="w-full web:max-w-2xl web:mx-auto self-center gap">
             <View className="gap-4 w-full">
               
-              {/* === DIALOG DA FAZENDA === */}
+              {/* // *  DIALOG DA FAZENDA */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Fazenda</Text>
 
@@ -284,7 +278,7 @@ export default function CadastrarPivo() {
                 )}
               </View>
 
-              {/* === DIALOG DO OPERADOR RESPONSÁVEL === */}
+              {/* // * DIALOG DO OPERADOR RESPONSÁVEL */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Operador Responsável</Text>
 
@@ -378,7 +372,7 @@ export default function CadastrarPivo() {
                 </Dialog>
               </View>
 
-              {/* === NOME === */}
+              {/* // * NOME */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Nome</Text>
                 <Controller
@@ -405,7 +399,7 @@ export default function CadastrarPivo() {
                 )}
               </View>
 
-              {/* === CÓDIGO DE SÉRIE === */}
+              {/* // * == CÓDIGO DE SÉRIE */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Código de Série</Text>
                 <Controller
@@ -432,7 +426,7 @@ export default function CadastrarPivo() {
                 )}
               </View>
 
-              {/* === VAZÃO (Campo não processado pelo backend no momento) === */}
+              {/* // * VAZÃO */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Vazão</Text>
                 <Controller
@@ -454,7 +448,7 @@ export default function CadastrarPivo() {
                 />
               </View>
 
-              {/* === MODELO === */}
+              {/* // * MODELO */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Modelo</Text>
                 <Controller
@@ -476,7 +470,7 @@ export default function CadastrarPivo() {
                 />
               </View>
 
-              {/* === MARCA / FABRICANTE E RAIO === */}
+              {/* // *  MARCA/FABRICANTE E RAIO */}
               {/* [WEB] Substituído w-[48%] por flex-1 para preenchimento fluído */}
               <View className="flex-row gap-3">
                 <View className="items-start gap-2 flex-1">
@@ -521,7 +515,7 @@ export default function CadastrarPivo() {
                 </View>
               </View>
 
-              {/* === COORDENADAS === */}
+              {/* // * COORDENADAS */}
               {/* [WEB] Substituído w-[48%] por flex-1 para preenchimento fluído */}
               <View className="flex-row gap-3">
                 <View className="items-start gap-2 flex-1">
@@ -566,7 +560,7 @@ export default function CadastrarPivo() {
               </View>
             </View>
 
-            {/* === BOTÕES DE AÇÃO === */}
+            {/* // *  BOTÕES DE AÇÃO */}
             {/* Mantidos dentro da view web:max-w-2xl para acompanhar a largura do form */}
             <View className="flex-row items-center w-full gap-4 mt-5">
               <Button

@@ -25,14 +25,13 @@ export interface Fazenda {
   usuarios?: { nome: string }; 
 }
 
-// Interface genérica para espelhar o envelope do backend
+// * Interface genérica
 export interface DefaultResponse<T> {
   mensagem: string;
   dados: T;
 }
 
 export const fazendasService = {
-  // Listagens retornam a array diretamente
   listarTodasFazendas: async (): Promise<Fazenda[]> => {
     const { data } = await api.get('/fazendas');
     return data;
@@ -53,7 +52,6 @@ export const fazendasService = {
     return data;
   },
 
-  // Deleção agora retorna 200 OK com mensagem textual
   deletarFazenda: async (id: string): Promise<{ mensagem: string }> => {
     const { data } = await api.delete(`/fazendas/${id}`);
     return data;

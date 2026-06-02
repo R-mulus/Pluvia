@@ -8,7 +8,7 @@ import { useFazendas } from "@/hooks/api/useFazendas";
 import { colunasFazendas } from "../menu";
 
 export default function TodasFazendas() {
-  // Pega os dados direto do cache instantaneamente
+  // ! Pega TODAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAS AS FAZENDAS
   const { data: pivos, isPending } = useFazendas();
 
   return (

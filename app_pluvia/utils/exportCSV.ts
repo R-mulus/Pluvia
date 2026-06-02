@@ -1,12 +1,12 @@
 import * as Sharing from 'expo-sharing';
-import * as MailComposer from 'expo-mail-composer'; // 👉 NOVO IMPORT
+import * as MailComposer from 'expo-mail-composer';
 import { Alert, Platform } from 'react-native';
 import { File, Paths } from 'expo-file-system';
 
 export const exportarParaCSV = async (
   dados: any[], 
   nomeFicheiro: string, 
-  modo: 'compartilhar' | 'email' = 'compartilhar' // 👉 NOVO PARÂMETRO COM PADRÃO
+  modo: 'compartilhar' | 'email' = 'compartilhar'
 ) => {
   if (!dados || dados.length === 0) {
     Alert.alert('Aviso', 'Não há dados suficientes para exportar.');
@@ -27,7 +27,7 @@ export const exportarParaCSV = async (
 
     const conteudoCSV = '\ufeff' + [cabecalho, ...linhas].join('\n');
 
-    // === LÓGICA PARA WEB ===
+    // * --------------- LÓGICA PARA WEB ---------------
     if (Platform.OS === 'web') {
       if (modo === 'email') {
         Alert.alert('Aviso', 'Na versão Web, a planilha será baixada. Você pode anexá-la manualmente ao seu e-mail.');
@@ -42,12 +42,12 @@ export const exportarParaCSV = async (
       link.click();
       document.body.removeChild(link);
     } 
-    // === LÓGICA PARA MOBILE (ANDROID/IOS) ===
+     // * --------------- LÓGICA PARA MOBILE ---------------
     else {
       const ficheiro = new File(Paths.cache, `${nomeFicheiro}.csv`);
       await ficheiro.write(conteudoCSV);
 
-      // 👉 SE O MODO FOR 'EMAIL', ABRE O APP DE E-MAIL NATIVO
+      // * Se o modo for 'email', abre o app de e-mail nativo
       if (modo === 'email') {
         const emailDisponivel = await MailComposer.isAvailableAsync();
         if (emailDisponivel) {
@@ -55,13 +55,13 @@ export const exportarParaCSV = async (
             subject: `Relatório do Sistema Pluvia: ${nomeFicheiro.replace(/_/g, ' ')}`,
             body: `Olá,\n\nSegue em anexo a planilha com os dados solicitados exportados diretamente do aplicativo Pluvia.\n\nAtenciosamente,\nSistema de Telemetria`,
             attachments: [ficheiro.uri],
-            // recipients: ['email_do_chefe@empresa.com'], // Opcional: já preencher quem vai receber!
+            // recipients: ['email_do_chefe@empresa.com'], // Opcional: já preencher quem vai receber destinatário do email
           });
         } else {
           Alert.alert('Aviso', 'Não há nenhum aplicativo de e-mail configurado neste dispositivo.');
         }
       } 
-      // 👉 SE O MODO FOR 'COMPARTILHAR', ABRE A GAVETA GERAL (WhatsApp, etc)
+      // * Se o modo for 'compartilhar', abre a gaveta de compartilhamento (whatsapp, etc)
       else {
         const partilhaDisponivel = await Sharing.isAvailableAsync();
         if (partilhaDisponivel) {

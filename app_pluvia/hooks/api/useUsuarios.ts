@@ -6,9 +6,7 @@ export function useUsuarios() {
   return useQuery({
     queryKey: ['usuarios'],
     queryFn: usuariosService.listarTodos,
-    // Define que os dados de usuários demoram a ficar obsoletos (5 minutos),
-    // reduzindo requisições desnecessárias ao backend.
-    staleTime: 1000 * 60 * 5, 
+    staleTime: 1000 * 60 * 5, // * Define que os dados de usuários demoram  5 minutos a ficar obsoletos
   });
 }
 

@@ -1,9 +1,11 @@
+// ! FEITO PELO GEMINI MEMO QUE SE DANE 🤖
+
 import React from 'react';
-import { View, ScrollView, Image } from "react-native";
+import { View, ScrollView } from "react-native";
 import { Text } from "@/components/ui/text";
 import { Screen } from "@/components/custom/Screen";
 import Header from '@/components/custom/Header';
-import { Info, MapPin, Droplets, Zap } from 'lucide-react-native';
+import { MapPin } from 'lucide-react-native';
 
 export default function SobreNos() {
   return (

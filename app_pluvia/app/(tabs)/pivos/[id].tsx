@@ -82,14 +82,17 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
     setIsRefreshing(false);
   };
 
-  const anguloAtual = status?.angulo_atual || 0;
+  // const anguloAtual = status?.angulo_atual || 0;
+  
   const isRodando = status?.status_operacional === "Irrigando" || status?.status_operacional === "Movimentando";
   const isFalha = status?.status_operacional === "Falha";
 
   const cronogramaAtivo = useMemo(() => cronogramas?.find((c) => c.is_ativo === true), [cronogramas]);
   const passoEmExecucao = useMemo(() => cronogramaAtivo?.passos.find((p: any) => p.status_passo === 'executando'), [cronogramaAtivo]);
 
+  const anguloAtual = passoEmExecucao?.angulo_final || status?.angulo_atual || 0;
   const tempoRestanteFormatado = calcularTempoRestante(pivo, passoEmExecucao, anguloAtual);
+  
 
   const logsFormatados = useMemo(() => {
     if (!logs) return [];
@@ -301,11 +304,10 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
 
       <Separator className="my-5 bg-[#B5B5B5]" decorative />
 
-      {/* // * Tabela - Injeção dos dados reais com Limite de 10 */}
+      {/* // * Tabela - Limite de 10 */}
       <View className="gap-y-5">
         <View className="flex flex-1 justify-between items-center">
           <Text className="font-outfit-bold self-start mb-3 text-lg">Histórico</Text>
-          {/* 👉 BOTÃO ADICIONADO PARA A TELA CHEIA */}
           <Button
             className="rounded-md w-full bg-secundaria-azul h-[40px] px-3 active:opacity-70"
             onPress={() => router.push({ 
@@ -322,7 +324,7 @@ function TopoDaTela({ pivo, status, cronogramas, logs, onRefresh }: { pivo: any;
   );
 }
 
-// 2. A TELA PRINCIPAL (Controlada pela FlashList)
+// * --------------- TELA PRINCIPAL ---------------
 export default function VisualizacaoPivo() {
   const { id } = useLocalSearchParams();
 
@@ -368,7 +370,7 @@ export default function VisualizacaoPivo() {
   if (loadingPivo) return <View className="flex-1 bg-bg items-center justify-center"><ActivityIndicator size="large" color="#00A0A6" /></View>;
 
   return (
-    <View className="flex-1 bg-bg">
+    <View className="flex-1">
       <FlashList
         ListHeaderComponent={<TopoDaTela pivo={pivoData?.dados} status={statusPivo} cronogramas={cronogramasLista ?? []} logs={logsLista ?? []} onRefresh={handleRefresh} />}
         data={[]}
@@ -376,8 +378,8 @@ export default function VisualizacaoPivo() {
         contentContainerStyle={{ paddingBottom: 20 }}
       />
 
-      {/* --- BOTÃO INICIAR --- */}
-      <View className="px-5 pb-6 bg-bg">
+      {/* // *  BOTÃO INICIAR */}
+      <View className="px-3 py-1">
         <Pressable 
           disabled={!cronogramaAtivo || isControlando}
           onPress={handleControle}

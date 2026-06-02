@@ -31,7 +31,6 @@ export interface DashboardPivo {
 export const telemetriaService = {
   obterDashboard: async (): Promise<DashboardPivo[]> => {
     const { data } = await api.get('/telemetria/dashboard');
-    // Retornamos data.dados porque o backend envelopou a resposta
     return data.dados;
   }
 };

@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { presetsService, CriarPresetDTO } from '@/services/api/presets.service';
 
+// * --------------- Queries de leitura ---------------
+
 export function usePresetsPivo(pivo_id: string) {
   return useQuery({
     queryKey: ['presets', pivo_id],
@@ -8,6 +10,8 @@ export function usePresetsPivo(pivo_id: string) {
     enabled: !!pivo_id,
   });
 }
+
+// * --------------- Queries de escrita ---------------
 
 export function useCriarPreset() {
   const queryClient = useQueryClient();

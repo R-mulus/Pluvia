@@ -23,14 +23,12 @@ import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/contexts/AuthContext";
-
-// Importe os dois conteúdos da gaveta
 import Perfil from "@/app/(tabs)/perfil";
 import Notificacoes from "@/components/custom/Notification";
 
 SplashScreen.preventAutoHideAsync();
 
-// ! Instanciamos o cliente fora do componente para não ser recriado a cada renderização
+// ! O cliente do Tanstack Query é criado fora do componente para não ser recriado a cada renderização
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
@@ -86,7 +84,6 @@ export default function RootLayout() {
               drawerType: "front",
               drawerStyle: {
                 backgroundColor: "#FFFFFF",
-                // [WEB] A MÁGICA DA LARGURA ESTÁ AQUI:
                 width: Platform.OS === "web" ? 400 : "85%",
               },
               overlayColor: "rgba(0,0,0,0.5)",

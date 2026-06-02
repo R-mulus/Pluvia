@@ -1,3 +1,5 @@
+// ! FEITO PELO GEMINI MEMO QUE SE DANE 🤖
+
 import React, { useState } from 'react';
 import { View, ScrollView, Pressable } from "react-native";
 import { Text } from "@/components/ui/text";

@@ -9,19 +9,17 @@ export function useLogout() {
 
   const realizarLogout = async () => {
     try {
-      // 1. Invalida a sessão no servidor e remove o token do Secure Storage
+      // * Encerra a sessão no servidor e remove o token do Secure Storage
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         throw new Error(error.message);
       }
 
-      // 2. Limpa completamente o cache de memória do TanStack Query
-      // Isso garante que nenhum dado do usuário atual vaze na interface
+      // * Limpa o cache de memória do TanStack Query
       queryClient.clear();
 
-      // 3. Redireciona para o grupo de rotas públicas (auth), 
-      // destruindo a pilha de navegação das abas privadas.
+      // * Redireciona para o grupo de rotas públicas (auth), que no caso é a tela de login, 
       router.replace('/(auth)'); 
 
     } catch (err: any) {

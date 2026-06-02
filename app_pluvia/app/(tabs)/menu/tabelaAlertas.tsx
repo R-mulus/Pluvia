@@ -8,10 +8,9 @@ import { useAlertas } from "@/hooks/api/useLogs";
 import { colunasAlertas } from ".";
 
 export default function TodosAlertas() {
-  // Pega os dados brutos do cache ou do banco
+  // * Pega TODOS os alertas
   const { data: alertasReais, isPending } = useAlertas();
 
-  // 👉 LÓGICA DE FORMATAÇÃO (Traduz o Banco de Dados para a Tabela Visual)
   const alertasFormatados = useMemo(() => {
     if (!alertasReais) return [];
     
@@ -26,8 +25,7 @@ export default function TodosAlertas() {
         ? log.pivos[0]?.nome_pivo
         : log.pivos?.nome_pivo;
 
-      // 🔥 CORREÇÃO DAS CORES: Apenas 'erro' ou 'falha' assumem o 'perigo' (Vermelho)
-      let corTipo = "info"; // Azul (Padrão para alertas, comandos, etc)
+      let corTipo = "info"; // Azul (alertas, comandos, etc)
       let iconeTipo = "alerta"; // Triângulo (Padrão)
 
       if (log.tipo_evento === "erro" || log.tipo_evento === "falha") {
@@ -36,7 +34,6 @@ export default function TodosAlertas() {
         corTipo = "sucesso"; // Verde
       }
 
-      // Se for um comando manual de irrigação, trocamos o ícone pro da Gotinha pra ficar mais intuitivo
       if (log.tipo_evento === "comando" || log.tipo_evento === "sensor") {
         iconeTipo = "gota";
       }

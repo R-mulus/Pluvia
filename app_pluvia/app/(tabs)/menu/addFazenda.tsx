@@ -67,7 +67,6 @@ export default function CadastrarFazenda() {
   const { data: usuarios, isPending: isLoadingUsuarios, error } = useUsuarios();
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  // O estado agora guarda um objeto genérico baseado na seleção real
   const [selectedProprietario, setSelectedProprietario] = useState<{
     id: string;
     nome: string;
@@ -153,19 +152,13 @@ export default function CadastrarFazenda() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 40, gap: 24 }}
         >
-          {/* ✅ MUDANÇA 1: Header permanece full-width, fora do container centralizado */}
           <Header title="Cadastrar Fazenda" subtitle="AXCP2134HIM" />
 
-          {/*
-           * ✅ MUDANÇA 2: Container central do formulário (Padrão do App).
-           * - No mobile: ocupa 100% da largura.
-           * - Na web: max-w-2xl limita a largura e mx-auto centraliza.
-           * // ! - as veis bota um mt-6 (margin top)
-           */}
+          {/* // ! - as veis bota um mt-6 (margin top) */}
           <View className="w-full web:max-w-2xl web:mx-auto self-center gap-6">
             <View className="gap-4 w-full">
-              
-              {/* === DIALOG DO PROPRIETÁRIO === */}
+
+              {/* // * DIALOG DO PROPRIETÁRIO */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Proprietário</Text>
 
@@ -206,7 +199,7 @@ export default function CadastrarFazenda() {
                     </DialogHeader>
 
                     <View className="h-[240px] bg-popover border-border rounded-md border shadow-md shadow-black/5 px-1 mt-4">
-                      {/* Lógica condicional: Mostrar loading se estiver buscando dados da API */}
+                      
                       {isLoadingUsuarios ? (
                         <View className="flex-1 items-center justify-center">
                           <ActivityIndicator size="large" color="#00A0A6" />
@@ -289,7 +282,7 @@ export default function CadastrarFazenda() {
                 )}
               </View>
 
-              {/* === CÓDIGO === */}
+              {/* // * CÓDIGO */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Código Cadastral</Text>
                 <Controller
@@ -316,7 +309,7 @@ export default function CadastrarFazenda() {
                 )}
               </View>
 
-              {/* === ENDEREÇO === */}
+              {/* // *  ENDEREÇO */}
               <View className="items-start gap-2">
                 <Text className="text-xs">Endereço</Text>
                 <Controller
@@ -338,7 +331,7 @@ export default function CadastrarFazenda() {
                 />
               </View>
 
-              {/* === COORDENADAS (SEPARADAS) === */}
+              {/* // * COORDENADAS (SEPARADAS */}
               {/* [WEB] Substituído w-[48%] por flex-1 para alinhamento fluído e preenchimento perfeito */}
               <View className="flex-row gap-3">
                 <View className="items-start gap-2 flex-1">
@@ -383,7 +376,7 @@ export default function CadastrarFazenda() {
                 </View>
               </View>
 
-              {/* === CIDADE E ESTADO === */}
+              {/* // * CIDADE E ESTADO */}
               {/* [WEB] flex-1 nos containers filhos */}
               <View className="flex-row gap-3">
                 <View className="items-start gap-2 flex-1">
@@ -434,11 +427,17 @@ export default function CadastrarFazenda() {
                 </View>
               </View>
 
-              {/* === ÁREA E CULTURA === */}
+              {/* // * ÁREA E CULTURA */}
               {/* [WEB] flex-1 nos containers filhos */}
               <View className="flex-row gap-3">
                 <View className="items-start gap-2 flex-1">
-                  <Text numberOfLines={1} ellipsizeMode="tail" className="text-xs">Área Total (Hectares)</Text>
+                  <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    className="text-xs"
+                  >
+                    Área Total (Hectares)
+                  </Text>
                   <Controller
                     control={control}
                     name="area_total"
@@ -458,7 +457,11 @@ export default function CadastrarFazenda() {
                   />
                 </View>
                 <View className="items-start gap-2 flex-1">
-                  <Text numberOfLines={1} ellipsizeMode="tail" className="text-xs">
+                  <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    className="text-xs"
+                  >
                     Culturas (Separar por vírgula)
                   </Text>
                   <Controller
@@ -481,7 +484,7 @@ export default function CadastrarFazenda() {
               </View>
             </View>
 
-            {/* === BOTÕES DE AÇÃO === */}
+            {/* // * BOTÕES DE AÇÃO */}
             {/* Mantidos dentro da view web:max-w-2xl para acompanhar a largura do form */}
             <View className="flex-row items-center w-full gap-4 mt-5">
               <Button
@@ -507,7 +510,6 @@ export default function CadastrarFazenda() {
                 )}
               </Button>
             </View>
-            
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
