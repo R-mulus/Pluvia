@@ -1,3 +1,12 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA - TELA EDIT CRONOGRAMA]
+ * * MODIFICAÇÕES REALIZADAS PARA ADAPTAÇÃO WEB E MOBILE:
+ * 1. MUDANÇA DE LISTAS PARA GRID RESPONSIVO: As listas ("Passos" e "Predefinições") foram alteradas para Grids ('flex-row flex-wrap').
+ * 2. LARGURA DINÂMICA: A largura dos cards usa 'getColunas()' com base na tela, indo de 1 coluna (mobile) a 4 colunas (desktop).
+ * 3. INTEGRAÇÃO SETAS HORIZONTAIS: A prop 'isGrid={getColunas() > 1}' é enviada ao PresetCard, fazendo as setas mudarem para Esquerda/Direita na Web.
+ * 4. FEEDBACK VISUAL: Adicionado 'cursor-pointer hover:opacity-80' aos botões para melhor experiência no PC.
+ */
+
 import * as React from "react";
 import { useState, useEffect } from "react";
 import {
@@ -8,6 +17,8 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  useWindowDimensions,
+  DimensionValue
 } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +77,19 @@ export default function EditarCronograma() {
 
   const [eraAtivo, setEraAtivo] = useState(false);
 
+  // [WEB] Lendo a largura da tela para Grid
+  const { width } = useWindowDimensions();
+
+  const getColunas = () => {
+    if (width >= 1650) return 4; 
+    if (width >= 1250) return 3; 
+    if (width >= 870) return 2; 
+    return 1;                   
+  };
+
   const isWeb = Platform.OS === "web";
+  const numColunas = getColunas();
+  const isGridAtivo = numColunas > 1;
 
   // ==================== HANDLERS WEB ====================
 
@@ -189,7 +212,7 @@ export default function EditarCronograma() {
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}>
           <View className="flex-row justify-between mb-6">
             <Header title={nomeCronograma || "Cronograma"} subtitle="Editar Agendamento" />
-            <Pressable onPress={handleSalvar} disabled={isSalvando} className="bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center active:opacity-50">
+            <Pressable onPress={handleSalvar} disabled={isSalvando} className="bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center active:opacity-50 cursor-pointer hover:opacity-80 transition-opacity">
               {isSalvando ? (
                 <ActivityIndicator size="small" color="white" />
               ) : (
@@ -198,10 +221,11 @@ export default function EditarCronograma() {
             </Pressable>
           </View>
 
-          <View className="gap-6 flex-1">
-            <View className="gap-4 bg-white p-4 rounded-[12px] border-[2px] border-secundaria-azul/30">
-              <View className="gap-1">
-                <Text className="text-xs text-subtexto">Nome da Execução</Text>
+          <View className="flex-1">
+            {/* === Dados Básicos === */}
+            <View className="bg-white p-4 rounded-[12px] border-[2px] border-secundaria-azul/30 mb-6">
+              <View className="mb-4">
+                <Text className="text-xs text-subtexto mb-1">Nome da Execução</Text>
                 <Input
                   value={nomeCronograma}
                   onChangeText={setNomeCronograma}
@@ -211,8 +235,10 @@ export default function EditarCronograma() {
               </View>
 
               {/* === DATA E HORA (Web + Mobile) === */}
-              <View className="flex-row gap-4">
-                <View className="flex-1">
+              <View className="flex-row w-full">
+                
+                {/* === DATA === */}
+                <View className="flex-1 pr-2">
                   <Text className="text-xs text-subtexto mb-1">Data de Início</Text>
                   
                   {isWeb ? (
@@ -226,15 +252,15 @@ export default function EditarCronograma() {
                         onChange={handleDateChangeWeb}
                         className="w-full h-12 pl-11 pr-4 rounded-[12px] border border-[#cacaca] bg-white text-base 
                                    focus:outline-none focus:border-primaria-azul focus:ring-2 focus:ring-primaria-azul/20
-                                   transition-all duration-200"
+                                   transition-all duration-200 cursor-pointer"
                       />
                     </View>
                   ) : (
                     <Pressable
                       onPress={() => setPickerConfig("date")}
-                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center gap-2 active:opacity-70"
+                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center active:opacity-70"
                     >
-                      <CalendarClock size={18} color="#00A0A6" />
+                      <CalendarClock size={18} color="#00A0A6" className="mr-2" />
                       <Text className="font-outfit-medium text-texto">
                         {horarioInicio.toLocaleDateString("pt-BR")}
                       </Text>
@@ -242,7 +268,8 @@ export default function EditarCronograma() {
                   )}
                 </View>
 
-                <View className="flex-1">
+                {/* === HORA === */}
+                <View className="flex-1 pl-2">
                   <Text className="text-xs text-subtexto mb-1">Hora de Início</Text>
                   
                   {isWeb ? (
@@ -256,15 +283,15 @@ export default function EditarCronograma() {
                         onChange={handleTimeChangeWeb}
                         className="w-full h-12 pl-11 pr-4 rounded-[12px] border border-[#cacaca] bg-white text-base 
                                    focus:outline-none focus:border-primaria-azul focus:ring-2 focus:ring-primaria-azul/20
-                                   transition-all duration-200"
+                                   transition-all duration-200 cursor-pointer"
                       />
                     </View>
                   ) : (
                     <Pressable
                       onPress={() => setPickerConfig("time")}
-                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center gap-2 active:opacity-70"
+                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center active:opacity-70"
                     >
-                      <Clock size={18} color="#00A0A6" />
+                      <Clock size={18} color="#00A0A6" className="mr-2" />
                       <Text className="font-outfit-medium text-texto">
                         {horarioInicio.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                       </Text>
@@ -274,11 +301,11 @@ export default function EditarCronograma() {
               </View>
             </View>
 
-            {/* Restante do conteúdo permanece igual */}
-            <Separator className="my-2 bg-[#B5B5B5]" decorative />
-
-            <View className="gap-3 mt-2">
-              <Text className="font-outfit-bold text-lg text-primaria-azul">
+            {/* ========================================================= */}
+            {/* GRID: PASSOS DO CRONOGRAMA */}
+            {/* ========================================================= */}
+            <View className="mb-6">
+              <Text className="font-outfit-bold text-lg text-primaria-azul mb-3">
                 Passos do Cronograma
               </Text>
               {passos.length === 0 && (
@@ -286,43 +313,61 @@ export default function EditarCronograma() {
                   Nenhum passo adicionado. Selecione uma predefinição abaixo.
                 </Text>
               )}
-              {passos.map((passo, index) => (
-                <PresetCard 
-                  key={passo.id_temporario}
-                  data={passo.preset}
-                  variant="passo"
-                  stepNumber={index + 1}
-                  isFirst={index === 0}
-                  isLast={index === passos.length - 1}
-                  onMoveUp={() => moverPasso(index, "cima")}
-                  onMoveDown={() => moverPasso(index, "baixo")}
-                  onRemove={() => removerPasso(passo.id_temporario)}
-                />
-              ))}
+              
+              <View className={`flex-row flex-wrap w-full ${isGridAtivo ? '-mx-2' : ''}`}>
+                {passos.map((passo, index) => {
+
+                  return (
+                    <View 
+                        key={passo.id_temporario}
+                        style={{
+                          width: `${100 / numColunas}%` as DimensionValue,
+                        }}
+                        className={`${isGridAtivo ? 'px-2' : ''} mb-4 pb-[2px]`}
+                    >
+                      <PresetCard 
+                        data={passo.preset}
+                        variant="passo"
+                        stepNumber={index + 1}
+                        isFirst={index === 0}
+                        isLast={index === passos.length - 1}
+                        onMoveUp={() => moverPasso(index, "cima")}
+                        onMoveDown={() => moverPasso(index, "baixo")}
+                        onRemove={() => removerPasso(passo.id_temporario)}
+                        isGrid={isGridAtivo}
+                      />
+                    </View>
+                  );
+                })}
+              </View>
             </View>
 
             <Separator className="my-2 bg-[#B5B5B5]" decorative />
 
-            <View className="gap-3 mt-4">
-              <View className="flex-row justify-between items-center">
+            {/* ========================================================= */}
+            {/* GRID: PREDEFINIÇÕES (BIBLIOTECA) */}
+            {/* ========================================================= */}
+            <View className="mt-4">
+              <View className="flex-row justify-between items-center mb-3">
                 <Text className="font-outfit-bold text-lg">
                   Predefinições
                 </Text>
                 <View className="flex-row gap-2">
                   <Pressable
-                    className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end"
-                    onPress={() => router.push("/(tabs)/operacao/presets")}
+                    className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                    onPress={() => router.push({ pathname: "/(tabs)/operacao/presets", params: { pivo_id } })}
                   >
                     <Layers size={24} color="white" strokeWidth={2.5} />
                   </Pressable>
                   <Pressable
-                    className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end"
-                    onPress={() => router.push("/(tabs)/operacao/addPreset")}
+                    className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                    onPress={() => router.push({ pathname: "/(tabs)/operacao/addPreset", params: { pivo_id } })}
                   >
                     <Plus size={24} color="white" strokeWidth={2.5} />
                   </Pressable>
                 </View>
               </View>
+
               {isLoadingPresets ? (
                 <ActivityIndicator size="small" color="#00A0A6" />
               ) : bibliotecaPresets?.length === 0 ? (
@@ -330,16 +375,30 @@ export default function EditarCronograma() {
                   Você não possui predefinições criadas.
                 </Text>
               ) : (
-                bibliotecaPresets?.map((preset) => (
-                  <PresetCard
-                    key={preset.id}
-                    data={preset}
-                    variant="adicionar"
-                    onAdd={() => adicionarPasso(preset)}
-                  />
-                ))
+                <View className={`flex-row flex-wrap w-full ${isGridAtivo ? '-mx-2' : ''}`}>
+                  {bibliotecaPresets?.map((preset) => {
+
+                    return (
+                      <View 
+                          key={preset.id}
+                          style={{
+                            width: `${100 / numColunas}%` as DimensionValue,
+                          }}
+                          className={`${isGridAtivo ? 'px-2' : ''} mb-4 pb-[2px]`}
+                      >
+                        <PresetCard
+                          data={preset}
+                          variant="adicionar"
+                          onAdd={() => adicionarPasso(preset)}
+                          isGrid={isGridAtivo}
+                        />
+                      </View>
+                    );
+                  })}
+                </View>
               )}
             </View>
+
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -1,3 +1,12 @@
+/**
+ * ✅ [PORTABILIDADE WEB CONCLUÍDA - TELA ADD CRONOGRAMA]
+ * * MODIFICAÇÕES REALIZADAS PARA ADAPTAÇÃO WEB E MOBILE:
+ * 1. MUDANÇA DE LISTAS PARA GRID RESPONSIVO: Ambas as listas ("Passos" e "Predefinições") foram alteradas de colunas para Grids (flex-row flex-wrap).
+ * 2. LARGURA DINÂMICA: A largura dos cards agora usa 'getColunas()' com base na tela (1 por linha no mobile, até 4 no desktop).
+ * 3. INTEGRAÇÃO SETAS HORIZONTAIS: A prop 'isGrid={getColunas() > 1}' é enviada para o PresetCard, transformando as setas em Esquerda/Direita quando em tela de PC.
+ * 4. FIX SCROLLVIEW E GAPS: O ScrollView permanece gerenciando tudo. Os 'gap-*' não suportados na Web foram traduzidos para 'mb-4' e '-mx-2' para não quebrar.
+ */
+
 import * as React from "react";
 import { useState } from "react";
 import {
@@ -8,6 +17,8 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
+  useWindowDimensions,
+  DimensionValue,
 } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +61,16 @@ export default function AdicionarCronograma() {
   const [passos, setPassos] = useState<PassoSelecionado[]>([]);
   const [horarioInicio, setHorarioInicio] = useState<Date>(new Date());
   const [pickerConfig, setPickerConfig] = useState<"date" | "time" | null>(null);
+
+  // [WEB] Lendo a largura da tela para Grid
+  const { width } = useWindowDimensions();
+
+  const getColunas = () => {
+    if (width >= 1650) return 4; 
+    if (width >= 1250) return 3; 
+    if (width >= 870) return 2; 
+    return 1;                   
+  };
 
   // ==================== HANDLERS ====================
 
@@ -127,6 +148,8 @@ export default function AdicionarCronograma() {
   // ==================== RENDER ====================
 
   const isWeb = Platform.OS === "web";
+  const numColunas = getColunas();
+  const isGridAtivo = numColunas > 1;
 
   return (
     <Screen>
@@ -134,16 +157,17 @@ export default function AdicionarCronograma() {
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}>
           <View className="flex-row justify-between mb-6">
             <Header title="Novo Cronograma" subtitle="Planejamento de Execução" />
-            <Pressable onPress={handleSalvar} disabled={isCriando} className="bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center active:opacity-50">
+            <Pressable onPress={handleSalvar} disabled={isCriando} className="bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center active:opacity-50 cursor-pointer hover:opacity-80 transition-opacity">
               {isCriando ? <ActivityIndicator size="small" color="white" /> : <Save size={20} color="white" strokeWidth={2.5} />}
             </Pressable>
           </View>
 
-          <View className="gap-6 flex-1">
+          {/* O container interno do formulário foi mantido igual, sem Grid */}
+          <View className="flex-1">
             {/* === Dados Básicos === */}
-            <View className="gap-4 bg-white p-4 rounded-[12px] border-[2px] border-secundaria-azul/30">
-              <View className="gap-1">
-                <Text className="text-xs text-subtexto">Nome da Execução</Text>
+            <View className="bg-white p-4 rounded-[12px] border-[2px] border-secundaria-azul/30 mb-6">
+              <View className="mb-4">
+                <Text className="text-xs text-subtexto mb-1">Nome da Execução</Text>
                 <Input
                   value={nomeCronograma}
                   onChangeText={setNomeCronograma}
@@ -153,11 +177,10 @@ export default function AdicionarCronograma() {
               </View>
 
               {/* === Data e Hora - Web vs Mobile === */}
-              {/* === Data e Hora - Web vs Mobile === */}
-              <View className="flex-row gap-4">
+              <View className="flex-row w-full">
                 
                 {/* === DATA === */}
-                <View className="flex-1">
+                <View className="flex-1 pr-2">
                   <Text className="text-xs text-subtexto mb-1">Data de Início</Text>
                   
                   {isWeb ? (
@@ -177,10 +200,10 @@ export default function AdicionarCronograma() {
                   ) : (
                     <Pressable
                       onPress={() => setPickerConfig("date")}
-                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center gap-2 active:opacity-70"
+                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center active:opacity-70"
                     >
-                      <CalendarClock size={18} color="#00A0A6" />
-                      <Text className="font-outfit-medium text-texto">
+                      <CalendarClock size={18} color="#00A0A6"/>
+                      <Text className="font-outfit-medium text-texto ml-2">
                         {horarioInicio.toLocaleDateString("pt-BR")}
                       </Text>
                     </Pressable>
@@ -188,7 +211,7 @@ export default function AdicionarCronograma() {
                 </View>
 
                 {/* === HORA === */}
-                <View className="flex-1">
+                <View className="flex-1 pl-2">
                   <Text className="text-xs text-subtexto mb-1">Hora de Início</Text>
                   
                   {isWeb ? (
@@ -211,10 +234,10 @@ export default function AdicionarCronograma() {
                   ) : (
                     <Pressable
                       onPress={() => setPickerConfig("time")}
-                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center gap-2 active:opacity-70"
+                      className="bg-bg border-[1px] border-[#cacaca] h-12 px-4 rounded-[12px] flex-row items-center active:opacity-70"
                     >
-                      <Clock size={18} color="#00A0A6" />
-                      <Text className="font-outfit-medium text-texto">
+                      <Clock size={18} color="#00A0A6"/>
+                      <Text className="font-outfit-medium text-texto ml-2">
                         {horarioInicio.toLocaleTimeString("pt-BR", { 
                           hour: "2-digit", 
                           minute: "2-digit" 
@@ -226,8 +249,11 @@ export default function AdicionarCronograma() {
               </View>
             </View>
 
-            <View className="gap-3 mt-2">
-              <Text className="font-outfit-bold text-lg text-primaria-azul">
+            {/* ========================================================= */}
+            {/* GRID: PASSOS DO CRONOGRAMA */}
+            {/* ========================================================= */}
+            <View className="mb-6">
+              <Text className="font-outfit-bold text-lg text-primaria-azul mb-3">
                 Passos do Cronograma
               </Text>
               {passos.length === 0 && (
@@ -235,41 +261,58 @@ export default function AdicionarCronograma() {
                   Nenhum passo adicionado. Selecione uma predefinição abaixo.
                 </Text>
               )}
-              {passos.map((passo, index) => (
-                <PresetCard 
-                  key={passo.id_temporario}
-                  data={passo.preset}
-                  variant="passo"
-                  stepNumber={index + 1}
-                  isFirst={index === 0}
-                  isLast={index === passos.length - 1}
-                  onMoveUp={() => moverPasso(index, "cima")}
-                  onMoveDown={() => moverPasso(index, "baixo")}
-                  onRemove={() => removerPasso(passo.id_temporario)}
-                />
-              ))}
+              
+              {/* [WEB FIX] Container flex wrap para a Grid */}
+              <View className={`flex-row flex-wrap w-full ${isGridAtivo ? '-mx-2' : ''}`}>
+                {passos.map((passo, index) => {
+
+                  return (
+                    <View 
+                        key={passo.id_temporario}
+                        style={{
+                          width: `${100 / numColunas}%` as DimensionValue,
+                        }}
+                        className={`${isGridAtivo ? 'px-2' : ''} mb-4`}
+                    >
+                      <PresetCard 
+                        data={passo.preset}
+                        variant="passo"
+                        stepNumber={index + 1}
+                        isFirst={index === 0}
+                        isLast={index === passos.length - 1}
+                        onMoveUp={() => moverPasso(index, "cima")}
+                        onMoveDown={() => moverPasso(index, "baixo")}
+                        onRemove={() => removerPasso(passo.id_temporario)}
+                        isGrid={isGridAtivo} // Passa para o card saber se usa Left/Right ou Up/Down
+                      />
+                    </View>
+                  );
+                })}
+              </View>
             </View>
 
-            <View className="gap-3 mt-4">
-              <View className="flex-row justify-between items-center">
+            {/* ========================================================= */}
+            {/* GRID: PREDEFINIÇÕES (BIBLIOTECA) */}
+            {/* ========================================================= */}
+            <View className="mt-2">
+              <View className="flex-row justify-between items-center mb-3">
                 <Text className="font-outfit-bold text-lg">Predefinições</Text>
                 <View className="flex-row gap-2">
                   <Pressable
-                    className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end"
-                    // 👉 CORREÇÃO AQUI: Passando o pivo_id para a lista
+                    className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                     onPress={() => router.push({ pathname: "/(tabs)/operacao/presets", params: { pivo_id } })}
                   >
                     <Layers size={24} color="white" strokeWidth={2.5} />
                   </Pressable>
                   <Pressable
-                    className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center self-end"
-                    // 👉 CORREÇÃO AQUI: Passando o pivo_id para o form
+                    className="active:opacity-50 bg-primaria-azul rounded-[12px] w-[40px] h-[40px] items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                     onPress={() => router.push({ pathname: "/(tabs)/operacao/addPreset", params: { pivo_id } })}
                   >
                     <Plus size={24} color="white" strokeWidth={2.5} />
                   </Pressable>
                 </View>
               </View>
+
               {isLoadingPresets ? (
                 <ActivityIndicator size="small" color="#00A0A6" />
               ) : bibliotecaPresets?.length === 0 ? (
@@ -277,16 +320,31 @@ export default function AdicionarCronograma() {
                   Você não possui predefinições criadas.
                 </Text>
               ) : (
-                bibliotecaPresets?.map((preset) => (
-                  <PresetCard
-                    key={preset.id}
-                    data={preset}
-                    variant="adicionar"
-                    onAdd={() => adicionarPasso(preset)}
-                  />
-                ))
+                <View className={`flex-row flex-wrap w-full ${isGridAtivo ? '-mx-2' : ''}`}>
+                  {bibliotecaPresets?.map((preset) => {
+                    const larguraColuna = `${100 / numColunas}%`;
+
+                    return (
+                      <View 
+                          key={preset.id}
+                          style={{
+                            width: `${100 / numColunas}%` as DimensionValue,
+                          }}
+                          className={`${isGridAtivo ? 'px-2' : ''} mb-4`}
+                      >
+                        <PresetCard
+                          data={preset}
+                          variant="adicionar"
+                          onAdd={() => adicionarPasso(preset)}
+                          isGrid={isGridAtivo}
+                        />
+                      </View>
+                    );
+                  })}
+                </View>
               )}
             </View>
+
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -313,7 +371,3 @@ export default function AdicionarCronograma() {
     </Screen>
   );
 }
-
-
-
-
