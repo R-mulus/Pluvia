@@ -26,7 +26,12 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Perfil from "@/app/(tabs)/perfil";
 import Notificacoes from "@/components/custom/Notification";
 
+import { setupGlobalAlert } from "@/utils/alertPolyfill";
+
 SplashScreen.preventAutoHideAsync();
+
+// ! solucionando o problema dos alerts não funcionarem na web 
+setupGlobalAlert();
 
 // ! O cliente do Tanstack Query é criado fora do componente para não ser recriado a cada renderização
 const queryClient = new QueryClient();
