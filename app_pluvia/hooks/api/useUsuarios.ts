@@ -19,4 +19,17 @@ export function useCriarUsuario() {
       queryClient.invalidateQueries({ queryKey: ['usuarios'] });
     },
   });
+  
+}
+
+export function useDeletarUsuario() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // 👇 Certifique-se de que no seu usuarios.service.ts exista a função deletarUsuario(id)
+    mutationFn: (id: string) => usuariosService.deletar(id), 
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] });
+    },
+  });
 }
