@@ -1,0 +1,11 @@
+{
+	"name": "pluvia",
+	"private": true,
+	"scripts": {
+		"dev": "concurrently \"pnpm --filter ./frontend/app_pluvia dev\" \"pnpm --filter ./backend dev\""
+	},
+	"devDependencies": {
+		"concurrently": "^10.0.4"
+	}
+}
+

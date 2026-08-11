@@ -1,0 +1,8 @@
+packages:
+  - 'frontend/app_pluvia'
+  - 'backend'
+  - 'shared'
+allowBuilds:
+  '@serialport/bindings-cpp': true
+  esbuild: true
+  unrs-resolver: false
