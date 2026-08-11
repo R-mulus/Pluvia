@@ -16,8 +16,6 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, "node_modules"),
 ];
 
-config.resolver.disableHierarchicalLookup = true;
-
 // 3. Aplica o NativeWind em cima do config já ajustado para o monorepo
 module.exports = withNativeWind(config, { 
   input: "./global.css",
