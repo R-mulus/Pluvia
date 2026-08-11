@@ -1,0 +1,48 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Backend",
+            "type": "shell",
+            "command": "pnpm dev",
+            "options": {
+                "cwd": "${workspaceFolder}/backend"
+            },
+            "icon": {
+                "id": "server",
+                "color": "terminal.ansiRed"
+            },
+            "presentation": {
+                "panel": "new",
+                "reveal": "always"
+            },
+            "isBackground": true
+        },
+        {
+            "label": "Frontend",
+            "type": "shell",
+            "command": "pnpm dev",
+            "options": {
+                "cwd": "${workspaceFolder}/frontend/app_pluvia"
+            },
+            "icon": {
+                "id": "device-mobile",
+                "color": "terminal.ansiYellow"
+            },
+            "presentation": {
+                "panel": "new",
+                "reveal": "always"
+            },
+            "isBackground": true
+        },
+        {
+            "label": "Iniciar Servidores",
+            "dependsOn": [
+                "Frontend",
+                "Backend"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": []
+        }
+    ]
+}

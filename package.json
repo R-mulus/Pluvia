@@ -8,6 +8,8 @@
 	],
 	"scripts": {
 		"dev": "concurrently \"npm run dev -w app_pluvia\" \"npm run dev -w pluvia-backend\"",
+		"start-back": "npm run dev -w pluvia-backend",
+		"start-front": "npm run dev -w app_pluvia",
 		"update-types": "npm run update-types -w @pluvia/shared"
 	},
 	"devDependencies": {
